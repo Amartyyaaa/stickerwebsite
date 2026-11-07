@@ -1,0 +1,1396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>PrintYourVibe Themes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@500;700&family=Figtree:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Instrument+Sans:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: a quiet picker (style cards + sticky switcher) above a stage that renders one storefront skin inside a browser frame or a phone frame. */
+:root {
+  --c-bg: #F3F3F0;
+  --c-surface: #FFFFFF;
+  --c-fg: #19191C;
+  --c-muted: #5D5D66;
+  --c-line: #DCDCD6;
+  --c-focus: #2F6BFF;
+  --c-device: #1C1C1F;
+  --f-ui: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-bg: #111113; --c-surface: #1B1B1E; --c-fg: #ECECEF; --c-muted: #A2A2AC; --c-line: #2E2E34; --c-focus: #82A6FF; --c-device: #34343A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --c-bg: #111113; --c-surface: #1B1B1E; --c-fg: #ECECEF; --c-muted: #A2A2AC; --c-line: #2E2E34; --c-focus: #82A6FF; --c-device: #34343A;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { background: var(--c-bg); color: var(--c-fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 40; background: var(--c-bg); }
+button { font: inherit; color: inherit; }
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* ===== Picker chrome ===== */
+.chrome { max-width: 1320px; margin-inline: auto; padding-block: 28px 18px; display: grid; gap: 20px; }
+.intro { display: grid; gap: 8px; }
+.kicker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--c-muted); }
+.kicker span { padding: 2px 9px; border: 1px solid var(--c-line); border-radius: 999px; font-weight: 600; letter-spacing: .02em; text-transform: none; }
+.intro h1 { margin: 0; font-size: clamp(28px, 4vw, 42px); line-height: 1.08; letter-spacing: -0.025em; font-weight: 700; text-wrap: balance; }
+.intro p { margin: 0; max-width: 66ch; color: var(--c-muted); font-size: 15.5px; }
+.picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 960px) { .picker { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pick { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 8px; align-content: start; min-width: 0; padding: 14px 14px 16px; border-radius: 14px; background: var(--c-surface); border: 1.5px solid var(--c-line); transition: border-color .15s, box-shadow .15s; }
+.pick:hover { border-color: var(--c-muted); }
+.pick[aria-pressed="true"] { border-color: var(--c-fg); box-shadow: inset 0 0 0 1.5px var(--c-fg); }
+.pick:focus-visible { outline: 3px solid var(--c-focus); outline-offset: 2px; }
+.pick-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.swatches { display: flex; }
+.swatches i { width: 22px; height: 22px; border-radius: 50%; background: var(--s); border: 2px solid var(--c-surface); margin-left: -6px; }
+.swatches i:first-child { margin-left: 0; }
+.pick-state { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; color: var(--c-muted); }
+.pick[aria-pressed="true"] .pick-state { color: var(--c-fg); }
+.pick-name { font-size: 22px; line-height: 1.1; color: var(--c-fg); }
+.f-pop { font-family: "Bricolage Grotesque", "Arial Black", sans-serif; font-weight: 800; letter-spacing: -0.03em; }
+.f-neon { font-family: "Anton", Impact, sans-serif; text-transform: uppercase; letter-spacing: .01em; font-size: 24px; }
+.f-gallery { font-family: "Fraunces", Georgia, serif; font-weight: 400; letter-spacing: -0.02em; font-size: 23px; }
+.f-scrap { font-family: "Caveat", cursive; font-weight: 700; font-size: 31px; line-height: .95; }
+.pick-desc { font-size: 13.5px; color: var(--c-muted); }
+.pick-meta { display: grid; gap: 2px; padding-top: 8px; border-top: 1px dashed var(--c-line); font-size: 12px; color: var(--c-muted); }
+.pick-meta b { color: var(--c-fg); font-weight: 600; }
+@media (max-width: 560px) { .pick-meta { display: none; } .pick { padding: 12px; } .pick-desc { font-size: 12.5px; } }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: color-mix(in srgb, var(--c-bg) 90%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-block: 1px solid var(--c-line); }
+.bar-inner { max-width: 1320px; margin-inline: auto; display: flex; align-items: center; gap: 12px; padding-block: 10px; }
+.tabs { display: flex; gap: 6px; flex: 1 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: none; display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border: 1.5px solid var(--c-line); border-radius: 999px; background: var(--c-surface); font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+.tab .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--s); box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+.tab[aria-selected="true"] { background: var(--c-fg); color: var(--c-bg); border-color: var(--c-fg); }
+.tab:focus-visible, .views button:focus-visible { outline: 3px solid var(--c-focus); outline-offset: 2px; }
+.views { flex: none; display: inline-flex; padding: 2px; border: 1.5px solid var(--c-line); border-radius: 999px; background: var(--c-surface); }
+.views button { border: 0; background: none; padding: 5px 13px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--c-muted); cursor: pointer; }
+.views button[aria-pressed="true"] { background: var(--c-fg); color: var(--c-bg); }
+@media (max-width: 640px) { .views { display: none; } }
+
+.howto { max-width: 1320px; margin-inline: auto; padding-block: 4px 44px; display: grid; gap: 6px; font-size: 14.5px; color: var(--c-muted); }
+.howto p { margin: 0; max-width: 72ch; }
+.howto strong { color: var(--c-fg); }
+
+/* ===== Stage & frames ===== */
+.stage { padding-block: 18px 32px; }
+.device { position: relative; max-width: 1320px; margin-inline: auto; background: var(--c-surface); border: 1px solid var(--c-line); border-radius: 16px; overflow: clip; box-shadow: 0 24px 60px -30px rgba(0,0,0,.4); }
+.browserbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--c-surface); border-bottom: 1px solid var(--c-line); }
+.browserbar .dots { display: flex; gap: 6px; flex: none; }
+.browserbar .dots i { width: 11px; height: 11px; border-radius: 50%; background: var(--c-line); }
+.browserbar .url { flex: 1; max-width: 460px; margin-inline: auto; padding: 5px 12px; border-radius: 8px; background: var(--c-bg); font-size: 12.5px; color: var(--c-muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.browserbar .spacer { width: 45px; flex: none; }
+.stage[data-view="phone"] .device { display: flex; flex-direction: column; width: 392px; max-width: 100%; height: min(820px, calc(100vh - 140px)); min-height: 560px; border: 11px solid var(--c-device); border-radius: 46px; transform: translateZ(0); }
+.stage[data-view="phone"] .browserbar { display: none; }
+.stage[data-view="phone"] .shop { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.stage[data-view="phone"] .hdr { position: sticky; top: 0; }
+@media (max-width: 640px) {
+  .stage.gutter { padding-left: 0; padding-right: 0; padding-block: 0 20px; }
+  .device { border-radius: 0; border-left: 0; border-right: 0; box-shadow: none; }
+  .browserbar { display: none; }
+}
+
+/* ===== Skins: every colour of the mock store comes from these tokens ===== */
+[data-skin="pop"] {
+  --bg: #FFF8E7; --surface: #FFFFFF; --ink: #111111; --muted: #4A4740; --line: #111111;
+  --accent: #FFD23F; --accent2: #FF5DA2; --accent3: #3D7BFF;
+  --f-display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif; --f-body: "Figtree", system-ui, sans-serif;
+  --d-weight: 800; --d-case: none; --d-track: -0.035em;
+  --radius: 18px; --radius-sm: 12px; --opt-radius: 12px; --panel-radius: 16px;
+  --card-bg: #FFFFFF; --card-border: 3px solid #111111; --media-sep: 3px solid #111111;
+  --shadow: 5px 5px 0 #111111; --shadow-hover: 8px 8px 0 #111111;
+  --announce-bg: #111111; --announce-fg: #FFD23F;
+  --header-bg: #FFF8E7; --header-border: 3px solid #111111; --nav-hover: #FFE98F;
+  --search-bg: #FFFFFF; --search-border: 3px solid #111111; --ring: #FF5DA2;
+  --count-bg: #FF5DA2; --count-fg: #111111;
+  --btn-radius: 999px; --btn-border: 3px solid #111111; --btn-bg: #FFD23F; --btn-fg: #111111; --btn-shadow: 4px 4px 0 #111111;
+  --ghost-bg: #FFFFFF; --ghost-fg: #111111; --ghost-border: 3px solid #111111; --ghost-shadow: 4px 4px 0 #111111;
+  --eyebrow: #111111;
+  --chip-bg: #FFFFFF; --chip-border: 2.5px solid #111111; --chip-radius: 999px; --chip-on-bg: #FF5DA2; --chip-on-fg: #111111; --chip-on-border: #111111; --chip-on-shadow: 3px 3px 0 #111111;
+  --price: #111111; --badge-bg: #2BD47D; --badge-fg: #111111; --badge-border: 2.5px solid #111111;
+  --wish-bg: #FFFFFF; --wish-border: 2.5px solid #111111;
+  --panel-border: 3px solid #111111; --panel-shadow: 6px 6px 0 #111111;
+  --pack-bg: #FF5DA2; --pack-fg: #111111; --tier-bg: #FFFFFF; --tier-border: 3px solid #111111;
+  --foot-bg: #111111; --foot-fg: #FFF8E7; --foot-line: #3A3A3A; --foot-muted: #C9C3B4;
+  --bnav-bg: #FFF8E7; --bnav-border: 3px solid #111111;
+  --fab-bg: #2BD47D; --fab-fg: #111111; --fab-border: 3px solid #111111; --fab-shadow: 3px 3px 0 #111111;
+  --label-bg: #111111; --label-fg: #FFF8E7;
+  --focus: #3D7BFF; --trust-icon: #111111; --media-bg: #FFFFFF; --ok: #0E7A38; --err: #C2183F;
+}
+[data-skin="neon"] {
+  --bg: #0B0B12; --surface: #15151F; --ink: #F5F5F7; --muted: #A3A3BA; --line: #2A2A3D;
+  --accent: #C6FF3D; --accent2: #FF2E4D; --accent3: #8B5CFF;
+  --f-display: "Anton", Impact, "Arial Narrow", sans-serif; --f-body: "Barlow", system-ui, sans-serif;
+  --d-weight: 400; --d-case: uppercase; --d-track: 0.005em;
+  --radius: 6px; --radius-sm: 4px; --opt-radius: 2px; --panel-radius: 6px;
+  --card-bg: #15151F; --card-border: 1px solid #2A2A3D; --media-sep: 1px solid #2A2A3D;
+  --shadow: none; --shadow-hover: 0 0 0 1px #C6FF3D, 0 0 30px rgba(198,255,61,.22);
+  --announce-bg: #C6FF3D; --announce-fg: #0B0B12;
+  --header-bg: #0B0B12; --header-border: 1px solid #2A2A3D; --nav-hover: #1C1C2A;
+  --search-bg: #15151F; --search-border: 1px solid #2A2A3D; --ring: rgba(198,255,61,.45);
+  --count-bg: #FF2E4D; --count-fg: #FFFFFF;
+  --btn-radius: 2px; --btn-border: 0; --btn-bg: #C6FF3D; --btn-fg: #0B0B12; --btn-shadow: 0 0 26px rgba(198,255,61,.22);
+  --ghost-bg: transparent; --ghost-fg: #F5F5F7; --ghost-border: 1px solid #3A3A52; --ghost-shadow: none;
+  --eyebrow: #C6FF3D;
+  --chip-bg: transparent; --chip-border: 1px solid #33334A; --chip-radius: 2px; --chip-on-bg: rgba(198,255,61,.1); --chip-on-fg: #C6FF3D; --chip-on-border: #C6FF3D; --chip-on-shadow: 0 0 18px rgba(198,255,61,.2);
+  --price: #C6FF3D; --badge-bg: #FF2E4D; --badge-fg: #FFFFFF; --badge-border: 0;
+  --wish-bg: rgba(11,11,18,.75); --wish-border: 1px solid #33334A;
+  --panel-border: 1px solid #33334A; --panel-shadow: 0 30px 60px rgba(0,0,0,.55);
+  --pack-bg: #121220; --pack-fg: #F5F5F7; --tier-bg: #0B0B12; --tier-border: 1px solid #C6FF3D;
+  --foot-bg: #07070C; --foot-fg: #E3E3EC; --foot-line: #24243A; --foot-muted: #9090A8;
+  --bnav-bg: #0B0B12; --bnav-border: 1px solid #2A2A3D;
+  --fab-bg: #C6FF3D; --fab-fg: #0B0B12; --fab-border: 0; --fab-shadow: 0 0 26px rgba(198,255,61,.35);
+  --label-bg: #C6FF3D; --label-fg: #0B0B12;
+  --focus: #2DE2E6; --trust-icon: #C6FF3D; --media-bg: #15151F; --ok: #C6FF3D; --err: #FF6B81;
+}
+[data-skin="gallery"] {
+  --bg: #FFFFFF; --surface: #FFFFFF; --ink: #141414; --muted: #67655F; --line: #E6E3DC;
+  --accent: #141414; --accent2: #E4572E; --accent3: #E4572E;
+  --f-display: "Fraunces", Georgia, "Times New Roman", serif; --f-body: "Instrument Sans", system-ui, sans-serif;
+  --d-weight: 400; --d-case: none; --d-track: -0.02em;
+  --radius: 0px; --radius-sm: 0px; --opt-radius: 0px; --panel-radius: 0px;
+  --card-bg: transparent; --card-border: 0; --media-sep: 0;
+  --shadow: none; --shadow-hover: none;
+  --announce-bg: #F3F2EE; --announce-fg: #141414;
+  --header-bg: #FFFFFF; --header-border: 1px solid #E6E3DC; --nav-hover: transparent;
+  --search-bg: #F3F2EE; --search-border: 1px solid transparent; --ring: rgba(20,20,20,.14);
+  --count-bg: #141414; --count-fg: #FFFFFF;
+  --btn-radius: 0px; --btn-border: 1px solid #141414; --btn-bg: #141414; --btn-fg: #FFFFFF; --btn-shadow: none;
+  --ghost-bg: transparent; --ghost-fg: #141414; --ghost-border: 1px solid #141414; --ghost-shadow: none;
+  --eyebrow: #67655F;
+  --chip-bg: transparent; --chip-border: 1px solid #DDD9D0; --chip-radius: 999px; --chip-on-bg: #141414; --chip-on-fg: #FFFFFF; --chip-on-border: #141414; --chip-on-shadow: none;
+  --price: #141414; --badge-bg: #FFFFFF; --badge-fg: #141414; --badge-border: 0;
+  --wish-bg: #FFFFFF; --wish-border: 0;
+  --panel-border: 1px solid #E6E3DC; --panel-shadow: 0 24px 50px -20px rgba(0,0,0,.2);
+  --pack-bg: #F3F2EE; --pack-fg: #141414; --tier-bg: #FFFFFF; --tier-border: 1px solid #E0DDD5;
+  --foot-bg: #F3F2EE; --foot-fg: #141414; --foot-line: #E0DDD5; --foot-muted: #67655F;
+  --bnav-bg: #FFFFFF; --bnav-border: 1px solid #E6E3DC;
+  --fab-bg: #141414; --fab-fg: #FFFFFF; --fab-border: 0; --fab-shadow: 0 10px 24px rgba(0,0,0,.2);
+  --label-bg: #F3F2EE; --label-fg: #141414;
+  --focus: #E4572E; --trust-icon: #E4572E; --media-bg: #F3F2EE; --ok: #2F6B3F; --err: #B3261E;
+}
+[data-skin="scrap"] {
+  --bg: #FFF7F0; --surface: #FFFFFF; --ink: #3B2F4A; --muted: #6E6280; --line: #EADCF1;
+  --accent: #C9B6FF; --accent2: #F47C93; --accent3: #7A64A8;
+  --f-display: "Caveat", "Segoe Print", cursive; --f-body: "Nunito", system-ui, sans-serif;
+  --d-weight: 700; --d-case: none; --d-track: 0;
+  --radius: 8px; --radius-sm: 14px; --opt-radius: 999px; --panel-radius: 16px;
+  --card-bg: #FFFFFF; --card-border: 0; --media-sep: 0;
+  --shadow: 0 8px 22px -6px rgba(59,47,74,.2); --shadow-hover: 0 14px 30px -8px rgba(59,47,74,.28);
+  --announce-bg: #C9B6FF; --announce-fg: #3B2F4A;
+  --header-bg: #FFF7F0; --header-border: 2px dashed #E3D3EE; --nav-hover: #F3EDFF;
+  --search-bg: #FFFFFF; --search-border: 2px solid #EADCF1; --ring: rgba(201,182,255,.6);
+  --count-bg: #FFB4A2; --count-fg: #3B2F4A;
+  --btn-radius: 999px; --btn-border: 0; --btn-bg: #C9B6FF; --btn-fg: #3B2F4A; --btn-shadow: 0 4px 0 #A794E8;
+  --ghost-bg: #FFFFFF; --ghost-fg: #3B2F4A; --ghost-border: 2px solid #EADCF1; --ghost-shadow: none;
+  --eyebrow: #7A64A8;
+  --chip-bg: #FFFFFF; --chip-border: 2px solid #EADCF1; --chip-radius: 999px; --chip-on-bg: #FFE08A; --chip-on-fg: #3B2F4A; --chip-on-border: #EFC75E; --chip-on-shadow: none;
+  --price: #3B2F4A; --badge-bg: #A8E6CF; --badge-fg: #3B2F4A; --badge-border: 0;
+  --wish-bg: #FFFFFF; --wish-border: 0;
+  --panel-border: 2px solid #EADCF1; --panel-shadow: 0 20px 40px -12px rgba(59,47,74,.25);
+  --pack-bg: #A8E6CF; --pack-fg: #3B2F4A; --tier-bg: #FFFFFF; --tier-border: 2px dashed #7FCFB1;
+  --foot-bg: #3B2F4A; --foot-fg: #FFF7F0; --foot-line: #574967; --foot-muted: #D4C9E2;
+  --bnav-bg: #FFF7F0; --bnav-border: 2px dashed #E3D3EE;
+  --fab-bg: #A8E6CF; --fab-fg: #3B2F4A; --fab-border: 0; --fab-shadow: 0 6px 16px rgba(59,47,74,.22);
+  --label-bg: #FFE08A; --label-fg: #3B2F4A;
+  --focus: #7A64A8; --trust-icon: #F47C93; --media-bg: #FFFFFF; --ok: #22744F; --err: #B4234F;
+}
+
+/* ===== Mock store base ===== */
+.shop { container: shop / inline-size; position: relative; overflow-x: clip; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+[data-skin="scrap"] .shop { background-image: radial-gradient(rgba(59,47,74,.13) 1.1px, transparent 1.5px); background-size: 20px 20px; }
+[data-skin="neon"] .shop { background-image: radial-gradient(60% 34% at 88% 0%, rgba(139,92,255,.2), transparent 70%); background-repeat: no-repeat; }
+.shop h1, .shop h2, .shop h3, .shop p, .shop ul, .shop fieldset, .drawer ul, .drawer p { margin: 0; }
+.shop ul, .drawer ul { padding: 0; list-style: none; }
+.shop button, .drawer button { cursor: pointer; font-family: inherit; }
+.s-wrap { max-width: 1240px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+@container shop (min-width: 720px) { .s-wrap { padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); } }
+.disp { font-family: var(--f-display); font-weight: var(--d-weight); text-transform: var(--d-case); letter-spacing: var(--d-track); line-height: 1.02; text-wrap: balance; }
+[data-skin="scrap"] .disp { line-height: .95; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.eyebrow { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--eyebrow); }
+[data-skin="scrap"] .eyebrow { font-family: var(--f-display); font-size: 24px; letter-spacing: 0; text-transform: none; font-weight: 700; }
+[data-skin="gallery"] .eyebrow { font-weight: 600; letter-spacing: .14em; font-size: 12px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 22px; border: var(--btn-border); border-radius: var(--btn-radius); background: var(--btn-bg); color: var(--btn-fg); box-shadow: var(--btn-shadow); font-family: var(--f-body); font-weight: 800; font-size: 15px; white-space: nowrap; transition: transform .12s ease, box-shadow .12s ease, background-color .15s, border-color .15s, color .15s; }
+.btn svg { width: 18px; height: 18px; }
+.btn-ghost { background: var(--ghost-bg); color: var(--ghost-fg); border: var(--ghost-border); box-shadow: var(--ghost-shadow); }
+.btn-sm { min-height: 40px; padding: 0 16px; font-size: 14px; }
+[data-skin="pop"] .btn:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0 #111111; }
+[data-skin="pop"] .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 #111111; }
+[data-skin="neon"] .btn { text-transform: uppercase; letter-spacing: .08em; font-weight: 700; font-size: 14px; }
+[data-skin="neon"] .btn-primary { clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); padding: 0 30px; }
+[data-skin="neon"] .btn-primary:hover { background: #D9FF7A; }
+[data-skin="neon"] .btn-ghost:hover { border-color: #C6FF3D; color: #C6FF3D; }
+[data-skin="gallery"] .btn { font-weight: 600; letter-spacing: .01em; }
+[data-skin="gallery"] .btn-primary:hover { background: #3A3A3A; }
+[data-skin="gallery"] .btn-ghost:hover { background: #141414; color: #FFFFFF; }
+[data-skin="scrap"] .btn-primary { outline: 2px dashed rgba(59,47,74,.32); outline-offset: -6px; }
+[data-skin="scrap"] .btn-primary:active { transform: translateY(3px); box-shadow: 0 1px 0 #A794E8; }
+[data-skin="scrap"] .btn-ghost:hover { border-color: #C9B6FF; }
+
+/* Announcement + header */
+.announce { background: var(--announce-bg); color: var(--announce-fg); font-size: 13px; font-weight: 800; }
+.announce .s-wrap { display: flex; justify-content: center; gap: 14px; padding-block: 8px; white-space: nowrap; overflow: hidden; }
+.announce i { font-style: normal; opacity: .55; }
+[data-skin="neon"] .announce { text-transform: uppercase; letter-spacing: .1em; font-size: 12px; }
+[data-skin="gallery"] .announce { font-weight: 500; }
+@container shop (max-width: 719px) { .announce span:not(:first-child), .announce i { display: none; } }
+.hdr { position: relative; z-index: 10; background: var(--header-bg); border-bottom: var(--header-border); }
+.hdr > .s-wrap { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(190px, 300px) auto; grid-template-areas: "logo nav search icons"; align-items: center; gap: 16px; padding-block: 12px; }
+.menu-btn { grid-area: menu; display: none !important; }
+.logo { grid-area: logo; justify-self: start; border: 0; background: none; padding: 0; color: var(--ink); font-family: var(--f-display); font-weight: var(--d-weight); text-transform: var(--d-case); letter-spacing: var(--d-track); font-size: 23px; line-height: 1; white-space: nowrap; }
+.logo svg { width: .75em; height: .75em; vertical-align: -0.05em; margin-left: 3px; }
+[data-skin="pop"] .logo { color: #111111; background: #FFD23F; border: 3px solid #111111; border-radius: 12px; padding: 6px 12px 7px; box-shadow: 3px 3px 0 #111111; transform: rotate(-2deg); font-size: 20px; }
+[data-skin="neon"] .logo { font-size: 25px; letter-spacing: .02em; }
+[data-skin="neon"] .logo b { color: #C6FF3D; font-weight: 400; margin-right: 2px; }
+[data-skin="gallery"] .logo { font-size: 25px; font-weight: 500; }
+[data-skin="scrap"] .logo { font-size: 32px; }
+[data-skin="scrap"] .logo svg { color: #F47C93; fill: currentColor; }
+.nav { grid-area: nav; display: flex; gap: 2px; min-width: 0; }
+.nav-link { display: inline-flex; align-items: center; gap: 4px; padding: 8px 10px; border: 0; border-radius: var(--btn-radius); background: none; color: var(--ink); font-weight: 700; font-size: 14.5px; white-space: nowrap; }
+.nav-link:hover { background: var(--nav-hover); }
+.nav-link .chev { width: 15px; height: 15px; transition: transform .15s; }
+.nav-item:hover .chev, .nav-item:focus-within .chev { transform: rotate(180deg); }
+[data-skin="neon"] .nav-link { text-transform: uppercase; letter-spacing: .07em; font-size: 13.5px; font-weight: 600; }
+[data-skin="gallery"] .nav-link { font-weight: 500; }
+[data-skin="gallery"] .nav-link:hover { text-decoration: underline; text-underline-offset: 5px; }
+@container shop (max-width: 1080px) { .nav .n-more { display: none; } }
+@container shop (max-width: 900px) { .nav .n-custom { display: none; } }
+.mega { display: none; position: absolute; left: 28px; right: 28px; top: calc(100% - 4px); z-index: 20; grid-template-columns: 1fr 1fr 1.15fr; gap: 28px; padding: 22px 24px; background: var(--surface); color: var(--ink); border: var(--panel-border); border-radius: var(--panel-radius); box-shadow: var(--panel-shadow); }
+.nav-item:hover .mega, .nav-item:focus-within .mega { display: grid; }
+.mega-h { margin-bottom: 8px !important; font-size: 12px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.mega ul { display: grid; gap: 1px; }
+.mlink { padding: 5px 0; border: 0; background: none; color: var(--ink); font-weight: 600; font-size: 15px; text-align: left; }
+.mlink:hover { text-decoration: underline; text-underline-offset: 4px; }
+.mega-feat { display: grid; gap: 4px; align-content: start; padding: 16px; background: var(--media-bg); border-radius: var(--radius-sm); }
+[data-skin="pop"] .mega-feat { background: #FFF1B8; border: 3px solid #111111; }
+[data-skin="scrap"] .mega-feat { background: #F3EDFF; }
+.mega-art { height: 120px; display: grid; place-items: center; }
+.mega-art svg { height: 100%; width: auto; }
+.mega-feat-t { font-weight: 800; font-size: 16px; }
+.mega-feat-s { font-size: 14px; color: var(--muted); }
+.search { grid-area: search; position: relative; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; background: var(--search-bg); border: var(--search-border); border-radius: var(--btn-radius); }
+[data-skin="gallery"] .search { border-radius: 999px; }
+.search > svg { width: 18px; height: 18px; flex: none; color: var(--muted); }
+.search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: 14.5px; }
+.search input::placeholder { color: var(--muted); opacity: 1; }
+.search input::-webkit-search-cancel-button { display: none; }
+.search:focus-within { box-shadow: 0 0 0 3px var(--ring); }
+.suggest { display: none; position: absolute; left: -3px; right: -3px; top: calc(100% + 8px); z-index: 25; padding: 8px; background: var(--surface); border: var(--panel-border); border-radius: var(--panel-radius); box-shadow: var(--panel-shadow); }
+.search:focus-within .suggest { display: grid; }
+.sg-h { padding: 4px 8px; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.sg { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border: 0; border-radius: 8px; background: none; color: var(--ink); font-size: 14.5px; font-weight: 600; text-align: left; }
+.sg:hover { background: var(--nav-hover); }
+.sg svg { width: 16px; height: 16px; color: var(--muted); }
+.hdr-icons { grid-area: icons; display: flex; gap: 2px; }
+.icon-btn { position: relative; display: inline-grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: var(--btn-radius); background: none; color: var(--ink); }
+.icon-btn svg { width: 22px; height: 22px; }
+.icon-btn:hover { background: var(--nav-hover); }
+.count { position: absolute; top: 1px; right: -1px; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--count-bg); color: var(--count-fg); font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums; }
+@container shop (max-width: 719px) {
+  .hdr > .s-wrap { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "menu logo icons" "search search search"; gap: 10px 6px; padding-block: 10px 12px; }
+  .menu-btn { display: inline-grid !important; }
+  .nav, .hdr-icons .hide-sm { display: none; }
+  .logo { font-size: 20px; } [data-skin="pop"] .logo { font-size: 17px; } [data-skin="scrap"] .logo { font-size: 28px; } [data-skin="neon"] .logo { font-size: 22px; }
+}
+
+/* Hero */
+.hero > .s-wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; gap: 36px; padding-block: 52px 44px; }
+.hero-title { margin-block: 12px 16px !important; font-size: clamp(42px, 6.6cqi, 84px); }
+[data-skin="neon"] .hero-title { font-size: clamp(50px, 8cqi, 108px); line-height: .92; }
+[data-skin="scrap"] .hero-title { font-size: clamp(58px, 8.6cqi, 112px); line-height: .88; }
+[data-skin="gallery"] .hero-title { font-size: clamp(40px, 5.4cqi, 72px); line-height: 1.04; }
+[data-skin="gallery"] .hero-title em { font-style: italic; color: #E4572E; }
+.hero-title mark { display: inline-block; margin-inline: .03em; padding: 0 .14em .04em; background: #FFD23F; color: inherit; border: 3px solid #111111; border-radius: 12px; box-shadow: 4px 4px 0 #111111; transform: rotate(-3deg); line-height: 1; }
+.hero-sub { max-width: 44ch; font-size: 17px; color: var(--muted); }
+.hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.trust { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 24px !important; font-size: 13.5px; font-weight: 700; color: var(--muted); }
+.trust li { display: inline-flex; align-items: center; gap: 6px; }
+.trust svg { width: 17px; height: 17px; color: var(--trust-icon); }
+.hero-art { position: relative; width: 100%; max-width: 560px; justify-self: center; aspect-ratio: 1 / .92; }
+.ha { position: absolute; }
+.ha > svg { display: block; width: 100%; height: auto; }
+.ha.glow > svg { filter: drop-shadow(0 0 34px rgba(198,255,61,.24)); }
+.stripes { position: absolute; inset: 8% -8% 12% 26%; background: repeating-linear-gradient(115deg, transparent 0 18px, rgba(255,46,77,.8) 18px 25px, transparent 25px 34px, rgba(198,255,61,.6) 34px 38px, transparent 38px 64px); opacity: .6; -webkit-mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
+.wallpanel { position: absolute; inset: 0; background: #F3F2EE; }
+.wallpanel::after { content: ""; position: absolute; left: 6%; right: 6%; bottom: 13%; height: 2px; background: #DAD6CC; }
+.taped::before { content: ""; position: absolute; z-index: 1; top: -4%; left: 50%; width: 40%; height: 10%; transform: translateX(-50%) rotate(-4deg); background: repeating-linear-gradient(45deg, rgba(201,182,255,.88) 0 8px, rgba(255,255,255,.55) 8px 14px); }
+.taped.t2::before { transform: translateX(-50%) rotate(5deg); background: repeating-linear-gradient(45deg, rgba(255,180,162,.9) 0 8px, rgba(255,255,255,.55) 8px 14px); }
+.taped.t3::before { background: repeating-linear-gradient(45deg, rgba(168,230,207,.92) 0 8px, rgba(255,255,255,.55) 8px 14px); }
+@container shop (max-width: 719px) {
+  .hero > .s-wrap { grid-template-columns: minmax(0, 1fr); gap: 20px; padding-block: 24px 30px; }
+  .hero-art { max-width: 380px; }
+  .hero-sub { font-size: 15.5px; }
+  .hero-ctas .btn { flex: 1 1 auto; }
+  .trust { font-size: 12.5px; }
+}
+
+/* Sections */
+.sec > .s-wrap { padding-block: 40px; }
+.sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.sec-title { font-size: clamp(28px, 3.6cqi, 44px); }
+[data-skin="scrap"] .sec-title { font-size: clamp(38px, 4.8cqi, 56px); text-decoration: underline wavy #FFB4A2; text-decoration-thickness: 2px; text-underline-offset: 10px; }
+[data-skin="neon"] .sec-title::before { content: "/ "; color: #FF2E4D; }
+.see-all { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 0; border: 0; background: none; color: var(--ink); font-weight: 800; font-size: 14px; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.see-all svg { width: 16px; height: 16px; }
+[data-skin="neon"] .see-all { color: #C6FF3D; text-decoration: none; text-transform: uppercase; letter-spacing: .08em; }
+[data-skin="gallery"] .see-all { font-weight: 600; text-decoration-thickness: 1px; }
+@container shop (max-width: 719px) { .sec > .s-wrap { padding-block: 28px; } .sec-head { margin-bottom: 14px; } }
+
+/* Product-type tiles */
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.tile { display: grid; gap: 10px; align-content: start; min-width: 0; padding: 12px; background: var(--card-bg); border: var(--card-border); border-radius: var(--radius); box-shadow: var(--shadow); color: var(--ink); text-align: left; font: inherit; transition: transform .15s ease, box-shadow .15s ease, border-color .15s; }
+.tile:hover { box-shadow: var(--shadow-hover); }
+[data-skin="pop"] .tile:hover { transform: translate(-2px, -2px); }
+[data-skin="neon"] .tile:hover { border-color: #C6FF3D; }
+[data-skin="gallery"] .tile { padding: 0; }
+.tile-art { position: relative; display: grid; place-items: center; aspect-ratio: 1.25; overflow: hidden; background: var(--tint, var(--media-bg)); border-radius: max(0px, calc(var(--radius) - 6px)); }
+[data-skin="gallery"] .tile-art { aspect-ratio: 1; }
+.tile-art > svg { width: auto; height: 80%; max-width: 84%; }
+.tile-name { font-weight: 800; font-size: 15.5px; line-height: 1.2; }
+[data-skin="gallery"] .tile-name { font-family: var(--f-display); font-weight: 400; font-size: 19px; }
+[data-skin="scrap"] .tile-name { font-family: var(--f-display); font-size: 25px; line-height: 1; }
+[data-skin="neon"] .tile-name { text-transform: uppercase; letter-spacing: .06em; font-size: 14px; }
+.tile-count { margin-top: -6px; font-size: 12.5px; color: var(--muted); }
+@container shop (max-width: 719px) {
+  .tiles { gap: 14px 8px; }
+  .tile { gap: 6px; padding: 0; background: none; border: 0; box-shadow: none; text-align: center; }
+  .tile-art { aspect-ratio: 1; border-radius: 50%; }
+  [data-skin="pop"] .tile-art { border: 2.5px solid #111111; }
+  [data-skin="neon"] .tile-art { border: 1px solid #2A2A3D; }
+  [data-skin="gallery"] .tile-art { border-radius: 0; }
+  .tile-name { font-size: 12px; } [data-skin="scrap"] .tile-name { font-size: 18px; } [data-skin="gallery"] .tile-name { font-size: 13.5px; } [data-skin="neon"] .tile-name { font-size: 11px; }
+  .tile-count { display: none; }
+}
+
+/* Vibe chips */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { padding: 9px 16px; border: var(--chip-border); border-radius: var(--chip-radius); background: var(--chip-bg); color: var(--ink); font-weight: 700; font-size: 14.5px; white-space: nowrap; transition: transform .12s, box-shadow .12s; }
+.chip[aria-pressed="true"] { background: var(--chip-on-bg); color: var(--chip-on-fg); border-color: var(--chip-on-border); box-shadow: var(--chip-on-shadow); }
+[data-skin="pop"] .chip:hover { transform: translateY(-2px); }
+[data-skin="neon"] .chip { text-transform: uppercase; letter-spacing: .07em; font-size: 13px; font-weight: 600; }
+[data-skin="neon"] .chip:hover { border-color: #5A5A78; }
+[data-skin="gallery"] .chip { font-weight: 500; }
+[data-skin="scrap"] .chip[aria-pressed="false"]:nth-child(4n+1) { background: #F3EDFF; border-color: #E4D9FF; }
+[data-skin="scrap"] .chip[aria-pressed="false"]:nth-child(4n+2) { background: #FFEDE8; border-color: #FFD9CF; }
+[data-skin="scrap"] .chip[aria-pressed="false"]:nth-child(4n+3) { background: #E8F8F1; border-color: #CDEEDF; }
+[data-skin="scrap"] .chip[aria-pressed="false"]:nth-child(4n) { background: #EAF4FF; border-color: #D3E6FB; }
+@container shop (max-width: 719px) { .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 2px 6px 8px 2px; } .chips::-webkit-scrollbar { display: none; } .chip { font-size: 13.5px; padding: 8px 14px; } }
+
+/* Product cards */
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+@container shop (max-width: 819px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } }
+.p-card { position: relative; display: flex; flex-direction: column; min-width: 0; overflow: hidden; background: var(--card-bg); border: var(--card-border); border-radius: var(--radius); box-shadow: var(--shadow); transition: transform .16s ease, box-shadow .16s ease, border-color .16s; }
+[data-skin="pop"] .p-card, [data-skin="scrap"] .p-card { transform: rotate(var(--tilt, 0deg)); }
+[data-skin="pop"] .p-card:hover { transform: rotate(0deg) translate(-2px, -3px); box-shadow: var(--shadow-hover); }
+[data-skin="neon"] .p-card:hover { box-shadow: var(--shadow-hover); border-color: #C6FF3D; }
+[data-skin="scrap"] .p-card { overflow: visible; padding: 10px 10px 0; }
+[data-skin="scrap"] .p-card:hover { transform: rotate(0deg) translateY(-3px); box-shadow: var(--shadow-hover); }
+[data-skin="scrap"] .p-card::before { content: ""; position: absolute; z-index: 2; top: -10px; left: 50%; width: 78px; height: 24px; transform: translateX(-50%) rotate(-3deg); background: repeating-linear-gradient(45deg, rgba(201,182,255,.88) 0 8px, rgba(255,255,255,.6) 8px 14px); }
+[data-skin="scrap"] .p-card:nth-child(3n+2)::before { transform: translateX(-50%) rotate(4deg); background: repeating-linear-gradient(45deg, rgba(255,180,162,.9) 0 8px, rgba(255,255,255,.6) 8px 14px); }
+[data-skin="scrap"] .p-card:nth-child(3n)::before { background: repeating-linear-gradient(45deg, rgba(168,230,207,.92) 0 8px, rgba(255,255,255,.6) 8px 14px); }
+.p-media { position: relative; display: grid; place-items: center; aspect-ratio: 1; overflow: hidden; background: var(--tint, var(--media-bg)); border-bottom: var(--media-sep); }
+[data-skin="scrap"] .p-media { border-radius: 4px; }
+[data-skin="gallery"] .p-media { aspect-ratio: 4 / 5; }
+.p-media > svg { width: 76%; height: 76%; transition: transform .3s ease; }
+[data-skin="gallery"] .p-card:hover .p-media > svg { transform: scale(1.04); }
+.holo::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 32%, rgba(255,255,255,.6) 44%, rgba(160,220,255,.5) 50%, rgba(255,170,240,.5) 56%, transparent 68%); background-size: 260% 100%; background-position: 110% 0; mix-blend-mode: soft-light; animation: sheen 3.8s ease-in-out infinite; }
+[data-skin="neon"] .holo::after { mix-blend-mode: screen; opacity: .35; }
+@keyframes sheen { 0%, 15% { background-position: 110% 0; } 60%, 100% { background-position: -10% 0; } }
+.p-badge { position: absolute; z-index: 1; top: 10px; left: 10px; padding: 3px 9px; background: var(--badge-bg); color: var(--badge-fg); border: var(--badge-border); border-radius: var(--chip-radius); font-size: 11.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+[data-skin="gallery"] .p-badge { font-weight: 600; letter-spacing: .02em; text-transform: none; }
+.wish { position: absolute; z-index: 1; top: 8px; right: 8px; display: grid; place-items: center; width: 38px; height: 38px; border: var(--wish-border); border-radius: 50%; background: var(--wish-bg); color: var(--ink); }
+.wish svg { width: 19px; height: 19px; }
+.wish[aria-pressed="true"] { color: var(--accent2); }
+.wish[aria-pressed="true"] svg { fill: currentColor; }
+.p-info { flex: 1; display: grid; align-content: start; gap: 2px; padding: 12px 14px 14px; }
+[data-skin="gallery"] .p-info { padding: 12px 0 0; }
+[data-skin="scrap"] .p-info { padding: 10px 4px 14px; }
+.p-type { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+[data-skin="neon"] .p-type { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; }
+.p-name { font-size: 16.5px; font-weight: 800; line-height: 1.2; }
+[data-skin="gallery"] .p-name { font-family: var(--f-display); font-weight: 400; font-size: 19px; }
+[data-skin="scrap"] .p-name { font-family: var(--f-display); font-size: 26px; line-height: 1; }
+[data-skin="neon"] .p-name { font-family: var(--f-display); font-weight: 400; font-size: 20px; letter-spacing: .01em; text-transform: uppercase; }
+.p-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
+.price { font-weight: 800; font-size: 17px; color: var(--price); font-variant-numeric: tabular-nums; }
+.price small { font-size: 12px; font-weight: 600; color: var(--muted); }
+[data-skin="gallery"] .price { font-weight: 500; font-size: 15px; }
+.add { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0 12px; border: var(--ghost-border); border-radius: var(--btn-radius); background: var(--ghost-bg); color: var(--ghost-fg); font-weight: 800; font-size: 13.5px; }
+.add svg { width: 15px; height: 15px; }
+[data-skin="pop"] .add { border-width: 2.5px; box-shadow: 2px 2px 0 #111111; }
+[data-skin="pop"] .add:hover { background: #FFD23F; }
+[data-skin="neon"] .add { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+[data-skin="neon"] .add:hover { border-color: #C6FF3D; color: #C6FF3D; }
+[data-skin="gallery"] .add { min-height: 32px; padding: 0; border: 0; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+[data-skin="gallery"] .add svg { display: none; }
+[data-skin="scrap"] .add { border: 0; background: #F3EDFF; }
+@container shop (max-width: 819px) {
+  .p-info { padding: 10px 10px 12px; }
+  .p-name { font-size: 15px; } [data-skin="scrap"] .p-name { font-size: 22px; } [data-skin="neon"] .p-name { font-size: 17px; } [data-skin="gallery"] .p-name { font-size: 16.5px; }
+  .add { padding: 0 9px; } .add span { display: none; } [data-skin="gallery"] .add span { display: inline; }
+  .wish { width: 34px; height: 34px; } .wish svg { width: 17px; height: 17px; }
+}
+
+/* Pack offer band */
+.pack { background: var(--pack-bg); color: var(--pack-fg); }
+[data-skin="pop"] .pack { border-block: 3px solid #111111; }
+[data-skin="neon"] .pack { background: linear-gradient(115deg, #121220 0 60%, transparent 60%), repeating-linear-gradient(115deg, #121220 0 18px, #1C1C30 18px 36px); border-block: 1px solid #2A2A3D; }
+[data-skin="scrap"] .pack { background-image: radial-gradient(rgba(59,47,74,.14) 1.1px, transparent 1.5px); background-size: 20px 20px; }
+.pack > .s-wrap { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; gap: 28px; padding-block: 44px; }
+.pack .eyebrow { color: inherit; opacity: .85; }
+[data-skin="neon"] .pack .eyebrow { color: #C6FF3D; opacity: 1; }
+.pack-title { margin-block: 8px 4px !important; font-size: clamp(30px, 4.4cqi, 54px); }
+.tiers { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 18px 22px !important; }
+.tier { display: grid; min-width: 96px; padding: 10px 16px 12px; background: var(--tier-bg); color: var(--ink); border: var(--tier-border); border-radius: var(--radius-sm); }
+[data-skin="pop"] .tier { box-shadow: 4px 4px 0 #111111; }
+.tier b { font-family: var(--f-display); font-weight: var(--d-weight); font-size: 34px; line-height: 1; }
+.tier span { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.tier em { margin-top: 4px; font-style: normal; font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; }
+[data-skin="neon"] .tier em { color: #C6FF3D; }
+.pack-art { position: relative; justify-self: center; width: 100%; max-width: 520px; aspect-ratio: 16 / 10; }
+.fan { position: absolute; width: 30%; }
+.fan > svg { display: block; width: 100%; height: auto; }
+@container shop (max-width: 719px) { .pack > .s-wrap { grid-template-columns: minmax(0, 1fr); padding-block: 32px; } .pack-art { max-width: 400px; } .tier { min-width: 0; flex: 1 1 0; } }
+
+/* Custom studio */
+.custom-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.c-card { display: grid; grid-template-rows: auto 1fr; min-width: 0; overflow: hidden; background: var(--card-bg); border: var(--card-border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.c-art { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 10; background: var(--tint, var(--media-bg)); border-bottom: var(--media-sep); }
+.c-art > svg { width: auto; height: 84%; max-width: 92%; }
+.c-body { display: grid; align-content: start; gap: 8px; padding: 16px 18px 18px; }
+[data-skin="gallery"] .c-body { padding: 14px 0 0; }
+.c-title { font-size: 24px; }
+[data-skin="scrap"] .c-title { font-size: 33px; }
+[data-skin="neon"] .c-title { font-size: 26px; }
+.c-body p { font-size: 14.5px; color: var(--muted); }
+.c-body .btn { justify-self: start; margin-top: 6px; }
+@container shop (max-width: 719px) {
+  .custom-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .c-card { grid-template-rows: none; grid-template-columns: 112px minmax(0, 1fr); }
+  .c-art { aspect-ratio: auto; border-bottom: 0; border-right: var(--media-sep); }
+  .c-body { gap: 4px; padding: 12px 14px; }
+  [data-skin="gallery"] .c-body { padding: 4px 0 4px 14px; }
+  .c-title { font-size: 20px; } [data-skin="scrap"] .c-title { font-size: 27px; }
+  .c-body p { font-size: 13px; }
+  .c-body .btn { min-height: 36px; padding: 0 12px; font-size: 13px; }
+  [data-skin="neon"] .c-body .btn { font-size: 12px; }
+}
+
+/* Product page */
+.pdp-label { background: var(--label-bg); color: var(--label-fg); }
+.pdp-label .s-wrap { display: flex; align-items: center; gap: 10px; padding-block: 10px; font-size: 12.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.pdp > .s-wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: start; gap: 44px; padding-block: 40px 56px; }
+.g-main { display: grid; place-items: center; aspect-ratio: 1; overflow: hidden; background: var(--media-bg); border: var(--card-border); border-radius: var(--radius); box-shadow: var(--shadow); }
+[data-skin="pop"] .g-main { background: #D8E5FF; }
+[data-skin="scrap"] .g-main { background: #F3EDFF; }
+.g-main > svg { width: auto; height: 86%; max-width: 88%; }
+.g-main > svg.fill { width: 100%; height: 100%; max-width: none; }
+.g-thumbs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.g-thumb { display: grid; place-items: center; aspect-ratio: 1; padding: 0; overflow: hidden; background: var(--media-bg); border: var(--chip-border); border-radius: var(--radius-sm); }
+[data-skin="pop"] .g-thumb { background: #FFFFFF; }
+.g-thumb > svg { width: auto; height: 80%; max-width: 84%; }
+.g-thumb > svg.fill { width: 100%; height: 100%; max-width: none; }
+.g-thumb[aria-pressed="true"] { border-color: var(--chip-on-border); box-shadow: inset 0 0 0 2px var(--chip-on-border), var(--chip-on-shadow); }
+.crumbs { font-size: 13px; font-weight: 600; color: var(--muted); }
+.pdp-title { margin-block: 8px 4px !important; font-size: clamp(36px, 5cqi, 60px); }
+.pdp-type { font-weight: 600; color: var(--muted); }
+.pdp-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-top: 14px !important; }
+.pdp-price strong { font-size: 30px; font-weight: 800; color: var(--price); font-variant-numeric: tabular-nums; }
+[data-skin="gallery"] .pdp-price strong { font-weight: 500; }
+.pdp-price small { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.opt { min-width: 0; margin-top: 20px !important; padding: 0; border: 0; }
+.opt legend { margin-bottom: 8px; padding: 0; font-weight: 800; font-size: 14px; }
+.opt legend span { font-weight: 600; color: var(--muted); }
+.opt-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt-row input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.opt-row label { display: grid; justify-items: center; min-width: 76px; padding: 8px 14px; border: var(--chip-border); border-radius: var(--opt-radius); background: var(--chip-bg); color: var(--ink); font-weight: 800; font-size: 14.5px; line-height: 1.25; cursor: pointer; transition: box-shadow .12s, transform .12s; }
+[data-skin="neon"] .opt-row label { text-transform: uppercase; letter-spacing: .05em; font-size: 13.5px; }
+.opt-row label small { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: none; letter-spacing: 0; }
+.opt-row input:checked + label { background: var(--chip-on-bg); color: var(--chip-on-fg); border-color: var(--chip-on-border); box-shadow: var(--chip-on-shadow); }
+.opt-row input:checked + label small { color: inherit; opacity: .85; }
+.opt-row input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 2px; }
+.qty-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 24px; }
+.qty { display: inline-flex; align-items: center; min-height: 46px; border: var(--chip-border); border-radius: var(--btn-radius); background: var(--chip-bg); }
+.qty button { width: 42px; height: 44px; border: 0; background: none; color: var(--ink); font-size: 20px; font-weight: 700; line-height: 1; }
+.qty output { min-width: 26px; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+.pin { display: grid; gap: 8px; max-width: 420px; margin-top: 24px; }
+.pin label { font-weight: 800; font-size: 14px; }
+.pin-row { display: flex; gap: 8px; }
+.pin-row input { flex: 1; min-width: 0; min-height: 44px; padding: 0 14px; border: var(--chip-border); border-radius: var(--btn-radius); background: var(--chip-bg); color: var(--ink); font: inherit; font-size: 15px; letter-spacing: .06em; }
+.pin-row input::placeholder { color: var(--muted); letter-spacing: 0; }
+.pin-out { min-height: 1.45em; font-size: 13.5px; font-weight: 700; }
+.pin-out[data-state="ok"] { color: var(--ok); }
+.pin-out[data-state="error"] { color: var(--err); }
+.highlights { display: grid; gap: 8px; margin-top: 16px !important; font-size: 14.5px; }
+.highlights li { display: flex; align-items: flex-start; gap: 8px; }
+.highlights svg { flex: none; width: 18px; height: 18px; margin-top: 2px; color: var(--trust-icon); }
+@container shop (max-width: 819px) { .pdp > .s-wrap { grid-template-columns: minmax(0, 1fr); gap: 22px; padding-block: 24px 40px; } .qty-row .btn { flex: 1 1 auto; } }
+
+/* Footer */
+.foot { background: var(--foot-bg); color: var(--foot-fg); }
+.foot > .s-wrap.foot-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr)); gap: 28px; padding-block: 44px 28px; }
+.foot .logo { color: var(--foot-fg); }
+[data-skin="pop"] .foot .logo { color: #111111; }
+.foot-brand p { max-width: 34ch; margin-top: 12px !important; font-size: 14px; color: var(--foot-muted); }
+.foot-h { margin-bottom: 12px !important; font-size: 12.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.foot ul { display: grid; gap: 7px; font-size: 14.5px; color: var(--foot-muted); }
+.news { display: flex; gap: 8px; max-width: 380px; margin-top: 16px; }
+.news input { flex: 1; min-width: 0; min-height: 44px; padding: 0 14px; border: 1px solid var(--foot-line); border-radius: var(--btn-radius); background: transparent; color: var(--foot-fg); font: inherit; font-size: 14.5px; }
+.news input::placeholder { color: var(--foot-muted); }
+.news .btn { min-height: 44px; }
+[data-skin="gallery"] .news .btn { background: #141414; color: #FFFFFF; }
+.pay { display: flex; flex-wrap: wrap; gap: 6px; }
+.pay span { padding: 5px 9px; border: 1px solid var(--foot-line); border-radius: 6px; font-size: 12px; font-weight: 800; letter-spacing: .04em; }
+.foot-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 18px; padding-block: 16px 22px; border-top: 1px solid var(--foot-line); font-size: 12.5px; color: var(--foot-muted); }
+@container shop (max-width: 719px) { .foot > .s-wrap.foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; padding-block: 32px 20px; } .foot-brand, .foot-pay { grid-column: 1 / -1; } }
+
+/* Floating dock: WhatsApp button, toast, mobile bottom nav */
+.dock { position: sticky; bottom: 0; z-index: 12; }
+.fab { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(100% + 16px); display: inline-flex; align-items: center; gap: 8px; min-height: 50px; padding: 0 18px 0 14px; border: var(--fab-border); border-radius: 999px; background: var(--fab-bg); color: var(--fab-fg); box-shadow: var(--fab-shadow); font-weight: 800; font-size: 14px; }
+.fab svg { width: 22px; height: 22px; }
+[data-skin="neon"] .fab { text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
+.toast { position: absolute; left: 50%; bottom: calc(100% + 84px); width: max-content; max-width: min(92%, 440px); padding: 10px 16px; transform: translateX(-50%); border-radius: 12px; background: var(--ink); color: var(--bg); box-shadow: 0 10px 30px rgba(0,0,0,.28); font-size: 14px; font-weight: 700; text-align: center; }
+[data-skin="neon"] .toast { background: #C6FF3D; color: #0B0B12; }
+.bnav { display: none; }
+.bnav button { position: relative; display: grid; justify-items: center; gap: 1px; padding: 8px 0 7px; border: 0; background: none; color: var(--muted); font-size: 11px; font-weight: 800; }
+.bnav button[aria-current="page"] { color: var(--ink); }
+.bnav svg { width: 22px; height: 22px; }
+.bnav .count { top: 3px; right: calc(50% - 24px); }
+[data-skin="neon"] .bnav button { text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
+@container shop (max-width: 719px) {
+  .bnav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); background: var(--bnav-bg); border-top: var(--bnav-border); }
+  .fab { bottom: calc(100% + 12px); width: 50px; padding: 0; justify-content: center; }
+  .fab span { display: none; }
+  .toast { bottom: calc(100% + 74px); }
+}
+
+/* Drawer (mobile menu); sits beside .shop so it can cover the phone screen */
+.drawer { position: fixed; inset: 0; z-index: 60; display: flex; }
+.stage[data-view="phone"] .drawer { position: absolute; }
+.drawer-scrim { position: absolute; inset: 0; padding: 0; border: 0; background: rgba(10,10,14,.5); }
+.drawer-panel { position: relative; display: grid; align-content: start; gap: 18px; width: min(84%, 340px); height: 100%; overflow-y: auto; padding-block: calc(16px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)); padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: 18px; background: var(--bg); color: var(--ink); font-family: var(--f-body); box-shadow: 12px 0 40px rgba(0,0,0,.3); }
+[data-skin="pop"] .drawer-panel { border-right: 3px solid #111111; }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.drawer-list { display: grid; border-top: var(--header-border); }
+.drawer-list button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 2px; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--ink); font-weight: 800; font-size: 17px; text-align: left; }
+[data-skin="pop"] .drawer-list button { border-bottom: 2px solid #111111; }
+[data-skin="neon"] .drawer-list button { text-transform: uppercase; letter-spacing: .06em; font-size: 15px; }
+[data-skin="scrap"] .drawer-list button { font-family: var(--f-display); font-size: 27px; font-weight: 700; padding-block: 8px; }
+.drawer-list svg { width: 18px; height: 18px; transform: rotate(-90deg); }
+.drawer-sub { display: grid; gap: 10px; font-weight: 700; color: var(--muted); }
+
+.device :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+[data-skin="neon"] .btn-primary:focus-visible { clip-path: none; }
+.search input:focus-visible { outline: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .holo::after { animation: none; background-position: 40% 0; }
+  .shop *, .shop *::before, .shop *::after { transition: none !important; }
+}
+</style>
+
+<div class="chrome gutter">
+  <div class="intro">
+    <p class="kicker">Step 0 · Pick a style <span>Sample designs and prices</span></p>
+    <h1>Four looks for PrintYourVibe</h1>
+    <p>Each style below is the same store: home page, product grid, sticker packs, the custom studio and a poster product page. Switch styles, try the phone view, hover the Stickers menu, tap the options. Then tell me which one feels like your brand.</p>
+  </div>
+  <div class="picker" id="picker"></div>
+</div>
+
+<div class="bar">
+  <div class="bar-inner gutter">
+    <div class="tabs" id="tabs" role="tablist" aria-label="Store style"></div>
+    <div class="views" role="group" aria-label="Preview size">
+      <button type="button" data-view="full" aria-pressed="true">Desktop</button>
+      <button type="button" data-view="phone" aria-pressed="false">Phone</button>
+    </div>
+  </div>
+</div>
+
+<div class="stage gutter" id="stage" data-view="full">
+  <div class="device" id="device" data-skin="pop">
+    <div class="browserbar" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="url">printyourvibe.in</span><span class="spacer"></span></div>
+    <div class="shop" id="shop"></div>
+    <div class="drawer" id="drawer" hidden></div>
+  </div>
+</div>
+
+<div class="howto gutter">
+  <p><strong>How to choose:</strong> reply in chat with the style name, for example “Go with Sticker Pop”. You can also mix, like “Sticker Pop colours with the Clean Gallery product page”.</p>
+  <p>Everything here is a sample: the artwork is generated placeholder art, and prices, counts and delivery dates are examples you will set yourself.</p>
+</div>
+
+<script>
+(() => {
+  /* ---------- data ---------- */
+  const SKINS = {
+    pop: { key: 'sticker-pop', name: 'Sticker Pop', desc: 'Bright, bold and playful. Thick outlines and hard shadows make every design look like a real sticker.', fonts: 'Bricolage Grotesque + Figtree', best: 'A fun, loud sticker brand', sw: ['#FFD23F', '#FF5DA2', '#3D7BFF', '#2BD47D', '#111111'] },
+    neon: { key: 'midnight-neon', name: 'Midnight Neon', desc: 'Dark and loud, with neon accents and all-caps headlines. Posters glow on black.', fonts: 'Anton + Barlow', best: 'F1, anime and gaming fans', sw: ['#0B0B12', '#C6FF3D', '#FF2E4D', '#8B5CFF'] },
+    gallery: { key: 'clean-gallery', name: 'Clean Gallery', desc: 'Minimal and premium. White space and a serif headline let the artwork lead.', fonts: 'Fraunces + Instrument Sans', best: 'Posters and art prints', sw: ['#FFFFFF', '#F3F2EE', '#141414', '#E4572E'] },
+    scrap: { key: 'pastel-scrapbook', name: 'Pastel Scrapbook', desc: 'Soft pastels on dotted journal paper, with washi tape and handwriting.', fonts: 'Caveat + Nunito', best: 'Diary stickers, polaroids and gifts', sw: ['#C9B6FF', '#FFB4A2', '#A8E6CF', '#FFE08A', '#3B2F4A'] },
+  };
+  const ART = {
+    pop: { a: '#FFD23F', b: '#FF5DA2', c: '#3D7BFF', d: '#2BD47D', e: '#FF8A3D', f: '#9B5DE5', ink: '#111111', paper: '#FFFFFF', dark: '#1A1A3D', dark2: '#3A1F6E', light: '#FFF8E7', fg: '#111111', font: "'Bricolage Grotesque', 'Arial Black', sans-serif", fw: 800, outline: true },
+    neon: { a: '#C6FF3D', b: '#FF2E4D', c: '#8B5CFF', d: '#2DE2E6', e: '#FF9F1C', f: '#FF4FD8', ink: '#0B0B12', paper: '#F5F5F7', dark: '#0E0E18', dark2: '#24123F', light: '#15151F', fg: '#F5F5F7', font: "'Anton', Impact, sans-serif", fw: 400, outline: false },
+    gallery: { a: '#E9B44C', b: '#E4572E', c: '#1B3A4B', d: '#9BC1BC', e: '#F2D0C4', f: '#5B7065', ink: '#141414', paper: '#FBFAF7', dark: '#1B3A4B', dark2: '#0F2230', light: '#F3F2EE', fg: '#141414', font: "'Fraunces', Georgia, serif", fw: 500, outline: false },
+    scrap: { a: '#FFE08A', b: '#FFB4A2', c: '#C9B6FF', d: '#A8E6CF', e: '#FFC8DD', f: '#BDE0FE', ink: '#3B2F4A', paper: '#FFFFFF', dark: '#7A64A8', dark2: '#3B2F4A', light: '#FFF7F0', fg: '#3B2F4A', font: "'Caveat', cursive", fw: 700, outline: false },
+  };
+  const HAND = "'Caveat', cursive";
+  const SANS = "'Figtree', 'Barlow', sans-serif";
+  const COPY = {
+    pop: { announce: ['Any 10 stickers for ₹199', 'Free shipping above ₹499', 'Cash on Delivery available'], logo: 'PrintYourVibe', search: 'Search 5,000+ designs', eyebrow: 'New: 3D motion stickers', title: 'Stick your <mark>vibe</mark> on everything.', sub: 'Stickers, posters and polaroids for every fandom and mood. Waterproof vinyl and thick 300 GSM paper, shipped across India.', cta1: 'Shop all designs', cta2: 'Make a custom sticker', types: 'Shop by product', vibes: 'Pick your vibe', trending: 'Trending this week', custom: 'Make it yours', packEyebrow: 'Build your own pack', packTitle: 'Pick any stickers. Pay one pack price.' },
+    neon: { announce: ['Free shipping above ₹499', 'New drop: pit lane posters', 'COD available'], logo: '<b>//</b>PrintYourVibe', search: 'Search posters, stickers, fandoms', eyebrow: '//// New drop', title: 'Pit lane poster series', sub: 'Racing, anime and gaming posters printed big and sharp. A4 to A2, framed or unframed.', cta1: 'Shop posters', cta2: 'All new drops', types: 'Shop by product', vibes: 'Pick your fandom', trending: 'Trending now', custom: 'Make it yours', packEyebrow: 'Sticker packs', packTitle: 'Build a pack and save' },
+    gallery: { announce: ['Free shipping on orders above ₹499', 'Made to order in India'], logo: 'PrintYourVibe', search: 'Search prints and stickers', eyebrow: 'Posters · Stickers · Polaroids', title: 'Art for your walls. <em>Stickers for your story.</em>', sub: 'Posters, stickers and polaroids, printed to order on heavy matte paper and waterproof vinyl.', cta1: 'Shop posters', cta2: 'Shop stickers', types: 'Shop by product', vibes: 'Browse by theme', trending: 'New this week', custom: 'Made to order', packEyebrow: 'Sticker sets', packTitle: 'Curate your own set of stickers.' },
+    scrap: { announce: ['any 10 stickers for ₹199', 'free shipping above ₹499', 'cash on delivery available'], logo: 'printyourvibe', search: 'Search cute stickers, polaroids…', eyebrow: 'new: polaroid wall kits', title: 'make your memories stick', sub: 'Cute diary stickers, custom polaroids and pastel posters, packed with care and shipped across India.', cta1: 'Shop polaroids', cta2: 'Upload your photos', types: 'shop by product', vibes: 'find your vibe', trending: 'trending this week', custom: 'make it yours', packEyebrow: 'build your own pack', packTitle: 'Pick any 10 stickers for ₹199' },
+  };
+  const TINTS = {
+    pop: ['#FFF1B8', '#FFD6E8', '#D8E5FF', '#CFF5E1', '#FFE2CC', '#E9DBFF'],
+    neon: ['#15151F'],
+    gallery: ['#F3F2EE'],
+    scrap: ['#F3EDFF', '#FFEDE8', '#E8F8F1', '#FFF6DA', '#FFEFF5', '#EAF4FF'],
+  };
+  const TILTS = [-1.6, 1.2, -0.9, 1.7, 1.1, -1.4, 0.8, -1.2];
+  const VIBES = ['Anime', 'F1 & Motorsport', 'Cars & Bikes', 'Cricket', 'Aesthetic', 'K-Pop', 'Gaming', 'Movies', 'Quotes', 'Space', 'Coding & Tech', 'Desi Vibes', 'Cute & Kawaii', 'Music'];
+  const SIZES = { A4: { dims: '21 × 29.7 cm', price: 99, frame: 200 }, A3: { dims: '29.7 × 42 cm', price: 149, frame: 250 }, A2: { dims: '42 × 59.4 cm', price: 249, frame: 400 } };
+  const PAPERS = { matte: { label: 'Matte', note: '300 GSM', add: 0 }, glossy: { label: 'Glossy', note: '+₹20', add: 20 } };
+  const FRAMES = { none: 'No frame', black: 'Black', white: 'White', wood: 'Wood' };
+
+  const state = { skin: 'pop', view: 'full', cart: 2, chip: 'F1 & Motorsport', pdp: { size: 'A3', paper: 'matte', frame: 'none', qty: 1, thumb: 0 } };
+
+  /* ---------- icons ---------- */
+  const I = (d, cls = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${cls ? ` class="${cls}"` : ''}>${d}</svg>`;
+  const ICON = {
+    menu: I('<path d="M4 7h16M4 12h16M4 17h16"/>'),
+    search: I('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
+    heart: I('<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>'),
+    user: I('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'),
+    bag: I('<path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'),
+    chev: I('<path d="m6 9 6 6 6-6"/>', 'chev'),
+    close: I('<path d="M6 6l12 12M18 6 6 18"/>'),
+    plus: I('<path d="M12 5v14M5 12h14"/>'),
+    check: I('<path d="m5 12 4.5 4.5L19 7"/>'),
+    chat: I('<path d="M4.5 19.5 5.8 15.4A8 8 0 1 1 8.6 18.3Z"/><path d="M9.2 9.3c.3 2.4 2.6 4.8 5.3 5.4"/>'),
+    home: I('<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>'),
+    grid: I('<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'),
+    sparkle: I('<path d="M12 3c.6 4.6 3.4 7.4 8 8-4.6.6-7.4 3.4-8 8-.6-4.6-3.4-7.4-8-8 4.6-.6 7.4-3.4 8-8Z"/>'),
+    upload: I('<path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/>'),
+    drop: I('<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/>'),
+    layers: I('<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>'),
+    card: I('<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/>'),
+    truck: I('<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>'),
+    arrow: I('<path d="M5 12h14M13 6l6 6-6 6"/>'),
+    trend: I('<path d="m4 16 5-5 4 4 7-7"/><path d="M15 8h5v5"/>'),
+  };
+
+  /* ---------- generative art helpers (original placeholder artwork) ---------- */
+  const TAU = Math.PI * 2;
+  let UID = 0;
+  const uid = (p) => `${p}${++UID}`;
+  const f1 = (n) => Math.round(n * 10) / 10;
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function lum(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  const textOn = (hex, ink) => (lum(hex) > 0.36 ? ink : '#FFFFFF');
+  function closedCurve(pts) {
+    const n = pts.length;
+    let d = `M${f1(pts[0][0])},${f1(pts[0][1])}`;
+    for (let i = 0; i < n; i++) {
+      const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+      d += `C${f1(p1[0] + (p2[0] - p0[0]) / 6)},${f1(p1[1] + (p2[1] - p0[1]) / 6)} ${f1(p2[0] - (p3[0] - p1[0]) / 6)},${f1(p2[1] - (p3[1] - p1[1]) / 6)} ${f1(p2[0])},${f1(p2[1])}`;
+    }
+    return d + 'Z';
+  }
+  function blob(cx, cy, r, n, jit, rand) {
+    const pts = [];
+    for (let i = 0; i < n; i++) { const a = (i / n) * TAU; const rr = r * (1 - jit / 2 + rand() * jit); pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); }
+    return closedCurve(pts);
+  }
+  function scallop(cx, cy, r, n, depth) {
+    const pts = [];
+    for (let i = 0; i < n * 2; i++) { const a = (i / (n * 2)) * TAU; const rr = i % 2 ? r * (1 - depth) : r; pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); }
+    return closedCurve(pts);
+  }
+  function star(cx, cy, r1, r2, n, rot = -Math.PI / 2) {
+    let d = '';
+    for (let i = 0; i < n * 2; i++) { const r = i % 2 ? r2 : r1; const a = rot + (i * Math.PI) / n; d += `${i ? 'L' : 'M'}${f1(cx + Math.cos(a) * r)},${f1(cy + Math.sin(a) * r)}`; }
+    return d + 'Z';
+  }
+  function heart(cx, cy, s) {
+    let d = '';
+    for (let i = 0; i < 64; i++) {
+      const t = (i / 64) * TAU;
+      const x = 16 * Math.pow(Math.sin(t), 3);
+      const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+      d += `${i ? 'L' : 'M'}${f1(cx + (x * s) / 16)},${f1(cy - (y * s) / 16)}`;
+    }
+    return d + 'Z';
+  }
+  const grad = (id, stops, vertical) => `<linearGradient id="${id}" x1="0" y1="0" x2="${vertical ? 0 : 1}" y2="1">${stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient>`;
+  const shadow = (id, dy = 3, sd = 3.5, op = 0.2) => `<filter id="${id}" x="-15%" y="-15%" width="130%" height="135%"><feDropShadow dx="0" dy="${dy}" stdDeviation="${sd}" flood-color="#000000" flood-opacity="${op}"/></filter>`;
+  const svg = (vb, inner, label, cls = '') => `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg"${cls ? ` class="${cls}"` : ''} ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}>${inner}</svg>`;
+  function sparkles(rand, spots, color, op) {
+    return spots.map(([x, y]) => { const k = 5 + rand() * 4; return `<path d="${star(x, y, k, k * 0.3, 4)}" fill="${color}" opacity="${op}"/>`; }).join('');
+  }
+
+  /* Die-cut sticker: white cut border around coloured artwork */
+  function sticker(skin, o) {
+    const P = ART[skin];
+    const r = rng(o.seed || 1);
+    const g = uid('g'), sh = uid('s');
+    const c1 = P[o.c1 || 'a'], c2 = P[o.c2 || 'e'];
+    const tc = textOn(c1, P.ink);
+    let defs = grad(g, [[0, c1], [1, c2]]) + shadow(sh, 4, 4, 0.22);
+    const geo = [];
+    let body = '';
+    const fill = `url(#${g})`;
+    const fit = (txt, max, width) => Math.min(max, Math.round(width / (txt.length * 0.6)));
+    const word = (txt, x, y, size, color = tc) => `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-family="${P.font}" font-weight="${P.fw}" font-size="${size}" fill="${color}">${txt}</text>`;
+    switch (o.shape) {
+      case 'blob': {
+        const d = blob(100, 100, 76, 9, 0.26, r);
+        geo.push(`<path d="${d}"/>`);
+        body += `<path d="${d}" fill="${fill}"/>` + sparkles(r, [[56, 58], [146, 60], [58, 146], [144, 146]], '#FFFFFF', 0.85);
+        body += word(o.word, 100, 102, fit(o.word, 50, 130));
+        break;
+      }
+      case 'star': {
+        const d = star(100, 102, 90, 60, 9);
+        geo.push(`<path d="${d}"/>`);
+        body += `<path d="${d}" fill="${fill}"/>` + word(o.word, 100, 104, fit(o.word, 40, 104));
+        break;
+      }
+      case 'badge': {
+        const d = scallop(100, 100, 86, 14, 0.07);
+        geo.push(`<path d="${d}"/>`);
+        body += `<path d="${d}" fill="${fill}"/><circle cx="100" cy="100" r="64" fill="none" stroke="${tc}" stroke-opacity=".55" stroke-width="2.5" stroke-dasharray="2 6" stroke-linecap="round"/>`;
+        body += word(o.word, 100, 102, fit(o.word, 54, 104));
+        break;
+      }
+      case 'pill': {
+        const rect = '<rect x="14" y="60" width="172" height="80" rx="40"/>';
+        geo.push(rect);
+        body += `<rect x="14" y="60" width="172" height="80" rx="40" fill="${fill}"/><circle cx="44" cy="100" r="9" fill="${tc}" opacity=".85"/>`;
+        body += word(o.word, 112, 101, fit(o.word, 30, 116));
+        break;
+      }
+      case 'heart': {
+        const d = heart(100, 104, 84);
+        geo.push(`<path d="${d}"/>`);
+        body += `<path d="${d}" fill="${fill}"/>` + sparkles(r, [[70, 78], [128, 120]], '#FFFFFF', 0.9);
+        break;
+      }
+      case 'cat': {
+        const head = '<ellipse cx="100" cy="114" rx="70" ry="60"/>';
+        const earL = '<path d="M40 92 L50 26 L94 62 Z"/>', earR = '<path d="M160 92 L150 26 L106 62 Z"/>';
+        geo.push(head, earL, earR);
+        body += `<g fill="${fill}">${head}${earL}${earR}</g>`;
+        body += `<path d="M55 80 L59 44 L82 62 Z" fill="${P.b}" opacity=".85"/><path d="M145 80 L141 44 L118 62 Z" fill="${P.b}" opacity=".85"/>`;
+        body += `<ellipse cx="76" cy="110" rx="9" ry="12" fill="${P.ink}"/><ellipse cx="124" cy="110" rx="9" ry="12" fill="${P.ink}"/><circle cx="79" cy="106" r="3" fill="#FFFFFF"/><circle cx="127" cy="106" r="3" fill="#FFFFFF"/>`;
+        body += `<ellipse cx="60" cy="132" rx="11" ry="7" fill="${P.b}" opacity=".75"/><ellipse cx="140" cy="132" rx="11" ry="7" fill="${P.b}" opacity=".75"/>`;
+        body += `<path d="M94 128 L106 128 L100 135 Z" fill="${P.b}"/><path d="M100 135 Q95 143 87 139 M100 135 Q105 143 113 139" fill="none" stroke="${P.ink}" stroke-width="3" stroke-linecap="round"/>`;
+        body += `<g stroke="${P.ink}" stroke-width="2.4" stroke-linecap="round" opacity=".75"><path d="M52 122 L31 117"/><path d="M52 130 L31 133"/><path d="M148 122 L169 117"/><path d="M148 130 L169 133"/></g>`;
+        break;
+      }
+      case 'moon': {
+        const d = scallop(100, 100, 86, 12, 0.06);
+        const m = uid('m');
+        defs += `<mask id="${m}"><rect x="0" y="0" width="200" height="200" fill="#FFFFFF"/><circle cx="122" cy="80" r="40" fill="#000000"/></mask>`;
+        geo.push(`<path d="${d}"/>`);
+        body += `<path d="${d}" fill="${fill}"/><circle cx="100" cy="92" r="44" fill="${P.a}" mask="url(#${m})"/>`;
+        body += sparkles(r, [[52, 62], [150, 138], [60, 136], [146, 56], [40, 100], [160, 98]], '#FFFFFF', 0.9);
+        body += word(o.word, 100, 160, 24, '#FFFFFF');
+        break;
+      }
+      default: break;
+    }
+    const shapes = geo.join('');
+    let cut = '';
+    if (P.outline) {
+      cut += `<g transform="translate(6 7)" fill="${P.ink}" stroke="${P.ink}" stroke-width="22" stroke-linejoin="round">${shapes}</g>`;
+      cut += `<g fill="${P.ink}" stroke="${P.ink}" stroke-width="22" stroke-linejoin="round">${shapes}</g>`;
+    }
+    cut += `<g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"${P.outline ? '' : ` filter="url(#${sh})"`}>${shapes}</g>`;
+    return svg('-14 -14 228 228', `<defs>${defs}</defs>${cut}${body}`, o.label);
+  }
+
+  /* Posters (300 × 424 ≈ A-series ratio), optionally framed */
+  function posterParts(skin, o) {
+    const P = ART[skin];
+    const r = rng(o.seed || 7);
+    let defs = '', art = '';
+    const W = 300, H = 424;
+    const sub = (txt, y, color, anchor = 'middle', x = 150) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="${SANS}" font-weight="700" font-size="10.5" letter-spacing="2.4" fill="${color}" opacity=".8">${txt}</text>`;
+    if (o.kind === 'speed') {
+      const bg = uid('pb');
+      defs += `<linearGradient id="${bg}" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="${P.dark}"/><stop offset="1" stop-color="${P.dark2}"/></linearGradient>`;
+      art += `<rect width="${W}" height="${H}" fill="url(#${bg})"/>`;
+      art += `<text x="150" y="196" text-anchor="middle" dominant-baseline="central" font-family="${P.font}" font-weight="${P.fw}" font-size="220" fill="none" stroke="${P.a}" stroke-width="2.5" opacity=".9">07</text>`;
+      let lines = '';
+      for (let i = 0; i < 22; i++) {
+        const y = 150 + r() * 190, x = -40 + r() * 200, len = 60 + r() * 220, w = 1 + r() * 3;
+        lines += `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(len)}" height="${f1(w)}" fill="${i % 3 ? P.paper : P.a}" opacity="${f1(0.15 + r() * 0.55)}"/>`;
+      }
+      art += `<g transform="rotate(-10 150 250)">${lines}</g>`;
+      art += `<g transform="translate(0 4)"><path d="M30 304 L112 288 L150 270 L196 270 L216 286 L262 292 L272 312 L30 314 Z" fill="${P.b}"/><path d="M150 272 L172 258 L192 272 Z" fill="${P.ink}"/><rect x="252" y="268" width="28" height="8" fill="${P.b}"/><rect x="263" y="268" width="6" height="28" fill="${P.ink}"/><rect x="18" y="296" width="22" height="16" fill="${P.ink}"/><circle cx="78" cy="314" r="20" fill="${P.ink}"/><circle cx="78" cy="314" r="8" fill="${P.paper}" opacity=".5"/><circle cx="230" cy="314" r="20" fill="${P.ink}"/><circle cx="230" cy="314" r="8" fill="${P.paper}" opacity=".5"/><rect x="104" y="296" width="70" height="5" fill="${P.paper}" opacity=".85"/></g>`;
+      art += `<text x="22" y="372" font-family="${P.font}" font-weight="${P.fw}" font-size="40" fill="${P.paper}">${o.title || 'PIT LANE'}</text>`;
+      art += sub(o.sub || 'NIGHT RACE SERIES · NO. 07', 398, P.paper, 'start', 22);
+      art += sub('PRINTYOURVIBE', 34, P.a, 'start', 22) + sub('2026', 34, P.paper, 'end', 278);
+    } else if (o.kind === 'sunset') {
+      const sky = uid('sk'), sun = uid('su'), mk = uid('mk');
+      defs += grad(sky, [[0, P.f], [0.55, P.b], [1, P.e]], true) + grad(sun, [[0, P.a], [1, P.e]], true);
+      let cuts = '';
+      for (let i = 0; i < 6; i++) cuts += `<rect x="0" y="${212 + i * 13}" width="300" height="${f1(2 + i * 1.6)}" fill="#000000"/>`;
+      defs += `<mask id="${mk}"><rect width="300" height="424" fill="#FFFFFF"/>${cuts}</mask>`;
+      art += `<rect width="300" height="424" fill="url(#${sky})"/><circle cx="150" cy="222" r="92" fill="url(#${sun})" mask="url(#${mk})"/>`;
+      const ridge = (base, amp, seed, color) => { const rr = rng(seed); let d = `M0 ${base}`; for (let x = 0; x <= 300; x += 30) d += ` L${x} ${f1(base - rr() * amp)}`; return `<path d="${d} L300 424 L0 424 Z" fill="${color}"/>`; };
+      art += ridge(286, 60, (o.seed || 7) + 1, P.c) + ridge(314, 46, (o.seed || 7) + 2, P.dark) + ridge(342, 30, (o.seed || 7) + 3, P.dark2);
+      art += `<text x="150" y="386" text-anchor="middle" font-family="${P.font}" font-weight="${P.fw}" font-size="34" fill="${P.paper}">${o.title || 'GOLDEN HOUR'}</text>` + sub('SUNSET SERIES · 03', 408, P.paper);
+    } else if (o.kind === 'orbit') {
+      const bg = uid('ob'), pl = uid('pl');
+      defs += `<radialGradient id="${bg}" cx=".5" cy=".35" r=".9"><stop offset="0" stop-color="${P.dark2}"/><stop offset="1" stop-color="${P.dark}"/></radialGradient>` + grad(pl, [[0, P.d], [1, P.c]]);
+      art += `<rect width="300" height="424" fill="url(#${bg})"/>`;
+      for (let i = 0; i < 70; i++) art += `<circle cx="${f1(r() * 300)}" cy="${f1(r() * 330)}" r="${f1(0.5 + r() * 1.4)}" fill="#FFFFFF" opacity="${f1(0.3 + r() * 0.7)}"/>`;
+      art += `<g fill="none" stroke="${P.paper}" stroke-opacity=".22"><ellipse cx="150" cy="190" rx="132" ry="42"/><ellipse cx="150" cy="190" rx="104" ry="31"/></g><circle cx="150" cy="190" r="62" fill="url(#${pl})"/><ellipse cx="150" cy="190" rx="104" ry="20" fill="none" stroke="${P.a}" stroke-width="7" transform="rotate(-16 150 190)"/><circle cx="236" cy="96" r="12" fill="${P.b}"/>`;
+      art += `<text x="150" y="380" text-anchor="middle" font-family="${P.font}" font-weight="${P.fw}" font-size="34" fill="#FFFFFF">${o.title || 'ZERO GRAVITY'}</text>` + sub('SPACE SERIES · 11', 404, '#FFFFFF');
+    } else {
+      const tc = textOn(P.light, P.ink);
+      art += `<rect width="300" height="424" fill="${P.light}"/><path d="M150 230 C146 290 156 330 150 424" stroke="${P.f}" stroke-width="6" fill="none"/><ellipse cx="124" cy="304" rx="28" ry="10" fill="${P.d}" transform="rotate(-30 124 304)"/><ellipse cx="178" cy="282" rx="28" ry="10" fill="${P.d}" transform="rotate(28 178 282)"/>`;
+      for (let i = 0; i < 12; i++) art += `<ellipse cx="150" cy="100" rx="20" ry="52" fill="${i % 2 ? P.b : P.e}" opacity=".94" transform="rotate(${i * 30} 150 150)"/>`;
+      art += `<circle cx="150" cy="150" r="26" fill="${P.a}"/>`;
+      for (let i = 0; i < 10; i++) { const a = (i / 10) * TAU; art += `<circle cx="${f1(150 + Math.cos(a) * 14)}" cy="${f1(150 + Math.sin(a) * 14)}" r="2.4" fill="${P.ink}" opacity=".45"/>`; }
+      art += `<text x="150" y="392" text-anchor="middle" font-family="${P.font}" font-weight="${P.fw}" font-size="30" fill="${tc}">${o.title || 'SLOW BLOOM'}</text>` + sub('BOTANICAL SERIES · 05', 412, tc);
+    }
+    if (!o.frame || o.frame === 'none') return { vb: o.vb || '0 0 300 424', w: 300, h: 424, defs, body: art };
+    const fr = { black: ['#2A2A2A', '#111111'], white: ['#FFFFFF', '#E3E1DC'], wood: ['#A87445', '#6B4423'] }[o.frame];
+    const fg = uid('fr');
+    defs += grad(fg, [[0, fr[0]], [1, fr[1]]]);
+    const frame = `<rect x="-40" y="-40" width="380" height="504" fill="url(#${fg})"/><rect x="-40" y="-40" width="380" height="504" fill="none" stroke="#000000" stroke-opacity=".18" stroke-width="2"/><rect x="-26" y="-26" width="352" height="476" fill="#FBFAF7"/><rect x="-26" y="-26" width="352" height="476" fill="none" stroke="#000000" stroke-opacity=".1" stroke-width="3"/>`;
+    return { vb: o.vb || '-40 -40 380 504', w: 380, h: 504, defs, body: frame + art };
+  }
+  function poster(skin, o) {
+    const p = posterParts(skin, o);
+    const sh = uid('psh');
+    const pad = o.frame && o.frame !== 'none' && !o.vb;
+    if (o.vb) return svg(p.vb, `<defs>${p.defs}</defs>${p.body}`, o.label, o.cls);
+    const [x, y, w, h] = p.vb.split(' ').map(Number);
+    const vb = `${x - 10} ${y - 8} ${w + 20} ${h + 24}`;
+    return svg(vb, `<defs>${p.defs}${shadow(sh, pad ? 6 : 4, pad ? 7 : 5, 0.24)}</defs><g filter="url(#${sh})">${p.body}</g>`, o.label, o.cls);
+  }
+
+  /* Polaroids */
+  function polaroidParts(skin, o) {
+    const P = ART[skin];
+    const r = rng(o.seed || 3);
+    const cl = uid('pc'), g = uid('pg');
+    let defs = `<clipPath id="${cl}"><rect x="14" y="14" width="192" height="192"/></clipPath>`;
+    let scene = '';
+    if (o.scene === 'rain') {
+      defs += grad(g, [[0, P.dark], [1, P.c]], true);
+      scene += `<rect x="14" y="14" width="192" height="192" fill="url(#${g})"/>`;
+      let x = 10;
+      while (x < 210) {
+        const w = 18 + r() * 24, h = 46 + r() * 86;
+        scene += `<rect x="${f1(x)}" y="${f1(206 - h)}" width="${f1(w)}" height="${f1(h)}" fill="${P.dark2}"/>`;
+        for (let wy = 206 - h + 8; wy < 198; wy += 11) for (let wx = x + 4; wx < x + w - 5; wx += 7) if (r() > 0.6) scene += `<rect x="${f1(wx)}" y="${f1(wy)}" width="3.5" height="4.5" fill="${P.a}" opacity=".85"/>`;
+        x += w + 3;
+      }
+      for (let i = 0; i < 44; i++) scene += `<path d="M${f1(14 + r() * 200)} ${f1(8 + r() * 196)}l-4 13" stroke="#FFFFFF" stroke-opacity=".5" stroke-width="1.3" stroke-linecap="round"/>`;
+    } else if (o.scene === 'beach') {
+      defs += grad(g, [[0, P.f], [0.6, P.e], [1, P.a]], true);
+      scene += `<rect x="14" y="14" width="192" height="192" fill="url(#${g})"/><circle cx="150" cy="96" r="26" fill="${P.a}"/><circle cx="150" cy="96" r="26" fill="#FFFFFF" opacity=".3"/><rect x="14" y="128" width="192" height="44" fill="${P.c}"/>`;
+      for (let i = 0; i < 6; i++) scene += `<path d="M${f1(14 + r() * 150)} ${136 + i * 6}h${f1(20 + r() * 30)}" stroke="#FFFFFF" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"/>`;
+      scene += `<path d="M14 168 Q80 156 206 170 L206 206 L14 206 Z" fill="${P.a}"/>`;
+    } else {
+      defs += grad(g, [[0, P.dark2], [1, P.dark]], true);
+      scene += `<rect x="14" y="14" width="192" height="192" fill="url(#${g})"/>`;
+      for (let i = 0; i < 30; i++) scene += `<circle cx="${f1(14 + r() * 192)}" cy="${f1(14 + r() * 120)}" r="${f1(0.6 + r() * 1.2)}" fill="#FFFFFF" opacity="${f1(0.4 + r() * 0.6)}"/>`;
+      scene += `<circle cx="160" cy="54" r="17" fill="${P.a}"/>`;
+      let wire = 'M14 70';
+      const bulbs = [];
+      for (let x = 14; x <= 206; x += 8) { const t = (x - 110) / 96; const y = 70 + 34 * (1 - t * t); wire += ` L${x} ${f1(y)}`; if ((x - 14) % 24 === 0) bulbs.push([x, y]); }
+      scene += `<path d="${wire}" fill="none" stroke="#FFFFFF" stroke-opacity=".5" stroke-width="1.2"/>`;
+      bulbs.forEach(([bx, by], i) => { const c = [P.a, P.b, P.d, P.e][i % 4]; scene += `<circle cx="${bx}" cy="${f1(by + 5)}" r="8" fill="${c}" opacity=".28"/><circle cx="${bx}" cy="${f1(by + 5)}" r="3.6" fill="${c}"/>`; });
+      scene += `<path d="M14 206 L14 176 Q70 150 120 172 T206 160 L206 206 Z" fill="${P.ink}" opacity=".85"/>`;
+    }
+    const body = `<rect x="0" y="0" width="220" height="262" rx="4" fill="#FFFFFF"/><g clip-path="url(#${cl})">${scene}</g><rect x="14" y="14" width="192" height="192" fill="none" stroke="#000000" stroke-opacity=".06"/>${o.caption ? `<text x="110" y="240" text-anchor="middle" font-family="${HAND}" font-weight="700" font-size="25" fill="#3B2F4A">${o.caption}</text>` : ''}`;
+    return { defs, body };
+  }
+  function polaroid(skin, o) {
+    const p = polaroidParts(skin, o);
+    const sh = uid('psh');
+    return svg('-10 -8 240 286', `<defs>${p.defs}${shadow(sh)}</defs><g filter="url(#${sh})">${p.body}</g>`, o.label);
+  }
+  function polaroidStack(skin, o) {
+    const scenes = ['night', 'beach', 'rain'], caps = ['best night', 'beach day', 'monsoon mood'];
+    const place = [[34, 30, -10], [92, 20, 8], [62, 40, -1]];
+    const sh = uid('psh');
+    let defs = shadow(sh), body = '';
+    scenes.forEach((sc, i) => {
+      const p = polaroidParts(skin, { seed: (o.seed || 1) + i, scene: sc, caption: caps[i] });
+      defs += p.defs;
+      body += `<g transform="translate(${place[i][0]} ${place[i][1]}) rotate(${place[i][2]} 90 107) scale(.82)" filter="url(#${sh})">${p.body}</g>`;
+    });
+    return svg('0 0 300 300', `<defs>${defs}</defs>${body}`, o.label);
+  }
+
+  /* Diary sticker sheet (kiss-cut) */
+  function sheet(skin, o) {
+    const P = ART[skin];
+    const sh = uid('ss');
+    const words = ['yay!', 'to-do', 'focus', 'me time', 'omg', 'slay'];
+    const cols = [P.a, P.b, P.c, P.d, P.e, P.f];
+    let s = `<defs>${shadow(sh)}</defs><g filter="url(#${sh})"><rect x="10" y="6" width="180" height="248" rx="10" fill="#FFFFFF"/></g>`;
+    s += `<text x="100" y="32" text-anchor="middle" font-family="${P.font}" font-weight="${P.fw}" font-size="17" fill="${P.ink}">${o.title || 'main character'}</text>`;
+    let k = 0;
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 3; col++) {
+        const cx = 44 + col * 56, cy = 74 + row * 50, i = row * 3 + col, c = cols[i % cols.length], t = (i + row) % 4;
+        let geo;
+        if (t === 0) geo = `<path d="${heart(cx, cy + 2, 19)}"/>`;
+        else if (t === 1) geo = `<path d="${star(cx, cy + 1, 21, 10, 5)}"/>`;
+        else if (t === 2) geo = `<rect x="${cx - 25}" y="${cy - 12}" width="50" height="24" rx="12"/>`;
+        else geo = `<path d="${scallop(cx, cy, 20, 8, 0.16)}"/>`;
+        s += `<g fill="#FFFFFF" stroke="#000000" stroke-opacity=".12" stroke-width="9" stroke-linejoin="round">${geo}</g><g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="7" stroke-linejoin="round">${geo}</g><g fill="${c}">${geo}</g>`;
+        if (t === 2) s += `<text x="${cx}" y="${cy + 1}" text-anchor="middle" dominant-baseline="central" font-family="${SANS}" font-weight="800" font-size="10" fill="${textOn(c, P.ink)}">${words[k++ % words.length]}</text>`;
+      }
+    }
+    return svg('0 0 200 262', s, o.label);
+  }
+
+  /* Bookmark with a rangoli-style mandala */
+  function bookmark(skin, o) {
+    const P = ART[skin];
+    const sh = uid('bs'), mk = uid('bm');
+    let m = '';
+    const ring = (n, dist, rx, ry, color, rot = 0) => { for (let i = 0; i < n; i++) m += `<ellipse cx="80" cy="${108 - dist}" rx="${rx}" ry="${ry}" fill="${color}" transform="rotate(${f1(rot + (i * 360) / n)} 80 108)"/>`; };
+    ring(12, 27, 7, 16, P.a);
+    ring(8, 14, 6, 11, P.b, 22.5);
+    m += `<circle cx="80" cy="108" r="9" fill="${P.e}"/><circle cx="80" cy="108" r="4" fill="${P.paper}"/>`;
+    for (let i = 0; i < 16; i++) { const a = (i / 16) * TAU; m += `<circle cx="${f1(80 + Math.cos(a) * 44)}" cy="${f1(108 + Math.sin(a) * 44)}" r="2.2" fill="${P.paper}" opacity=".9"/>`; }
+    const s = `<defs>${shadow(sh)}<mask id="${mk}"><rect x="0" y="0" width="160" height="290" fill="#FFFFFF"/><circle cx="80" cy="30" r="5.5" fill="#000000"/></mask></defs>
+      <g filter="url(#${sh})"><rect x="34" y="14" width="92" height="256" rx="8" fill="${P.c}" mask="url(#${mk})"/></g>${m}
+      <text transform="translate(80 210) rotate(-90)" text-anchor="middle" dominant-baseline="central" font-family="${P.font}" font-weight="${P.fw}" font-size="19" fill="${textOn(P.c, P.ink)}">${o.word || 'DESI VIBES'}</text>
+      <path d="M80 30 C90 18 100 10 110 4" stroke="${P.b}" stroke-width="2.6" fill="none" stroke-linecap="round"/><g stroke="${P.b}" stroke-width="2.2" stroke-linecap="round"><path d="M110 4 l10 -2"/><path d="M110 4 l9 4"/><path d="M110 4 l6 8"/></g>`;
+    return svg('0 0 160 290', s, o.label);
+  }
+
+  /* Custom-studio visuals */
+  function customSticker(skin) {
+    const P = ART[skin];
+    const cl = uid('cc'), sk = uid('cs');
+    const d = blob(100, 100, 78, 8, 0.2, rng(42));
+    const ridge = (base, amp, seed, color) => { const rr = rng(seed); let p = `M0 ${base}`; for (let x = 0; x <= 200; x += 25) p += ` L${x} ${f1(base - rr() * amp)}`; return `<path d="${p} L200 200 L0 200 Z" fill="${color}"/>`; };
+    return svg('-16 -16 232 232', `<defs><clipPath id="${cl}"><path d="${d}"/></clipPath>${grad(sk, [[0, P.f], [1, P.e]], true)}</defs>
+      <path d="${d}" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="18" stroke-linejoin="round"/>
+      <path d="${d}" fill="none" stroke="${skin === 'neon' ? '#C6FF3D' : P.ink}" stroke-width="1.8" stroke-dasharray="6 5" transform="translate(100 100) scale(1.12) translate(-100 -100)"/>
+      <g clip-path="url(#${cl})"><rect width="200" height="200" fill="url(#${sk})"/><circle cx="120" cy="86" r="24" fill="${P.a}"/>${ridge(140, 40, 5, P.c)}${ridge(160, 30, 6, P.dark)}</g>`, 'Custom sticker with a die-cut preview');
+  }
+  function customPolaroids(skin) {
+    const a = polaroidParts(skin, { scene: 'beach', seed: 51, caption: 'your photo' });
+    const b = polaroidParts(skin, { scene: 'night', seed: 52, caption: 'goa 2026' });
+    const sh = uid('psh');
+    return svg('0 0 320 220', `<defs>${a.defs}${b.defs}${shadow(sh)}</defs><g transform="translate(40 22) rotate(-8 90 107) scale(.68)" filter="url(#${sh})">${a.body}</g><g transform="translate(150 14) rotate(7 90 107) scale(.68)" filter="url(#${sh})">${b.body}</g>`, 'Custom polaroid prints');
+  }
+  function wall(skin, o) {
+    const P = ART[skin];
+    const pp = posterParts(skin, { ...o.poster, frame: o.frame || 'none' });
+    const g = uid('wl'), sh = uid('ws');
+    const wallC = { pop: ['#DCE8FF', '#C9D9FF'], neon: ['#1C1C2A', '#14141E'], gallery: ['#EFEDE7', '#E4E1D9'], scrap: ['#FCEFF6', '#F6E3EE'] }[skin];
+    const floor = skin === 'neon' ? '#0E0E16' : '#D9CFC2';
+    const ph = 156, pw = (ph * pp.w) / pp.h;
+    return svg('0 0 400 400', `<defs>${grad(g, [[0, wallC[0]], [1, wallC[1]]], true)}${pp.defs}${shadow(sh, 6, 6, 0.28)}</defs>
+      <rect width="400" height="400" fill="url(#${g})"/><rect y="318" width="400" height="82" fill="${floor}"/><rect y="311" width="400" height="8" fill="${skin === 'neon' ? '#24243A' : '#EDE6DB'}"/>
+      <g filter="url(#${sh})"><svg x="${f1(200 - pw / 2)}" y="48" width="${f1(pw)}" height="${ph}" viewBox="${pp.vb}">${pp.body}</svg></g>
+      <g><rect x="78" y="252" width="244" height="58" rx="16" fill="${P.c}"/><rect x="62" y="262" width="42" height="62" rx="14" fill="${P.c}"/><rect x="296" y="262" width="42" height="62" rx="14" fill="${P.c}"/><rect x="92" y="236" width="104" height="42" rx="14" fill="${P.c}" opacity=".82"/><rect x="204" y="236" width="104" height="42" rx="14" fill="${P.c}" opacity=".82"/><rect x="84" y="322" width="8" height="18" fill="${P.ink}"/><rect x="308" y="322" width="8" height="18" fill="${P.ink}"/></g>`, o.label, 'fill');
+  }
+  function sizeGuide(skin) {
+    const P = ART[skin];
+    const k = 0.4, x0 = 54, y0 = 296;
+    let s = '';
+    [['A2', 420, 594, P.e], ['A3', 297, 420, P.d], ['A4', 210, 297, P.a]].forEach(([n, w, h, c]) => {
+      const W = w * k, H = h * k;
+      s += `<rect x="${x0}" y="${f1(y0 - H)}" width="${f1(W)}" height="${f1(H)}" fill="${c}" fill-opacity=".62" stroke="${P.fg}" stroke-width="1.6"/><text x="${f1(x0 + W - 8)}" y="${f1(y0 - H + 22)}" text-anchor="end" font-family="${P.font}" font-weight="${P.fw}" font-size="18" fill="${P.fg}">${n}</text>`;
+    });
+    s += `<g font-family="${SANS}" font-size="11.5" font-weight="700" fill="${P.fg}"><text x="${x0}" y="${y0 + 24}">A4 · 21 × 29.7 cm</text><text x="${x0 + 118}" y="${y0 + 24}">A3 · 29.7 × 42 cm</text><text x="${x0}" y="${y0 + 42}">A2 · 42 × 59.4 cm (drawn to scale)</text></g>`;
+    return svg('0 0 300 350', s, 'Poster size guide with A4, A3 and A2 drawn to scale');
+  }
+
+  /* ---------- catalogue (sample) ---------- */
+  const TYPES = [
+    { name: 'Laptop Stickers', count: '1,840 designs', art: (s) => sticker(s, { shape: 'blob', word: 'VIBE', seed: 21, c1: 'a', c2: 'e' }) },
+    { name: '3D Stickers', count: '260 designs', holo: true, art: (s) => sticker(s, { shape: 'star', word: 'WOW', seed: 22, c1: 'c', c2: 'f' }) },
+    { name: 'Wall Posters', count: '1,320 designs', art: (s) => poster(s, { kind: 'orbit', seed: 23 }) },
+    { name: 'Framed Posters', count: '940 designs', art: (s) => poster(s, { kind: 'sunset', seed: 24, frame: 'black' }) },
+    { name: 'Polaroids', count: '420 sets', art: (s) => polaroid(s, { scene: 'night', seed: 25, caption: 'best night' }) },
+    { name: 'Fridge Magnets', count: '310 designs', art: (s) => sticker(s, { shape: 'cat', seed: 26, c1: 'e', c2: 'b' }) },
+    { name: 'Diary Stickers', count: '380 sheets', art: (s) => sheet(s, { seed: 27 }) },
+    { name: 'Bookmarks', count: '290 designs', art: (s) => bookmark(s, { word: 'READ MORE' }) },
+  ];
+  const PRODUCTS = [
+    { name: 'Chai Over Code', type: 'Laptop sticker', price: 29, badge: 'New', art: (s) => sticker(s, { shape: 'pill', word: 'CHAI.EXE', seed: 31, c1: 'a', c2: 'e', label: 'Chai Over Code sticker' }) },
+    { name: 'Pit Lane Dreams', type: 'Wall poster', price: 99, from: true, art: (s) => poster(s, { kind: 'speed', seed: 32, label: 'Pit Lane Dreams poster' }) },
+    { name: 'Moon Ritual', type: '3D motion sticker', price: 99, badge: '3D', holo: true, art: (s) => sticker(s, { shape: 'moon', word: 'MOON', seed: 33, c1: 'dark2', c2: 'c', label: 'Moon Ritual 3D sticker' }) },
+    { name: 'Monsoon Mood', type: 'Polaroid set · 10 pcs', price: 149, art: (s) => polaroidStack(s, { seed: 34, label: 'Monsoon Mood polaroid set' }) },
+    { name: 'Golden Hour', type: 'Framed poster', price: 349, from: true, art: (s) => poster(s, { kind: 'sunset', seed: 35, frame: 'wood', label: 'Golden Hour framed poster' }) },
+    { name: 'Main Character', type: 'Diary sticker sheet', price: 49, art: (s) => sheet(s, { seed: 36, label: 'Main Character sticker sheet' }) },
+    { name: 'Cosmic Cat', type: 'Fridge magnet', price: 79, art: (s) => sticker(s, { shape: 'cat', seed: 37, c1: 'c', c2: 'f', label: 'Cosmic Cat fridge magnet' }) },
+    { name: 'Desi Vibes Only', type: 'Bookmark', price: 39, art: (s) => bookmark(s, { word: 'DESI VIBES', label: 'Desi Vibes Only bookmark' }) },
+  ];
+
+  function heroArt(skin) {
+    const at = (l, t, w, rot, inner, cls = '') => `<div class="ha ${cls}" style="left:${l}%;top:${t}%;width:${w}%;transform:rotate(${rot}deg)">${inner}</div>`;
+    if (skin === 'pop') return [
+      at(46, 0, 44, 7, poster(skin, { kind: 'sunset', seed: 11 })),
+      at(0, 6, 50, -9, sticker(skin, { shape: 'blob', word: 'VIBE', seed: 12, c1: 'b', c2: 'f' })),
+      at(16, 50, 40, 8, sticker(skin, { shape: 'star', word: 'WOW!', seed: 13, c1: 'a', c2: 'e' })),
+      at(58, 56, 38, -7, sticker(skin, { shape: 'cat', seed: 14, c1: 'c', c2: 'd' })),
+    ].join('');
+    if (skin === 'neon') return '<div class="stripes"></div>' + [
+      at(22, 0, 56, 0, poster(skin, { kind: 'speed', seed: 15 }), 'glow'),
+      at(0, 56, 32, -12, sticker(skin, { shape: 'badge', word: 'P1', seed: 16, c1: 'a', c2: 'd' })),
+      at(68, 62, 32, 10, sticker(skin, { shape: 'pill', word: 'FULL SEND', seed: 17, c1: 'b', c2: 'f' })),
+    ].join('');
+    if (skin === 'gallery') return '<div class="wallpanel"></div>' + [
+      at(9, 9, 40, 0, poster(skin, { kind: 'sunset', seed: 18, frame: 'black' })),
+      at(55, 19, 35, 0, poster(skin, { kind: 'bloom', seed: 19, frame: 'white' })),
+    ].join('');
+    return [
+      at(2, 8, 44, -8, polaroid(skin, { scene: 'beach', seed: 20, caption: 'beach day' }), 'taped'),
+      at(48, 2, 42, 6, polaroid(skin, { scene: 'night', seed: 21, caption: 'best night' }), 'taped t2'),
+      at(24, 38, 44, -2, polaroid(skin, { scene: 'rain', seed: 22, caption: 'monsoon mood' }), 'taped t3'),
+      at(74, 60, 22, 12, sticker(skin, { shape: 'heart', seed: 23, c1: 'b', c2: 'e' })),
+    ].join('');
+  }
+  function packFan(skin) {
+    const items = [
+      { shape: 'badge', word: 'HOLA', c1: 'd', c2: 'c', seed: 41 },
+      { shape: 'star', word: 'YAY', c1: 'b', c2: 'f', seed: 42 },
+      { shape: 'blob', word: 'CHILL', c1: 'a', c2: 'e', seed: 43 },
+      { shape: 'pill', word: 'NO DRAMA', c1: 'c', c2: 'd', seed: 44 },
+      { shape: 'blob', word: '404', c1: 'e', c2: 'b', seed: 45 },
+    ];
+    const pos = [[0, 30, -14], [18, 0, 8], [37, 34, -4], [56, 4, 12], [70, 44, -10]];
+    return items.map((it, i) => `<div class="fan" style="left:${pos[i][0]}%;top:${pos[i][1]}%;transform:rotate(${pos[i][2]}deg)">${sticker(skin, it)}</div>`).join('');
+  }
+
+  /* ---------- templates ---------- */
+  const megaStickers = (skin) => `<div class="mega" role="group" aria-label="Stickers menu">
+      <div><p class="mega-h">By type</p><ul>${['Laptop stickers', '3D motion stickers', '3D dome stickers', 'Holographic', 'Transparent', 'Diary sheets', 'Fridge magnets', 'Car &amp; bike'].map((t) => `<li><button class="mlink" type="button">${t}</button></li>`).join('')}</ul></div>
+      <div><p class="mega-h">By vibe</p><ul>${['Anime', 'F1 &amp; Motorsport', 'Aesthetic', 'Coding &amp; Tech', 'K-Pop', 'Quotes', 'Cute &amp; Kawaii', 'Desi Vibes'].map((t) => `<li><button class="mlink" type="button">${t}</button></li>`).join('')}</ul></div>
+      <div class="mega-feat"><div class="mega-art">${sticker(skin, { shape: 'badge', word: '10', seed: 61, c1: 'b', c2: 'f' })}</div><p class="mega-feat-t">Build your own pack</p><p class="mega-feat-s">Any 10 stickers for ₹199, 20 for ₹349</p></div>
+    </div>`;
+  const megaPosters = (skin) => `<div class="mega" role="group" aria-label="Posters menu">
+      <div><p class="mega-h">By type</p><ul>${['Wall posters', 'Framed posters', 'Split posters (3-panel)', 'Poster sets', 'Wall collage kits', 'Mini posters'].map((t) => `<li><button class="mlink" type="button">${t}</button></li>`).join('')}</ul></div>
+      <div><p class="mega-h">By size</p><ul>${['A4 · 21 × 29.7 cm', 'A3 · 29.7 × 42 cm', 'A2 · 42 × 59.4 cm', '12 × 18 in'].map((t) => `<li><button class="mlink" type="button">${t}</button></li>`).join('')}</ul></div>
+      <div class="mega-feat"><div class="mega-art">${poster(skin, { kind: 'speed', seed: 62 })}</div><p class="mega-feat-t">Pit lane series</p><p class="mega-feat-s">Racing posters from ₹99</p></div>
+    </div>`;
+
+  function shopHTML(skin) {
+    const C = COPY[skin];
+    const tints = TINTS[skin];
+    const tiltK = skin === 'scrap' ? 0.6 : 1;
+    const logo = skin === 'scrap' ? `${C.logo}${I('<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>')}` : C.logo;
+    const card = (p, i) => `<article class="p-card" style="--tilt:${f1(TILTS[i % TILTS.length] * tiltK)}deg;--tint:${tints[i % tints.length]}">
+        <div class="p-media${p.holo ? ' holo' : ''}">${p.art(skin)}${p.badge ? `<span class="p-badge">${p.badge}</span>` : ''}<button class="wish" type="button" data-act="wish" aria-pressed="false" aria-label="Save ${p.name} to wishlist">${ICON.heart}</button></div>
+        <div class="p-info"><p class="p-type">${p.type}</p><h3 class="p-name">${p.name}</h3>
+          <div class="p-row"><span class="price">${p.from ? '<small>from </small>' : ''}₹${p.price}</span><button class="add" type="button" data-act="quick-add" data-name="${p.name}" aria-label="Add ${p.name} to cart">${ICON.plus}<span>Add</span></button></div></div>
+      </article>`;
+    return `
+    <div class="announce"><div class="s-wrap">${C.announce.map((t) => `<span>${t}</span>`).join('<i aria-hidden="true">•</i>')}</div></div>
+    <header class="hdr"><div class="s-wrap">
+      <button class="icon-btn menu-btn" type="button" data-act="menu" aria-label="Open menu">${ICON.menu}</button>
+      <button class="logo" type="button" aria-label="PrintYourVibe home">${logo}</button>
+      <nav class="nav" aria-label="Shop">
+        <div class="nav-item"><button class="nav-link" type="button" aria-haspopup="true">Stickers ${ICON.chev}</button>${megaStickers(skin)}</div>
+        <div class="nav-item"><button class="nav-link" type="button" aria-haspopup="true">Posters ${ICON.chev}</button>${megaPosters(skin)}</div>
+        <button class="nav-link" type="button">Polaroids</button>
+        <button class="nav-link n-custom" type="button">Custom</button>
+        <button class="nav-link n-more" type="button">More</button>
+      </nav>
+      <div class="search" role="search">${ICON.search}<label class="sr" for="q-search">Search the store</label><input id="q-search" type="search" placeholder="${C.search}" autocomplete="off">
+        <div class="suggest"><p class="sg-h">Popular searches</p>${['f1 posters', 'anime stickers', 'custom polaroids', '3d motion stickers'].map((t) => `<button class="sg" type="button">${ICON.trend}${t}</button>`).join('')}</div></div>
+      <div class="hdr-icons">
+        <button class="icon-btn hide-sm" type="button" aria-label="Wishlist">${ICON.heart}</button>
+        <button class="icon-btn hide-sm" type="button" aria-label="Account">${ICON.user}</button>
+        <button class="icon-btn" type="button" aria-label="Cart">${ICON.bag}<span class="count" data-count>${state.cart}</span></button>
+      </div>
+    </div></header>
+
+    <section class="hero"><div class="s-wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">${C.eyebrow}</p>
+        <h1 class="disp hero-title">${C.title}</h1>
+        <p class="hero-sub">${C.sub}</p>
+        <div class="hero-ctas"><button class="btn btn-primary" type="button">${C.cta1}</button><button class="btn btn-ghost" type="button">${C.cta2}</button></div>
+        <ul class="trust"><li>${ICON.drop}Waterproof vinyl</li><li>${ICON.layers}300 GSM posters</li><li>${ICON.card}UPI, cards &amp; COD</li><li>${ICON.truck}Ships across India</li></ul>
+      </div>
+      <div class="hero-art" aria-hidden="true">${heroArt(skin)}</div>
+    </div></section>
+
+    <section class="sec"><div class="s-wrap">
+      <div class="sec-head"><h2 class="disp sec-title">${C.types}</h2><button class="see-all" type="button">See all ${ICON.arrow}</button></div>
+      <div class="tiles">${TYPES.map((t, i) => `<button class="tile" type="button" style="--tint:${tints[(i + 2) % tints.length]}"><span class="tile-art${t.holo ? ' holo' : ''}">${t.art(skin)}</span><span class="tile-name">${t.name}</span><span class="tile-count">${t.count}</span></button>`).join('')}</div>
+    </div></section>
+
+    <section class="sec"><div class="s-wrap">
+      <div class="sec-head"><h2 class="disp sec-title">${C.vibes}</h2><button class="see-all" type="button">All 30 vibes ${ICON.arrow}</button></div>
+      <div class="chips">${VIBES.map((v) => `<button class="chip" type="button" data-act="chip" aria-pressed="${v === state.chip}">${v.replace('&', '&amp;')}</button>`).join('')}</div>
+    </div></section>
+
+    <section class="sec"><div class="s-wrap">
+      <div class="sec-head"><h2 class="disp sec-title">${C.trending}</h2><button class="see-all" type="button">View all ${ICON.arrow}</button></div>
+      <div class="grid">${PRODUCTS.map(card).join('')}</div>
+    </div></section>
+
+    <section class="pack"><div class="s-wrap">
+      <div class="pack-copy">
+        <p class="eyebrow">${C.packEyebrow}</p>
+        <h2 class="disp pack-title">${C.packTitle}</h2>
+        <div class="tiers"><div class="tier"><b>10</b><span>stickers</span><em>₹199</em></div><div class="tier"><b>20</b><span>stickers</span><em>₹349</em></div><div class="tier"><b>50</b><span>stickers</span><em>₹699</em></div></div>
+        <button class="btn btn-primary" type="button">Start your pack</button>
+      </div>
+      <div class="pack-art" aria-hidden="true">${packFan(skin)}</div>
+    </div></section>
+
+    <section class="sec"><div class="s-wrap">
+      <div class="sec-head"><h2 class="disp sec-title">${C.custom}</h2></div>
+      <div class="custom-grid">
+        <article class="c-card"><div class="c-art" style="--tint:${tints[0]}">${customSticker(skin)}</div><div class="c-body"><h3 class="disp c-title">Custom stickers</h3><p>Upload any image, pick a shape, size and finish, and see the die-cut before you pay.</p><button class="btn btn-ghost btn-sm" type="button">${ICON.upload}Upload your design</button></div></article>
+        <article class="c-card"><div class="c-art" style="--tint:${tints[1 % tints.length]}">${customPolaroids(skin)}</div><div class="c-body"><h3 class="disp c-title">Custom polaroids</h3><p>Upload 10 to 50 photos, crop them and add captions. Add clips and fairy lights if you like.</p><button class="btn btn-ghost btn-sm" type="button">${ICON.upload}Upload your photos</button></div></article>
+        <article class="c-card"><div class="c-art" style="--tint:${tints[2 % tints.length]}">${wall(skin, { poster: { kind: 'sunset', seed: 53 }, frame: 'wood' })}</div><div class="c-body"><h3 class="disp c-title">Custom posters</h3><p>Turn a photo into a poster from A4 to A2, with a black, white or wood frame.</p><button class="btn btn-ghost btn-sm" type="button">${ICON.upload}Create a poster</button></div></article>
+      </div>
+    </div></section>
+
+    <div class="pdp-label"><div class="s-wrap">Product page preview</div></div>
+    <section class="pdp"><div class="s-wrap">
+      <div class="gallery">
+        <div class="g-main" id="g-main"></div>
+        <div class="g-thumbs" role="group" aria-label="Product images" id="g-thumbs"></div>
+      </div>
+      <div class="buy">
+        <p class="crumbs">Home / Posters / F1 &amp; Motorsport</p>
+        <h2 class="disp pdp-title">Pit Lane Dreams</h2>
+        <p class="pdp-type">Wall poster · Night race series</p>
+        <p class="pdp-price"><strong id="pdp-price">₹149</strong><small>Inclusive of all taxes</small></p>
+        <fieldset class="opt"><legend>Size</legend><div class="opt-row">${Object.entries(SIZES).map(([k, v]) => `<input type="radio" name="size" id="opt-size-${k}" value="${k}"${state.pdp.size === k ? ' checked' : ''}><label for="opt-size-${k}">${k}<small>${v.dims}</small></label>`).join('')}</div></fieldset>
+        <fieldset class="opt"><legend>Paper</legend><div class="opt-row">${Object.entries(PAPERS).map(([k, v]) => `<input type="radio" name="paper" id="opt-paper-${k}" value="${k}"${state.pdp.paper === k ? ' checked' : ''}><label for="opt-paper-${k}">${v.label}<small>${v.note}</small></label>`).join('')}</div></fieldset>
+        <fieldset class="opt"><legend>Frame</legend><div class="opt-row">${Object.entries(FRAMES).map(([k, v]) => `<input type="radio" name="frame" id="opt-frame-${k}" value="${k}"${state.pdp.frame === k ? ' checked' : ''}><label for="opt-frame-${k}">${v}<small data-frame-price="${k}"></small></label>`).join('')}</div></fieldset>
+        <div class="qty-row">
+          <div class="qty"><button type="button" data-act="qty-" aria-label="Decrease quantity">−</button><output id="qty" aria-live="polite">${state.pdp.qty}</output><button type="button" data-act="qty+" aria-label="Increase quantity">+</button></div>
+          <button class="btn btn-primary" type="button" data-act="add">Add to cart</button>
+          <button class="btn btn-ghost" type="button" data-act="buy">Buy now</button>
+        </div>
+        <form class="pin" data-form="pin" novalidate>
+          <label for="pin-input">Check delivery</label>
+          <div class="pin-row"><input id="pin-input" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit pincode" autocomplete="postal-code"><button class="btn btn-ghost btn-sm" type="submit">Check</button></div>
+          <p class="pin-out" id="pin-out" aria-live="polite"></p>
+        </form>
+        <ul class="highlights"><li>${ICON.check}Printed on 300 GSM paper with a smooth finish</li><li>${ICON.check}Packed flat in a rigid mailer so corners stay sharp</li><li>${ICON.check}Pay by UPI, cards, netbanking or Cash on Delivery</li></ul>
+      </div>
+    </div></section>
+
+    <footer class="foot">
+      <div class="s-wrap foot-grid">
+        <div class="foot-brand"><button class="logo" type="button" aria-label="PrintYourVibe home">${logo}</button><p>Stickers, posters and polaroids, printed to order in India.</p>
+          <form class="news" data-form="news" novalidate><label class="sr" for="news-email">Email address</label><input id="news-email" type="email" placeholder="Your email for new drops" autocomplete="email"><button class="btn btn-primary btn-sm" type="submit">Join</button></form></div>
+        <div><p class="foot-h">Shop</p><ul><li>Stickers</li><li>Posters</li><li>Polaroids</li><li>Custom studio</li><li>Gift cards</li></ul></div>
+        <div><p class="foot-h">Help</p><ul><li>Track your order</li><li>Shipping</li><li>Returns &amp; refunds</li><li>Contact us</li></ul></div>
+        <div class="foot-pay"><p class="foot-h">We accept</p><div class="pay"><span>UPI</span><span>Cards</span><span>Netbanking</span><span>Wallets</span><span>COD</span></div></div>
+      </div>
+      <div class="s-wrap foot-bottom"><span>© 2026 PrintYourVibe</span><span>Privacy · Terms · Shipping policy</span></div>
+    </footer>
+
+    <div class="dock">
+      <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+      <button class="fab" type="button" aria-label="Chat with us on WhatsApp">${ICON.chat}<span>Chat with us</span></button>
+      <nav class="bnav" aria-label="Mobile">
+        <button type="button" aria-current="page">${ICON.home}<span>Home</span></button>
+        <button type="button">${ICON.grid}<span>Shop</span></button>
+        <button type="button">${ICON.sparkle}<span>Custom</span></button>
+        <button type="button">${ICON.heart}<span>Wishlist</span></button>
+        <button type="button">${ICON.bag}<span>Cart</span><span class="count" data-count>${state.cart}</span></button>
+      </nav>
+    </div>`;
+  }
+  function drawerHTML(skin) {
+    const C = COPY[skin];
+    const logo = skin === 'scrap' ? `${C.logo}${I('<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>')}` : C.logo;
+    return `<button class="drawer-scrim" type="button" data-act="close" aria-label="Close menu"></button>
+      <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
+        <div class="drawer-head"><span class="logo">${logo}</span><button class="icon-btn" type="button" data-act="close" aria-label="Close menu">${ICON.close}</button></div>
+        <ul class="drawer-list">${['Stickers', 'Posters', 'Polaroids', 'Custom studio', 'Build your own pack', 'Bookmarks &amp; more'].map((t) => `<li><button type="button">${t}${ICON.chev}</button></li>`).join('')}</ul>
+        <ul class="drawer-sub"><li>Track your order</li><li>Help &amp; FAQ</li><li>Contact us</li></ul>
+      </div>`;
+  }
+
+  /* ---------- behaviour ---------- */
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const device = $('#device'), shop = $('#shop'), drawer = $('#drawer'), stage = $('#stage');
+
+  function framePrice(f, size) { return f === 'none' ? 0 : SIZES[size].frame + (f === 'wood' ? 50 : 0); }
+  function unitPrice() { const p = state.pdp; return SIZES[p.size].price + PAPERS[p.paper].add + framePrice(p.frame, p.size); }
+  function updatePdp() {
+    const p = state.pdp, skin = state.skin;
+    $('#pdp-price', shop).textContent = `₹${unitPrice() * p.qty}`;
+    shop.querySelectorAll('[data-frame-price]').forEach((el) => { const k = el.dataset.framePrice; el.textContent = k === 'none' ? 'Print only' : `+₹${framePrice(k, p.size)}`; });
+    const views = [
+      () => poster(skin, { kind: 'speed', seed: 32, frame: p.frame, label: 'Pit Lane Dreams poster' }),
+      () => wall(skin, { poster: { kind: 'speed', seed: 32 }, frame: p.frame, label: 'Pit Lane Dreams on a wall' }),
+      () => poster(skin, { kind: 'speed', seed: 32, vb: '30 110 240 240', cls: 'fill', label: 'Close-up of the print' }),
+      () => sizeGuide(skin),
+    ];
+    const names = ['Print', 'On the wall', 'Close-up', 'Size guide'];
+    $('#g-main', shop).innerHTML = views[p.thumb]();
+    $('#g-thumbs', shop).innerHTML = views.map((v, i) => `<button class="g-thumb" type="button" data-act="thumb" data-i="${i}" aria-pressed="${i === p.thumb}" aria-label="${names[i]}">${v()}</button>`).join('');
+  }
+  function setCount() { shop.querySelectorAll('[data-count]').forEach((el) => { el.textContent = state.cart; }); }
+  let toastTimer;
+  function toast(msg) {
+    const t = $('#toast', shop);
+    if (!t) return;
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 2400);
+  }
+  function openDrawer() { drawer.hidden = false; const c = drawer.querySelector('[data-act="close"].icon-btn'); if (c) c.focus(); }
+  function closeDrawer() { drawer.hidden = true; const m = shop.querySelector('.menu-btn'); if (m) m.focus(); }
+
+  function render() {
+    device.dataset.skin = state.skin;
+    shop.innerHTML = shopHTML(state.skin);
+    drawer.innerHTML = drawerHTML(state.skin);
+    drawer.hidden = true;
+    updatePdp();
+  }
+
+  device.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]');
+    if (!b) return;
+    const act = b.dataset.act;
+    if (act === 'menu') openDrawer();
+    else if (act === 'close') closeDrawer();
+    else if (act === 'wish') { const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', String(on)); toast(on ? 'Saved to your wishlist' : 'Removed from your wishlist'); }
+    else if (act === 'quick-add') { state.cart += 1; setCount(); toast(`Added ${b.dataset.name} to your cart`); }
+    else if (act === 'chip') { state.chip = b.textContent; shop.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === b))); }
+    else if (act === 'thumb') { state.pdp.thumb = Number(b.dataset.i); updatePdp(); const t = shop.querySelector(`.g-thumb[data-i="${state.pdp.thumb}"]`); if (t) t.focus(); }
+    else if (act === 'qty-' || act === 'qty+') { state.pdp.qty = Math.min(20, Math.max(1, state.pdp.qty + (act === 'qty+' ? 1 : -1))); $('#qty', shop).textContent = state.pdp.qty; $('#pdp-price', shop).textContent = `₹${unitPrice() * state.pdp.qty}`; }
+    else if (act === 'add') { const p = state.pdp; state.cart += p.qty; setCount(); toast(`Added ${p.qty} × Pit Lane Dreams (${p.size}, ${PAPERS[p.paper].label}, ${FRAMES[p.frame]})`); }
+    else if (act === 'buy') toast('Buy now skips the cart and opens checkout');
+  });
+  device.addEventListener('change', (e) => {
+    const el = e.target;
+    if (el.name === 'size' || el.name === 'paper' || el.name === 'frame') { state.pdp[el.name] = el.value; updatePdp(); }
+  });
+  device.addEventListener('submit', (e) => {
+    const f = e.target;
+    e.preventDefault();
+    if (f.dataset.form === 'pin') {
+      const v = $('#pin-input', shop).value.trim();
+      const out = $('#pin-out', shop);
+      if (!/^[1-9][0-9]{5}$/.test(v)) { out.dataset.state = 'error'; out.textContent = 'Enter a valid 6-digit pincode, like 560001.'; return; }
+      const d = new Date();
+      d.setDate(d.getDate() + 5);
+      out.dataset.state = 'ok';
+      out.textContent = `Delivery by ${d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} to ${v}. Cash on Delivery available.`;
+    } else if (f.dataset.form === 'news') {
+      toast('Thanks! New drops will reach your inbox.');
+      f.reset();
+    }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !drawer.hidden) closeDrawer(); });
+
+  /* ---------- picker chrome ---------- */
+  const picker = $('#picker'), tabs = $('#tabs');
+  picker.innerHTML = Object.entries(SKINS).map(([k, s]) => `<button class="pick" type="button" data-pick="${k}" aria-pressed="false">
+      <span class="pick-top"><span class="swatches">${s.sw.map((c) => `<i style="--s:${c}"></i>`).join('')}</span><span class="pick-state"></span></span>
+      <span class="pick-name f-${k}">${s.name}</span>
+      <span class="pick-desc">${s.desc}</span>
+      <span class="pick-meta"><span><b>Fonts</b> ${s.fonts}</span><span><b>Best for</b> ${s.best}</span></span>
+    </button>`).join('');
+  tabs.innerHTML = Object.entries(SKINS).map(([k, s]) => `<button class="tab" type="button" role="tab" data-pick="${k}" aria-selected="false"><span class="dot" style="--s:${s.sw[k === 'gallery' ? 3 : k === 'neon' ? 1 : 0]}"></span>${s.name}</button>`).join('');
+
+  function syncPicker() {
+    document.querySelectorAll('.pick').forEach((b) => { const on = b.dataset.pick === state.skin; b.setAttribute('aria-pressed', String(on)); b.querySelector('.pick-state').textContent = on ? 'Showing' : 'Preview'; });
+    document.querySelectorAll('.tab').forEach((b) => { const on = b.dataset.pick === state.skin; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; });
+  }
+  function skinFromHash() {
+    const h = (location.hash || '').slice(1);
+    return Object.keys(SKINS).find((k) => SKINS[k].key === h) || null;
+  }
+  function setSkin(skin) {
+    if (!SKINS[skin] || (skin === state.skin && shop.childElementCount)) { syncPicker(); return; }
+    state.skin = skin;
+    syncPicker();
+    render();
+  }
+  function choose(skin) {
+    const key = SKINS[skin].key;
+    if (location.hash.slice(1) === key) setSkin(skin);
+    else location.hash = key;
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-pick]');
+    if (b) choose(b.dataset.pick);
+  });
+  tabs.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const keys = Object.keys(SKINS);
+    const i = keys.indexOf(state.skin);
+    const next = keys[(i + (e.key === 'ArrowRight' ? 1 : keys.length - 1)) % keys.length];
+    choose(next);
+    const t = tabs.querySelector(`[data-pick="${next}"]`);
+    if (t) t.focus();
+    e.preventDefault();
+  });
+  window.addEventListener('hashchange', () => { const s = skinFromHash(); if (s) setSkin(s); });
+
+  const viewBtns = document.querySelectorAll('.views button');
+  function setView(v) {
+    state.view = v;
+    stage.dataset.view = v;
+    viewBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+    if (!drawer.hidden) drawer.hidden = true;
+  }
+  viewBtns.forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+  const narrow = window.matchMedia('(max-width: 640px)');
+  const onNarrow = () => { if (narrow.matches && state.view !== 'full') setView('full'); };
+  if (narrow.addEventListener) narrow.addEventListener('change', onNarrow);
+  onNarrow();
+
+  state.skin = skinFromHash() || 'pop';
+  syncPicker();
+  render();
+})();
+</script>
+
+</body>
+</html>

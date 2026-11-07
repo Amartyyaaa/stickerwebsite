@@ -4,7 +4,7 @@ An online store for custom-printed stickers (2D and 3D), polaroids, wall posters
 
 ## Status
 
-**Step 0: choose a style.** `design/theme-showcase.html` shows four storefront styles: Sticker Pop, Midnight Neon, Clean Gallery and Pastel Scrapbook. Each one is applied to the same sample home page, product grid, sticker-pack offer, custom studio and poster product page. Open the file in a browser and use the Desktop/Phone switch to compare. The artwork is generated placeholder art, and the prices and counts are samples.
+**Step 0: choose a style.** `design/theme-showcase.html` shows eight storefront styles: Sticker Pop, Midnight Neon, Clean Gallery, Pastel Scrapbook, Desi Bazaar, Holo Y2K, Manga Ink and Retro Groovy. Each one is applied to the same sample home page, product grid, sticker-pack offer, custom studio and poster product page. Open the file in a browser and use the Desktop/Phone switch to compare. The artwork is generated placeholder art, and the prices and counts are samples.
 
 ## Build plan
 

@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@500;700&family=Figtree:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Instrument+Sans:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Dela+Gothic+One&family=Rozha+One&family=Shrikhand&family=Unbounded:wght@500;600;700;800&family=Work+Sans:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
 <style>
 /* Layout: a quiet picker (style cards + sticky switcher) above a stage that renders one storefront skin inside a browser frame or a phone frame. */
 :root {
@@ -52,7 +53,7 @@ button { font: inherit; color: inherit; }
 .pick:hover { border-color: var(--c-muted); }
 .pick[aria-pressed="true"] { border-color: var(--c-fg); box-shadow: inset 0 0 0 1.5px var(--c-fg); }
 .pick:focus-visible { outline: 3px solid var(--c-focus); outline-offset: 2px; }
-.pick-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pick-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; min-width: 0; }
 .swatches { display: flex; }
 .swatches i { width: 22px; height: 22px; border-radius: 50%; background: var(--s); border: 2px solid var(--c-surface); margin-left: -6px; }
 .swatches i:first-child { margin-left: 0; }
@@ -63,10 +64,16 @@ button { font: inherit; color: inherit; }
 .f-neon { font-family: "Anton", Impact, sans-serif; text-transform: uppercase; letter-spacing: .01em; font-size: 24px; }
 .f-gallery { font-family: "Fraunces", Georgia, serif; font-weight: 400; letter-spacing: -0.02em; font-size: 23px; }
 .f-scrap { font-family: "Caveat", cursive; font-weight: 700; font-size: 31px; line-height: .95; }
+.f-desi { font-family: "Rozha One", Georgia, serif; font-size: 25px; }
+.f-holo { font-family: "Unbounded", "Arial Black", sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -0.03em; background: linear-gradient(90deg, #3A86FF, #A24BFF 50%, #FF4FD8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.f-manga { font-family: "Dela Gothic One", "Arial Black", sans-serif; font-size: 19px; text-transform: uppercase; }
+.f-retro { font-family: "Shrikhand", Georgia, serif; font-size: 23px; color: #D9622B; }
+.pick-tags { display: inline-flex; align-items: center; gap: 6px; }
+.pick-new { padding: 1px 7px; border-radius: 999px; background: var(--c-fg); color: var(--c-bg); font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
 .pick-desc { font-size: 13.5px; color: var(--c-muted); }
 .pick-meta { display: grid; gap: 2px; padding-top: 8px; border-top: 1px dashed var(--c-line); font-size: 12px; color: var(--c-muted); }
 .pick-meta b { color: var(--c-fg); font-weight: 600; }
-@media (max-width: 560px) { .pick-meta { display: none; } .pick { padding: 12px; } .pick-desc { font-size: 12.5px; } }
+@media (max-width: 560px) { .pick-meta, .pick-state { display: none; } .pick { padding: 12px; } .pick-desc { font-size: 12.5px; } .swatches i { width: 18px; height: 18px; margin-left: -5px; } }
 
 .bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: color-mix(in srgb, var(--c-bg) 90%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-block: 1px solid var(--c-line); }
 .bar-inner { max-width: 1320px; margin-inline: auto; display: flex; align-items: center; gap: 12px; padding-block: 10px; }
@@ -207,6 +214,111 @@ button { font: inherit; color: inherit; }
   --fab-bg: #A8E6CF; --fab-fg: #3B2F4A; --fab-border: 0; --fab-shadow: 0 6px 16px rgba(59,47,74,.22);
   --label-bg: #FFE08A; --label-fg: #3B2F4A;
   --focus: #7A64A8; --trust-icon: #F47C93; --media-bg: #FFFFFF; --ok: #22744F; --err: #B4234F;
+}
+[data-skin="desi"] {
+  --bg: #FFF4E0; --surface: #FFFFFF; --ink: #3A0F17; --muted: #6E4A43; --line: #7A1F2B;
+  --accent: #FFB000; --accent2: #E5177E; --accent3: #0F8B8D;
+  --f-display: "Rozha One", Georgia, serif; --f-body: "Baloo 2", system-ui, sans-serif;
+  --d-weight: 400; --d-case: none; --d-track: -0.01em;
+  --radius: 14px; --radius-sm: 10px; --opt-radius: 10px; --panel-radius: 14px;
+  --card-bg: #FFFFFF; --card-border: 2px solid #7A1F2B; --media-sep: 2px solid #7A1F2B;
+  --shadow: 0 0 0 4px #FFF4E0, 0 0 0 6px #FFB000; --shadow-hover: 0 0 0 4px #FFF4E0, 0 0 0 6px #E5177E;
+  --announce-bg: #7A1F2B; --announce-fg: #FFD978;
+  --header-bg: #FFF4E0; --header-border: 3px solid #7A1F2B; --nav-hover: #FFE6B0;
+  --search-bg: #FFFFFF; --search-border: 2px solid #7A1F2B; --ring: rgba(229,23,126,.35);
+  --count-bg: #E5177E; --count-fg: #FFFFFF;
+  --btn-radius: 10px; --btn-border: 2px solid #7A1F2B; --btn-bg: #E5177E; --btn-fg: #FFFFFF; --btn-shadow: 0 3px 0 #7A1F2B;
+  --ghost-bg: #FFFFFF; --ghost-fg: #3A0F17; --ghost-border: 2px solid #7A1F2B; --ghost-shadow: 0 3px 0 #7A1F2B;
+  --eyebrow: #0F8B8D;
+  --chip-bg: #FFFFFF; --chip-border: 2px solid #7A1F2B; --chip-radius: 8px; --chip-on-bg: #FFB000; --chip-on-fg: #3A0F17; --chip-on-border: #7A1F2B; --chip-on-shadow: 0 3px 0 #7A1F2B;
+  --price: #7A1F2B; --badge-bg: #0F8B8D; --badge-fg: #FFFFFF; --badge-border: 0;
+  --wish-bg: #FFFFFF; --wish-border: 2px solid #7A1F2B;
+  --panel-border: 2px solid #7A1F2B; --panel-shadow: 0 0 0 4px #FFF4E0, 0 0 0 6px #FFB000, 0 24px 40px -18px rgba(58,15,23,.35);
+  --pack-bg: #0F8B8D; --pack-fg: #FFF4E0; --tier-bg: #FFF4E0; --tier-border: 2px solid #7A1F2B;
+  --foot-bg: #7A1F2B; --foot-fg: #FFF4E0; --foot-line: #9A3A46; --foot-muted: #F3C9B8;
+  --bnav-bg: #FFF4E0; --bnav-border: 2px solid #7A1F2B;
+  --fab-bg: #2E8B57; --fab-fg: #FFFFFF; --fab-border: 2px solid #7A1F2B; --fab-shadow: 0 3px 0 #7A1F2B;
+  --label-bg: #FFB000; --label-fg: #3A0F17;
+  --focus: #0F8B8D; --trust-icon: #E5177E; --media-bg: #FFF9EE; --ok: #1F7A4A; --err: #B3123F;
+}
+[data-skin="holo"] {
+  --bg: #EEF0F6; --surface: rgba(255,255,255,.78); --ink: #0A0A14; --muted: #4A4D62; --line: rgba(10,10,20,.12);
+  --accent: #3A86FF; --accent2: #FF4FD8; --accent3: #3A86FF;
+  --f-display: "Unbounded", "Arial Black", system-ui, sans-serif; --f-body: "DM Sans", system-ui, sans-serif;
+  --d-weight: 700; --d-case: none; --d-track: -0.03em;
+  --radius: 22px; --radius-sm: 14px; --opt-radius: 999px; --panel-radius: 20px;
+  --card-bg: rgba(255,255,255,.55); --card-border: 1px solid rgba(255,255,255,.95); --media-sep: 0;
+  --shadow: 0 12px 30px -14px rgba(58,70,140,.4), inset 0 1px 0 rgba(255,255,255,.95); --shadow-hover: 0 18px 40px -14px rgba(58,70,140,.5), inset 0 1px 0 #FFFFFF;
+  --announce-bg: #0A0A14; --announce-fg: #E6E8EE;
+  --header-bg: rgba(255,255,255,.72); --header-border: 1px solid rgba(255,255,255,.95); --nav-hover: rgba(255,255,255,.8);
+  --search-bg: rgba(255,255,255,.75); --search-border: 1px solid rgba(255,255,255,.95); --ring: rgba(58,134,255,.35);
+  --count-bg: #FF4FD8; --count-fg: #0A0A14;
+  --btn-radius: 999px; --btn-border: 1px solid rgba(255,255,255,.9); --btn-bg: linear-gradient(135deg, #C8B6FF 0%, #9BF6FF 50%, #FFC6FF 100%); --btn-fg: #0A0A14; --btn-shadow: 0 10px 22px -10px rgba(58,70,140,.6), inset 0 1px 0 rgba(255,255,255,.95), inset 0 -3px 8px rgba(58,70,140,.16);
+  --ghost-bg: rgba(255,255,255,.62); --ghost-fg: #0A0A14; --ghost-border: 1px solid rgba(255,255,255,.95); --ghost-shadow: 0 8px 18px -10px rgba(58,70,140,.45);
+  --eyebrow: #3A86FF;
+  --chip-bg: rgba(255,255,255,.62); --chip-border: 1px solid rgba(255,255,255,.95); --chip-radius: 999px; --chip-on-bg: linear-gradient(135deg, #C8B6FF, #9BF6FF 50%, #FFC6FF); --chip-on-fg: #0A0A14; --chip-on-border: #3A86FF; --chip-on-shadow: 0 8px 18px -8px rgba(58,70,140,.5);
+  --price: #0A0A14; --badge-bg: #0A0A14; --badge-fg: #9BF6FF; --badge-border: 0;
+  --wish-bg: rgba(255,255,255,.8); --wish-border: 1px solid rgba(255,255,255,.95);
+  --panel-border: 1px solid rgba(255,255,255,.95); --panel-shadow: 0 30px 60px -20px rgba(58,70,140,.45);
+  --pack-bg: linear-gradient(120deg, #C8B6FF 0%, #9BF6FF 48%, #FFC6FF 100%); --pack-fg: #0A0A14; --tier-bg: rgba(255,255,255,.6); --tier-border: 1px solid rgba(255,255,255,.95);
+  --foot-bg: #0A0A14; --foot-fg: #E6E8EE; --foot-line: #2A2A3A; --foot-muted: #A9ADC2;
+  --bnav-bg: rgba(255,255,255,.85); --bnav-border: 1px solid rgba(255,255,255,.95);
+  --fab-bg: linear-gradient(135deg, #9BF6FF, #C8B6FF); --fab-fg: #0A0A14; --fab-border: 1px solid #FFFFFF; --fab-shadow: 0 12px 26px -10px rgba(58,70,140,.6);
+  --label-bg: #0A0A14; --label-fg: #9BF6FF;
+  --focus: #3A86FF; --trust-icon: #3A86FF; --media-bg: rgba(255,255,255,.5); --ok: #1C7C54; --err: #C0124F;
+}
+[data-skin="manga"] {
+  --bg: #FFFDF6; --surface: #FFFFFF; --ink: #0D0D0D; --muted: #474747; --line: #0D0D0D;
+  --accent: #E63946; --accent2: #E63946; --accent3: #0D0D0D;
+  --f-display: "Dela Gothic One", "Arial Black", Impact, sans-serif; --f-body: "Zen Kaku Gothic New", system-ui, sans-serif;
+  --d-weight: 400; --d-case: uppercase; --d-track: 0;
+  --radius: 0px; --radius-sm: 0px; --opt-radius: 0px; --panel-radius: 0px;
+  --card-bg: #FFFFFF; --card-border: 3px solid #0D0D0D; --media-sep: 3px solid #0D0D0D;
+  --shadow: none; --shadow-hover: 6px 6px 0 #E63946;
+  --announce-bg: #0D0D0D; --announce-fg: #FFFDF6;
+  --header-bg: #FFFDF6; --header-border: 4px solid #0D0D0D; --nav-hover: #EDEAE0;
+  --search-bg: #FFFFFF; --search-border: 3px solid #0D0D0D; --ring: rgba(230,57,70,.35);
+  --count-bg: #E63946; --count-fg: #FFFFFF;
+  --btn-radius: 0px; --btn-border: 3px solid #0D0D0D; --btn-bg: #E63946; --btn-fg: #FFFFFF; --btn-shadow: 4px 4px 0 #0D0D0D;
+  --ghost-bg: #FFFFFF; --ghost-fg: #0D0D0D; --ghost-border: 3px solid #0D0D0D; --ghost-shadow: 4px 4px 0 #0D0D0D;
+  --eyebrow: #E63946;
+  --chip-bg: #FFFFFF; --chip-border: 2.5px solid #0D0D0D; --chip-radius: 999px; --chip-on-bg: #0D0D0D; --chip-on-fg: #FFFDF6; --chip-on-border: #0D0D0D; --chip-on-shadow: none;
+  --price: #E63946; --badge-bg: #E63946; --badge-fg: #FFFFFF; --badge-border: 2px solid #0D0D0D;
+  --wish-bg: #FFFFFF; --wish-border: 2.5px solid #0D0D0D;
+  --panel-border: 3px solid #0D0D0D; --panel-shadow: 6px 6px 0 #0D0D0D;
+  --pack-bg: #0D0D0D; --pack-fg: #FFFDF6; --tier-bg: #FFFDF6; --tier-border: 3px solid #FFFDF6;
+  --foot-bg: #0D0D0D; --foot-fg: #FFFDF6; --foot-line: #333333; --foot-muted: #BDBDBD;
+  --bnav-bg: #FFFDF6; --bnav-border: 3px solid #0D0D0D;
+  --fab-bg: #E63946; --fab-fg: #FFFFFF; --fab-border: 3px solid #0D0D0D; --fab-shadow: 3px 3px 0 #0D0D0D;
+  --label-bg: #E63946; --label-fg: #FFFFFF;
+  --focus: #E63946; --trust-icon: #E63946; --media-bg: #FFFFFF; --ok: #1E7B3A; --err: #C1121F;
+}
+[data-skin="retro"] {
+  --bg: #F6E7CB; --surface: #FFF6E5; --ink: #3B2416; --muted: #6B5141; --line: #3B2416;
+  --accent: #E9A23B; --accent2: #D9622B; --accent3: #2A7F75;
+  --f-display: "Shrikhand", Georgia, serif; --f-body: "Work Sans", system-ui, sans-serif;
+  --d-weight: 400; --d-case: none; --d-track: 0;
+  --radius: 22px; --radius-sm: 14px; --opt-radius: 999px; --panel-radius: 20px;
+  --card-bg: #FFF6E5; --card-border: 2.5px solid #3B2416; --media-sep: 2.5px solid #3B2416;
+  --shadow: 0 6px 0 #3B2416; --shadow-hover: 0 9px 0 #3B2416;
+  --announce-bg: #2A7F75; --announce-fg: #F6E7CB;
+  --header-bg: #F6E7CB; --header-border: 0; --nav-hover: #EBD5AE;
+  --search-bg: #FFF6E5; --search-border: 2.5px solid #3B2416; --ring: rgba(217,98,43,.35);
+  --count-bg: #D9622B; --count-fg: #FFF6E5;
+  --btn-radius: 999px; --btn-border: 2.5px solid #3B2416; --btn-bg: #3B2416; --btn-fg: #F6E7CB; --btn-shadow: 0 4px 0 #D9622B;
+  --ghost-bg: #FFF6E5; --ghost-fg: #3B2416; --ghost-border: 2.5px solid #3B2416; --ghost-shadow: 0 4px 0 #3B2416;
+  --eyebrow: #C4531F;
+  --chip-bg: #FFF6E5; --chip-border: 2.5px solid #3B2416; --chip-radius: 999px; --chip-on-bg: #E9A23B; --chip-on-fg: #3B2416; --chip-on-border: #3B2416; --chip-on-shadow: 0 3px 0 #3B2416;
+  --price: #3B2416; --badge-bg: #2A7F75; --badge-fg: #F6E7CB; --badge-border: 2px solid #3B2416;
+  --wish-bg: #FFF6E5; --wish-border: 2.5px solid #3B2416;
+  --panel-border: 2.5px solid #3B2416; --panel-shadow: 0 8px 0 #3B2416;
+  --pack-bg: #D9622B; --pack-fg: #FFF6E5; --tier-bg: #FFF6E5; --tier-border: 2.5px solid #3B2416;
+  --foot-bg: #3B2416; --foot-fg: #F6E7CB; --foot-line: #5C3D2A; --foot-muted: #D9C3A0;
+  --bnav-bg: #F6E7CB; --bnav-border: 2.5px solid #3B2416;
+  --fab-bg: #2A7F75; --fab-fg: #F6E7CB; --fab-border: 2.5px solid #3B2416; --fab-shadow: 0 4px 0 #3B2416;
+  --label-bg: #E9A23B; --label-fg: #3B2416;
+  --focus: #2A7F75; --trust-icon: #D9622B; --media-bg: #FFF6E5; --ok: #1F6B4F; --err: #B23A12;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .23 0 0 0 0 .14 0 0 0 0 .09 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='.5'/%3E%3C/svg%3E");
 }
 
 /* ===== Mock store base ===== */
@@ -595,21 +707,139 @@ button { font: inherit; color: inherit; }
 .drawer-list svg { width: 18px; height: 18px; transform: rotate(-90deg); }
 .drawer-sub { display: grid; gap: 10px; font-weight: 700; color: var(--muted); }
 
+/* ===== Desi Bazaar: bunting, painted signs, rubber stamps ===== */
+[data-skin="desi"] .hdr::after, [data-skin="desi"] .foot::before { content: ""; position: absolute; left: 0; right: 0; height: 18px; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='112' height='18'%3E%3Cpath d='M0 0h28L14 18z' fill='%23FFB000'/%3E%3Cpath d='M28 0h28L42 18z' fill='%23E5177E'/%3E%3Cpath d='M56 0h28L70 18z' fill='%230F8B8D'/%3E%3Cpath d='M84 0h28L98 18z' fill='%232E8B57'/%3E%3C/svg%3E") 0 0 / 112px 18px repeat-x; }
+[data-skin="desi"] .hdr::after { top: 100%; filter: drop-shadow(0 2px 0 rgba(122,31,43,.3)); }
+[data-skin="desi"] .foot { position: relative; }
+[data-skin="desi"] .foot::before { top: 0; }
+[data-skin="desi"] .foot > .s-wrap.foot-grid { padding-top: 60px; }
+[data-skin="desi"] .logo { font-size: 28px; color: #7A1F2B; }
+[data-skin="desi"] .logo b { color: #E5177E; font-weight: 400; }
+[data-skin="desi"] .foot .logo { color: #FFD978; }
+[data-skin="desi"] .foot .logo b { color: #FF9ACB; }
+[data-skin="desi"] .hero > .s-wrap { padding-top: 66px; }
+[data-skin="desi"] .hero-title { font-size: clamp(44px, 6.4cqi, 84px); line-height: 1.02; color: #7A1F2B; }
+[data-skin="desi"] .hero-title em { font-style: normal; color: #E5177E; }
+[data-skin="desi"] .sec-title, [data-skin="desi"] .c-title, [data-skin="desi"] .pdp-title { color: #7A1F2B; }
+[data-skin="desi"] .sec-title::after { content: ""; display: block; width: 132px; height: 10px; margin-top: 8px; background: radial-gradient(circle, #E5177E 0 3px, transparent 3.5px) 0 50% / 22px 10px repeat-x, radial-gradient(circle, #FFB000 0 2px, transparent 2.5px) 11px 50% / 22px 10px repeat-x; }
+[data-skin="desi"] .arch { position: absolute; left: 21%; right: 21%; top: 1%; bottom: 0; border: 6px solid #FFB000; border-radius: 50% 50% 10px 10px / 30% 30% 10px 10px; background: #0F8B8D radial-gradient(circle, rgba(255,244,224,.22) 2px, transparent 2.6px) 0 0 / 18px 18px; box-shadow: 0 0 0 4px #7A1F2B, inset 0 0 0 4px #7A1F2B; }
+[data-skin="desi"] .chip { font-family: var(--f-display); font-weight: 400; font-size: 16px; box-shadow: inset 0 0 0 3px #FFFFFF, inset 0 0 0 4px rgba(122,31,43,.3); }
+[data-skin="desi"] .chip[aria-pressed="false"]:nth-child(4n+1) { background: #FFE3A1; }
+[data-skin="desi"] .chip[aria-pressed="false"]:nth-child(4n+2) { background: #FFD0E6; }
+[data-skin="desi"] .chip[aria-pressed="false"]:nth-child(4n+3) { background: #C7EEEE; }
+[data-skin="desi"] .chip[aria-pressed="false"]:nth-child(4n) { background: #D3F0DC; }
+[data-skin="desi"] .chip[aria-pressed="true"] { box-shadow: 0 3px 0 #7A1F2B, inset 0 0 0 3px #FFF4E0, inset 0 0 0 4px rgba(122,31,43,.4); }
+[data-skin="desi"] .price { display: inline-block; padding: 0 8px; border: 2px dashed #E5177E; border-radius: 6px; color: #E5177E; transform: rotate(-4deg); font-family: var(--f-display); font-weight: 400; font-size: 18px; }
+[data-skin="desi"] .price small { color: #E5177E; }
+[data-skin="desi"] .p-name { font-family: var(--f-display); font-weight: 400; font-size: 19px; color: #7A1F2B; }
+[data-skin="desi"] .tile-name { font-family: var(--f-display); font-weight: 400; font-size: 18px; color: #7A1F2B; }
+[data-skin="desi"] .p-card:hover { box-shadow: var(--shadow-hover); }
+[data-skin="desi"] .btn:hover { transform: translateY(-1px); }
+[data-skin="desi"] .btn:active { transform: translateY(3px); box-shadow: 0 0 0 #7A1F2B; }
+[data-skin="desi"] .pack { background-image: radial-gradient(circle, rgba(255,244,224,.16) 2px, transparent 2.6px); background-size: 18px 18px; }
+
+/* ===== Holo Y2K: iridescent glass and chrome ===== */
+[data-skin="holo"] .shop { background-color: #EEF0F6; background-image: radial-gradient(38% 26% at 8% 6%, rgba(255,198,255,.9), transparent 70%), radial-gradient(34% 26% at 92% 14%, rgba(155,246,255,.85), transparent 70%), radial-gradient(46% 30% at 60% 52%, rgba(200,182,255,.7), transparent 70%), radial-gradient(40% 24% at 14% 86%, rgba(155,246,255,.6), transparent 70%); background-size: 100% 1500px; background-repeat: repeat-y; }
+[data-skin="holo"] .disp { line-height: 1.04; background-image: linear-gradient(180deg, #1C1F2B 0%, #545A70 40%, #9298AF 52%, #3C4155 64%, #12141C 100%); background-size: 100% 1.04em; -webkit-background-clip: text; background-clip: text; color: transparent; }
+[data-skin="holo"] .hero-title { font-size: clamp(44px, 6.6cqi, 88px); letter-spacing: -0.045em; background-image: linear-gradient(90deg, #3A86FF 0%, #A24BFF 45%, #FF4FD8 72%, #3A86FF 100%); background-size: 100% 100%; }
+[data-skin="holo"] .hero-title em { font-style: normal; }
+[data-skin="holo"] .sec-title::after { content: ""; display: inline-block; width: .62em; height: .62em; margin-left: .3em; vertical-align: .05em; background: linear-gradient(135deg, #9BF6FF, #C8B6FF 50%, #FFC6FF); clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%); }
+[data-skin="holo"] .logo { font-size: 19px; font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(90deg, #3A86FF, #A24BFF 50%, #FF4FD8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+[data-skin="holo"] .p-card, [data-skin="holo"] .tile, [data-skin="holo"] .c-card { -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); }
+[data-skin="holo"] .mega, [data-skin="holo"] .suggest { background: rgba(255,255,255,.84); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+[data-skin="holo"] .p-media { margin: 8px 8px 0; border-radius: 16px; }
+[data-skin="holo"] .tile-art, [data-skin="holo"] .c-art { border-radius: 16px; }
+[data-skin="holo"] .c-art { margin: 8px 8px 0; }
+[data-skin="holo"] .g-main { position: relative; }
+[data-skin="holo"] .p-media::after, [data-skin="holo"] .tile-art::after, [data-skin="holo"] .g-main::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.65) 44%, rgba(155,246,255,.55) 50%, rgba(255,198,255,.55) 56%, transparent 70%); background-size: 260% 100%; background-position: 110% 0; mix-blend-mode: soft-light; animation: sheen 4.5s ease-in-out infinite; }
+[data-skin="holo"] .p-name { font-family: var(--f-display); font-weight: 600; font-size: 14.5px; letter-spacing: -0.02em; }
+[data-skin="holo"] .tile-name { font-family: var(--f-display); font-weight: 600; font-size: 13px; letter-spacing: -0.02em; }
+[data-skin="holo"] .p-badge { letter-spacing: .08em; }
+[data-skin="holo"] .btn:hover { transform: translateY(-1px); filter: saturate(1.25); }
+[data-skin="holo"] .tier { -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+[data-skin="holo"] .spark { pointer-events: none; }
+
+/* ===== Manga Ink: panels, screentone, speech bubbles ===== */
+[data-skin="manga"] .logo { padding: 7px 10px 6px; background: #0D0D0D; color: #FFFDF6; font-size: 21px; text-transform: uppercase; }
+[data-skin="manga"] .announce { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+[data-skin="manga"] .hero > .s-wrap { align-items: stretch; gap: 18px; }
+[data-skin="manga"] .hero-copy { display: flex; flex-direction: column; justify-content: center; padding: 28px; background: #FFFFFF; border: 4px solid #0D0D0D; }
+[data-skin="manga"] .hero-copy .eyebrow { align-self: flex-start; padding: 3px 10px; background: #0D0D0D; color: #FFFDF6; }
+[data-skin="manga"] .hero-title { font-size: clamp(36px, 5cqi, 66px); line-height: 1.04; }
+[data-skin="manga"] .hero-title em { font-style: normal; color: #E63946; }
+[data-skin="manga"] .hero-art { max-width: none; overflow: hidden; background: #FFFFFF; border: 4px solid #0D0D0D; }
+[data-skin="manga"] .focus-lines { position: absolute; inset: -20%; background: repeating-conic-gradient(from 0deg at 50% 50%, #0D0D0D 0deg 1.3deg, transparent 1.3deg 6deg); opacity: .9; -webkit-mask-image: radial-gradient(closest-side, transparent 40%, #000 72%); mask-image: radial-gradient(closest-side, transparent 40%, #000 72%); }
+[data-skin="manga"] .sfx { position: absolute; z-index: 3; left: 4%; top: 3%; transform: rotate(-12deg); font-family: "Dela Gothic One", "Arial Black", sans-serif; font-size: clamp(34px, 6.4cqi, 68px); line-height: 1; color: #E63946; -webkit-text-stroke: 3px #0D0D0D; paint-order: stroke fill; text-shadow: 5px 5px 0 #0D0D0D; }
+[data-skin="manga"] .p-media, [data-skin="manga"] .tile-art, [data-skin="manga"] .c-art, [data-skin="manga"] .g-main, [data-skin="manga"] .g-thumb { background-color: #FFFFFF; background-image: radial-gradient(circle, rgba(13,13,13,.2) 1.1px, transparent 1.5px); background-size: 7px 7px; }
+[data-skin="manga"] .sec-title { display: inline-block; padding: 6px 24px 8px 14px; background: #0D0D0D; color: #FFFDF6; clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%); font-size: clamp(22px, 2.8cqi, 34px); }
+[data-skin="manga"] .chips { padding-bottom: 14px; }
+[data-skin="manga"] .chip { position: relative; --chip-fill: #FFFFFF; }
+[data-skin="manga"] .chip[aria-pressed="true"] { --chip-fill: #0D0D0D; }
+[data-skin="manga"] .chip::before { content: ""; position: absolute; left: 16px; bottom: -11px; border-style: solid; border-width: 11px 10px 0 0; border-color: #0D0D0D transparent transparent transparent; }
+[data-skin="manga"] .chip::after { content: ""; position: absolute; left: 18.5px; bottom: -6px; border-style: solid; border-width: 7px 6px 0 0; border-color: var(--chip-fill) transparent transparent transparent; }
+[data-skin="manga"] .p-name { font-family: var(--f-display); font-weight: 400; font-size: 16px; text-transform: uppercase; }
+[data-skin="manga"] .tile-name { font-family: var(--f-display); font-weight: 400; font-size: 14px; text-transform: uppercase; }
+[data-skin="manga"] .p-type { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; }
+[data-skin="manga"] .p-card:hover, [data-skin="manga"] .tile:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-hover); }
+[data-skin="manga"] .btn:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0 #0D0D0D; }
+[data-skin="manga"] .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 #0D0D0D; }
+[data-skin="manga"] .pack { background-image: radial-gradient(circle, rgba(255,253,246,.14) 1.1px, transparent 1.5px); background-size: 7px 7px; }
+
+/* ===== Retro Groovy: sunburst, arches, grain, stacked shadows ===== */
+[data-skin="retro"] .shop, [data-skin="retro"] .pack, [data-skin="retro"] .foot { background-image: var(--grain); }
+[data-skin="retro"] .hero { background-image: var(--grain), repeating-conic-gradient(from -90deg at 76% 100%, #F0D49F 0deg 7deg, transparent 7deg 14deg); }
+[data-skin="retro"] .hdr::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 15px; pointer-events: none; background: linear-gradient(#E9A23B 0 33.3%, #D9622B 33.3% 66.6%, #3B2416 66.6% 100%); }
+[data-skin="retro"] .hero > .s-wrap { padding-top: 66px; }
+[data-skin="retro"] .hero-title { font-size: clamp(44px, 6.4cqi, 84px); line-height: 1.02; color: #3B2416; text-shadow: 3px 3px 0 #E9A23B, 6px 6px 0 #D9622B, 9px 9px 0 #2A7F75; }
+[data-skin="retro"] .sec-title { text-shadow: 3px 3px 0 #E9A23B; }
+[data-skin="retro"] .pack .disp { text-shadow: 3px 3px 0 #3B2416; }
+[data-skin="retro"] .logo { font-size: 26px; color: #D9622B; text-shadow: 2px 2px 0 #3B2416; }
+[data-skin="retro"] .foot .logo { color: #E9A23B; }
+[data-skin="retro"] .p-media { margin: 12px 12px 0; border: 2.5px solid #3B2416; border-radius: 999px 999px 14px 14px; }
+[data-skin="retro"] .tile-art { border: 2px solid #3B2416; border-radius: 999px 999px 12px 12px; }
+[data-skin="retro"] .price { display: inline-block; padding: 1px 10px; background: #E9A23B; border: 2px solid #3B2416; border-radius: 999px; transform: rotate(-3deg); }
+[data-skin="retro"] .p-name { font-family: var(--f-display); font-weight: 400; font-size: 20px; }
+[data-skin="retro"] .tile-name { font-family: var(--f-display); font-weight: 400; font-size: 18px; }
+[data-skin="retro"] .p-card:hover, [data-skin="retro"] .tile:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+[data-skin="retro"] .btn:hover { transform: translateY(-2px); }
+[data-skin="retro"] .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #D9622B; }
+
+@container shop (max-width: 819px) {
+  [data-skin="desi"] .p-name, [data-skin="retro"] .p-name { font-size: 17px; }
+  [data-skin="holo"] .p-name { font-size: 12.5px; }
+  [data-skin="manga"] .p-name { font-size: 14px; }
+  [data-skin="desi"] .price, [data-skin="retro"] .price { font-size: 15px; }
+}
+@container shop (max-width: 719px) {
+  [data-skin="desi"] .logo { font-size: 24px; }
+  [data-skin="holo"] .logo { font-size: 15.5px; }
+  [data-skin="manga"] .logo { font-size: 16px; }
+  [data-skin="retro"] .logo { font-size: 22px; }
+  [data-skin="desi"] .tile-name, [data-skin="retro"] .tile-name { font-size: 14px; }
+  [data-skin="holo"] .tile-name, [data-skin="manga"] .tile-name { font-size: 10px; }
+  [data-skin="desi"] .tile-art { border: 2px solid #7A1F2B; }
+  [data-skin="manga"] .tile-art { border: 2.5px solid #0D0D0D; }
+  [data-skin="manga"] .hero-copy { padding: 18px; }
+  [data-skin="manga"] .hero-art { aspect-ratio: 1 / .92; }
+  [data-skin="retro"] .p-media { margin: 8px 8px 0; }
+  [data-skin="desi"] .hero > .s-wrap, [data-skin="retro"] .hero > .s-wrap { padding-top: 34px; }
+}
+
 .device :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 [data-skin="neon"] .btn-primary:focus-visible { clip-path: none; }
 .search input:focus-visible { outline: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  .holo::after { animation: none; background-position: 40% 0; }
+  .holo::after, [data-skin="holo"] .p-media::after, [data-skin="holo"] .tile-art::after, [data-skin="holo"] .g-main::after { animation: none; background-position: 40% 0; }
   .shop *, .shop *::before, .shop *::after { transition: none !important; }
 }
 </style>
 
 <div class="chrome gutter">
   <div class="intro">
-    <p class="kicker">Step 0 · Pick a style <span>Sample designs and prices</span></p>
-    <h1>Four looks for PrintYourVibe</h1>
-    <p>Each style below is the same store: home page, product grid, sticker packs, the custom studio and a poster product page. Switch styles, try the phone view, hover the Stickers menu, tap the options. Then tell me which one feels like your brand.</p>
+    <p class="kicker">Step 0 · Pick a style <span>4 new styles added</span><span>Sample designs and prices</span></p>
+    <h1>Eight looks for PrintYourVibe</h1>
+    <p>Each style below is the same store: home page, product grid, sticker packs, the custom studio and a poster product page. The four marked New were added after you asked for more. Switch styles, try the phone view, hover the Stickers menu, tap the options. Then tell me which one feels like your brand.</p>
   </div>
   <div class="picker" id="picker"></div>
 </div>
@@ -633,7 +863,7 @@ button { font: inherit; color: inherit; }
 </div>
 
 <div class="howto gutter">
-  <p><strong>How to choose:</strong> reply in chat with the style name, for example “Go with Sticker Pop”. You can also mix, like “Sticker Pop colours with the Clean Gallery product page”.</p>
+  <p><strong>How to choose:</strong> reply in chat with the style name, for example “Go with Desi Bazaar”. You can also mix, like “Desi Bazaar colours with the Clean Gallery product page”.</p>
   <p>Everything here is a sample: the artwork is generated placeholder art, and prices, counts and delivery dates are examples you will set yourself.</p>
 </div>
 
@@ -641,16 +871,24 @@ button { font: inherit; color: inherit; }
 (() => {
   /* ---------- data ---------- */
   const SKINS = {
-    pop: { key: 'sticker-pop', name: 'Sticker Pop', desc: 'Bright, bold and playful. Thick outlines and hard shadows make every design look like a real sticker.', fonts: 'Bricolage Grotesque + Figtree', best: 'A fun, loud sticker brand', sw: ['#FFD23F', '#FF5DA2', '#3D7BFF', '#2BD47D', '#111111'] },
-    neon: { key: 'midnight-neon', name: 'Midnight Neon', desc: 'Dark and loud, with neon accents and all-caps headlines. Posters glow on black.', fonts: 'Anton + Barlow', best: 'F1, anime and gaming fans', sw: ['#0B0B12', '#C6FF3D', '#FF2E4D', '#8B5CFF'] },
-    gallery: { key: 'clean-gallery', name: 'Clean Gallery', desc: 'Minimal and premium. White space and a serif headline let the artwork lead.', fonts: 'Fraunces + Instrument Sans', best: 'Posters and art prints', sw: ['#FFFFFF', '#F3F2EE', '#141414', '#E4572E'] },
-    scrap: { key: 'pastel-scrapbook', name: 'Pastel Scrapbook', desc: 'Soft pastels on dotted journal paper, with washi tape and handwriting.', fonts: 'Caveat + Nunito', best: 'Diary stickers, polaroids and gifts', sw: ['#C9B6FF', '#FFB4A2', '#A8E6CF', '#FFE08A', '#3B2F4A'] },
+    pop: { key: 'sticker-pop', name: 'Sticker Pop', desc: 'Bright, bold and playful. Thick outlines and hard shadows make every design look like a real sticker.', fonts: 'Bricolage Grotesque + Figtree', best: 'A fun, loud sticker brand', sw: ['#FFD23F', '#FF5DA2', '#3D7BFF', '#2BD47D', '#111111'], dot: '#FFD23F' },
+    neon: { key: 'midnight-neon', name: 'Midnight Neon', desc: 'Dark and loud, with neon accents and all-caps headlines. Posters glow on black.', fonts: 'Anton + Barlow', best: 'F1, anime and gaming fans', sw: ['#0B0B12', '#C6FF3D', '#FF2E4D', '#8B5CFF'], dot: '#C6FF3D' },
+    gallery: { key: 'clean-gallery', name: 'Clean Gallery', desc: 'Minimal and premium. White space and a serif headline let the artwork lead.', fonts: 'Fraunces + Instrument Sans', best: 'Posters and art prints', sw: ['#FFFFFF', '#F3F2EE', '#141414', '#E4572E'], dot: '#E4572E' },
+    scrap: { key: 'pastel-scrapbook', name: 'Pastel Scrapbook', desc: 'Soft pastels on dotted journal paper, with washi tape and handwriting.', fonts: 'Caveat + Nunito', best: 'Diary stickers, polaroids and gifts', sw: ['#C9B6FF', '#FFB4A2', '#A8E6CF', '#FFE08A', '#3B2F4A'], dot: '#C9B6FF' },
+    desi: { key: 'desi-bazaar', name: 'Desi Bazaar', isNew: true, desc: 'Festive and very Indian: truck-art colours, bunting borders and rubber-stamp price tags.', fonts: 'Rozha One + Baloo 2', best: 'Desi, Bollywood, cricket and festive designs', sw: ['#FFB000', '#E5177E', '#0F8B8D', '#2E8B57', '#7A1F2B'], dot: '#E5177E' },
+    holo: { key: 'holo-y2k', name: 'Holo Y2K', isNew: true, desc: 'Shiny and futuristic: holographic gradients, chrome headlines and glassy cards.', fonts: 'Unbounded + DM Sans', best: 'Holographic and 3D stickers, K-pop, Gen-Z', sw: ['#C8B6FF', '#9BF6FF', '#FFC6FF', '#3A86FF', '#0A0A14'], dot: '#A24BFF' },
+    manga: { key: 'manga-ink', name: 'Manga Ink', isNew: true, desc: 'Black-and-white comic panels, halftone shading, speech bubbles and one red accent.', fonts: 'Dela Gothic One + Zen Kaku Gothic New', best: 'Anime, manga, superheroes and memes', sw: ['#FFFDF6', '#BDBDBD', '#0D0D0D', '#E63946'], dot: '#E63946' },
+    retro: { key: 'retro-groovy', name: 'Retro Groovy', isNew: true, desc: 'Warm 70s vintage: sunburst stripes, arch frames, film grain and stacked shadows.', fonts: 'Shrikhand + Work Sans', best: 'Vintage posters, music and travel', sw: ['#E9A23B', '#D9622B', '#2A7F75', '#3B2416', '#F6E7CB'], dot: '#D9622B' },
   };
   const ART = {
     pop: { a: '#FFD23F', b: '#FF5DA2', c: '#3D7BFF', d: '#2BD47D', e: '#FF8A3D', f: '#9B5DE5', ink: '#111111', paper: '#FFFFFF', dark: '#1A1A3D', dark2: '#3A1F6E', light: '#FFF8E7', fg: '#111111', font: "'Bricolage Grotesque', 'Arial Black', sans-serif", fw: 800, outline: true },
     neon: { a: '#C6FF3D', b: '#FF2E4D', c: '#8B5CFF', d: '#2DE2E6', e: '#FF9F1C', f: '#FF4FD8', ink: '#0B0B12', paper: '#F5F5F7', dark: '#0E0E18', dark2: '#24123F', light: '#15151F', fg: '#F5F5F7', font: "'Anton', Impact, sans-serif", fw: 400, outline: false },
     gallery: { a: '#E9B44C', b: '#E4572E', c: '#1B3A4B', d: '#9BC1BC', e: '#F2D0C4', f: '#5B7065', ink: '#141414', paper: '#FBFAF7', dark: '#1B3A4B', dark2: '#0F2230', light: '#F3F2EE', fg: '#141414', font: "'Fraunces', Georgia, serif", fw: 500, outline: false },
     scrap: { a: '#FFE08A', b: '#FFB4A2', c: '#C9B6FF', d: '#A8E6CF', e: '#FFC8DD', f: '#BDE0FE', ink: '#3B2F4A', paper: '#FFFFFF', dark: '#7A64A8', dark2: '#3B2F4A', light: '#FFF7F0', fg: '#3B2F4A', font: "'Caveat', cursive", fw: 700, outline: false },
+    desi: { a: '#FFB000', b: '#E5177E', c: '#0F8B8D', d: '#2E8B57', e: '#FF6B1A', f: '#7A1F2B', ink: '#3A0F17', paper: '#FFFFFF', dark: '#7A1F2B', dark2: '#3A0F17', light: '#FFF4E0', fg: '#3A0F17', font: "'Rozha One', Georgia, serif", fw: 400, outline: 'line', wf: 0.56 },
+    holo: { a: '#9BF6FF', b: '#FF4FD8', c: '#3A86FF', d: '#C8B6FF', e: '#FFC6FF', f: '#7B61FF', ink: '#0A0A14', paper: '#FFFFFF', dark: '#1B1E3C', dark2: '#4B2A8C', light: '#EEF0F6', fg: '#0A0A14', font: "'Unbounded', 'Arial Black', sans-serif", fw: 800, outline: false, foil: true, wf: 0.8 },
+    manga: { a: '#F2F2F2', b: '#E63946', c: '#3A3A3A', d: '#BDBDBD', e: '#8A8A8A', f: '#5A5A5A', ink: '#0D0D0D', paper: '#FFFFFF', dark: '#1A1A1A', dark2: '#3A3A3A', light: '#FFFDF6', fg: '#0D0D0D', font: "'Dela Gothic One', 'Arial Black', sans-serif", fw: 400, outline: 'line', wf: 0.92 },
+    retro: { a: '#E9A23B', b: '#D9622B', c: '#2A7F75', d: '#8DB580', e: '#F2C14E', f: '#A34A28', ink: '#3B2416', paper: '#FFF6E5', dark: '#3B2416', dark2: '#7A3B1E', light: '#F6E7CB', fg: '#3B2416', font: "'Shrikhand', Georgia, serif", fw: 400, outline: 'line', wf: 0.66 },
   };
   const HAND = "'Caveat', cursive";
   const SANS = "'Figtree', 'Barlow', sans-serif";
@@ -659,12 +897,20 @@ button { font: inherit; color: inherit; }
     neon: { announce: ['Free shipping above ₹499', 'New drop: pit lane posters', 'COD available'], logo: '<b>//</b>PrintYourVibe', search: 'Search posters, stickers, fandoms', eyebrow: '//// New drop', title: 'Pit lane poster series', sub: 'Racing, anime and gaming posters printed big and sharp. A4 to A2, framed or unframed.', cta1: 'Shop posters', cta2: 'All new drops', types: 'Shop by product', vibes: 'Pick your fandom', trending: 'Trending now', custom: 'Make it yours', packEyebrow: 'Sticker packs', packTitle: 'Build a pack and save' },
     gallery: { announce: ['Free shipping on orders above ₹499', 'Made to order in India'], logo: 'PrintYourVibe', search: 'Search prints and stickers', eyebrow: 'Posters · Stickers · Polaroids', title: 'Art for your walls. <em>Stickers for your story.</em>', sub: 'Posters, stickers and polaroids, printed to order on heavy matte paper and waterproof vinyl.', cta1: 'Shop posters', cta2: 'Shop stickers', types: 'Shop by product', vibes: 'Browse by theme', trending: 'New this week', custom: 'Made to order', packEyebrow: 'Sticker sets', packTitle: 'Curate your own set of stickers.' },
     scrap: { announce: ['any 10 stickers for ₹199', 'free shipping above ₹499', 'cash on delivery available'], logo: 'printyourvibe', search: 'Search cute stickers, polaroids…', eyebrow: 'new: polaroid wall kits', title: 'make your memories stick', sub: 'Cute diary stickers, custom polaroids and pastel posters, packed with care and shipped across India.', cta1: 'Shop polaroids', cta2: 'Upload your photos', types: 'shop by product', vibes: 'find your vibe', trending: 'trending this week', custom: 'make it yours', packEyebrow: 'build your own pack', packTitle: 'Pick any 10 stickers for ₹199' },
+    desi: { announce: ['Paisa vasool packs: any 10 stickers for ₹199', 'Free shipping above ₹499', 'Cash on Delivery available'], logo: 'Print<b>Your</b>Vibe', search: 'Search chai, cricket, Bollywood…', eyebrow: 'New: festive sticker packs', title: 'Full <em>desi</em> vibes, zero chill.', sub: 'Stickers, posters and polaroids with a desi heart. Waterproof vinyl and 300 GSM paper, shipped across India.', cta1: 'Shop desi designs', cta2: 'Festive packs', types: 'Shop by product', vibes: 'Apna vibe chuno', trending: "This week's favourites", custom: 'Apna design, apni vibe', packEyebrow: 'Paisa vasool packs', packTitle: 'Any 10 stickers for ₹199', fan: ['YAAR', 'CHAI', 'BINDAAS', 'PAKKA', 'JUGAAD'] },
+    holo: { announce: ['New: holographic and 3D stickers', 'Free shipping above ₹499', 'COD available'], logo: 'PrintYourVibe', search: 'Search holo, 3D, K-pop…', eyebrow: 'New: holo + 3D motion stickers', title: 'Shine <em>different.</em>', sub: 'Holographic, transparent and 3D motion stickers that catch the light. Posters and polaroids too, shipped across India.', cta1: 'Shop holo stickers', cta2: 'See 3D stickers', types: 'Shop by product', vibes: 'Pick your vibe', trending: 'Trending now', custom: 'Make it yours', packEyebrow: 'Build your own pack', packTitle: 'Any 10 stickers for ₹199', fan: ['HOLO', 'SHINE', 'Y2K', 'GLOW UP', 'WOW'] },
+    manga: { announce: ['Vol. 01: new anime drops', 'Any 10 stickers for ₹199', 'COD available'], logo: 'PrintYourVibe', search: 'Search anime, manga, heroes…', eyebrow: 'Vol. 01 · New anime drops', title: 'Your fandom, <em>stuck</em> on everything!', sub: 'Anime, manga and hero-style stickers and posters in bold ink. Waterproof vinyl and 300 GSM paper, shipped across India.', cta1: 'Shop anime', cta2: 'Make a custom sticker', types: 'Shop by product', vibes: 'Pick your fandom', trending: 'Trending this week', custom: 'Make it yours', packEyebrow: 'Sticker packs', packTitle: 'Collect them all: any 10 for ₹199', fan: ['OTAKU', 'POW!', 'SUGOI', 'NO SPOILERS', 'BAM!'] },
+    retro: { announce: ['Far-out deal: any 10 stickers for ₹199', 'Free shipping above ₹499', 'COD available'], logo: 'PrintYourVibe', search: 'Search retro, music, travel…', eyebrow: 'New: vintage poster drops', title: 'Far-out posters and stickers.', sub: 'Warm, vintage-inspired designs for your walls, laptop and diary. Thick 300 GSM paper and waterproof vinyl, shipped across India.', cta1: 'Shop retro posters', cta2: 'Shop stickers', types: 'Shop by product', vibes: 'Pick your groove', trending: 'Fresh this week', custom: 'Make it yours', packEyebrow: 'Build your own pack', packTitle: 'Pick any 10 stickers for ₹199', fan: ['FAR OUT', 'GROOVY', 'PEACE', 'STAY RAD', 'DIG IT'] },
   };
   const TINTS = {
     pop: ['#FFF1B8', '#FFD6E8', '#D8E5FF', '#CFF5E1', '#FFE2CC', '#E9DBFF'],
     neon: ['#15151F'],
     gallery: ['#F3F2EE'],
     scrap: ['#F3EDFF', '#FFEDE8', '#E8F8F1', '#FFF6DA', '#FFEFF5', '#EAF4FF'],
+    desi: ['#FFE3A1', '#FFD0E6', '#C7EEEE', '#D3F0DC', '#FFD9C2', '#F4D3D7'],
+    holo: ['rgba(255,255,255,.55)', 'rgba(200,182,255,.35)', 'rgba(155,246,255,.35)', 'rgba(255,198,255,.35)'],
+    manga: ['#FFFFFF'],
+    retro: ['#F2D9A8', '#F7CDB0', '#CFE3D8', '#F6E2A6', '#EBD5AE'],
   };
   const TILTS = [-1.6, 1.2, -0.9, 1.7, 1.1, -1.4, 0.8, -1.2];
   const VIBES = ['Anime', 'F1 & Motorsport', 'Cars & Bikes', 'Cricket', 'Aesthetic', 'K-Pop', 'Gaming', 'Movies', 'Quotes', 'Space', 'Coding & Tech', 'Desi Vibes', 'Cute & Kawaii', 'Music'];
@@ -767,11 +1013,12 @@ button { font: inherit; color: inherit; }
     const g = uid('g'), sh = uid('s');
     const c1 = P[o.c1 || 'a'], c2 = P[o.c2 || 'e'];
     const tc = textOn(c1, P.ink);
-    let defs = grad(g, [[0, c1], [1, c2]]) + shadow(sh, 4, 4, 0.22);
+    const foil = P.foil && o.shape !== 'moon';
+    let defs = grad(g, foil ? [[0, c1], [0.35, P.e], [0.65, P.a], [1, c2]] : [[0, c1], [1, c2]]) + shadow(sh, 4, 4, 0.22);
     const geo = [];
     let body = '';
     const fill = `url(#${g})`;
-    const fit = (txt, max, width) => Math.min(max, Math.round(width / (txt.length * 0.6)));
+    const fit = (txt, max, width) => Math.min(max, Math.round(width / (txt.length * (P.wf || 0.6))));
     const word = (txt, x, y, size, color = tc) => `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-family="${P.font}" font-weight="${P.fw}" font-size="${size}" fill="${color}">${txt}</text>`;
     switch (o.shape) {
       case 'blob': {
@@ -834,7 +1081,7 @@ button { font: inherit; color: inherit; }
     const shapes = geo.join('');
     let cut = '';
     if (P.outline) {
-      cut += `<g transform="translate(6 7)" fill="${P.ink}" stroke="${P.ink}" stroke-width="22" stroke-linejoin="round">${shapes}</g>`;
+      if (P.outline !== 'line') cut += `<g transform="translate(6 7)" fill="${P.ink}" stroke="${P.ink}" stroke-width="22" stroke-linejoin="round">${shapes}</g>`;
       cut += `<g fill="${P.ink}" stroke="${P.ink}" stroke-width="22" stroke-linejoin="round">${shapes}</g>`;
     }
     cut += `<g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"${P.outline ? '' : ` filter="url(#${sh})"`}>${shapes}</g>`;
@@ -847,12 +1094,13 @@ button { font: inherit; color: inherit; }
     const r = rng(o.seed || 7);
     let defs = '', art = '';
     const W = 300, H = 424;
+    const ts = (txt, base, width) => Math.min(base, Math.round(width / (txt.length * (P.wf || 0.6))));
     const sub = (txt, y, color, anchor = 'middle', x = 150) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="${SANS}" font-weight="700" font-size="10.5" letter-spacing="2.4" fill="${color}" opacity=".8">${txt}</text>`;
     if (o.kind === 'speed') {
       const bg = uid('pb');
       defs += `<linearGradient id="${bg}" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="${P.dark}"/><stop offset="1" stop-color="${P.dark2}"/></linearGradient>`;
       art += `<rect width="${W}" height="${H}" fill="url(#${bg})"/>`;
-      art += `<text x="150" y="196" text-anchor="middle" dominant-baseline="central" font-family="${P.font}" font-weight="${P.fw}" font-size="220" fill="none" stroke="${P.a}" stroke-width="2.5" opacity=".9">07</text>`;
+      art += `<text x="150" y="196" text-anchor="middle" dominant-baseline="central" font-family="${P.font}" font-weight="${P.fw}" font-size="${ts('07', 220, 280)}" fill="none" stroke="${P.a}" stroke-width="2.5" opacity=".9">07</text>`;
       let lines = '';
       for (let i = 0; i < 22; i++) {
         const y = 150 + r() * 190, x = -40 + r() * 200, len = 60 + r() * 220, w = 1 + r() * 3;
@@ -860,7 +1108,7 @@ button { font: inherit; color: inherit; }
       }
       art += `<g transform="rotate(-10 150 250)">${lines}</g>`;
       art += `<g transform="translate(0 4)"><path d="M30 304 L112 288 L150 270 L196 270 L216 286 L262 292 L272 312 L30 314 Z" fill="${P.b}"/><path d="M150 272 L172 258 L192 272 Z" fill="${P.ink}"/><rect x="252" y="268" width="28" height="8" fill="${P.b}"/><rect x="263" y="268" width="6" height="28" fill="${P.ink}"/><rect x="18" y="296" width="22" height="16" fill="${P.ink}"/><circle cx="78" cy="314" r="20" fill="${P.ink}"/><circle cx="78" cy="314" r="8" fill="${P.paper}" opacity=".5"/><circle cx="230" cy="314" r="20" fill="${P.ink}"/><circle cx="230" cy="314" r="8" fill="${P.paper}" opacity=".5"/><rect x="104" y="296" width="70" height="5" fill="${P.paper}" opacity=".85"/></g>`;
-      art += `<text x="22" y="372" font-family="${P.font}" font-weight="${P.fw}" font-size="40" fill="${P.paper}">${o.title || 'PIT LANE'}</text>`;
+      art += `<text x="22" y="372" font-family="${P.font}" font-weight="${P.fw}" font-size="${ts(o.title || 'PIT LANE', 40, 256)}" fill="${P.paper}">${o.title || 'PIT LANE'}</text>`;
       art += sub(o.sub || 'NIGHT RACE SERIES · NO. 07', 398, P.paper, 'start', 22);
       art += sub('PRINTYOURVIBE', 34, P.a, 'start', 22) + sub('2026', 34, P.paper, 'end', 278);
     } else if (o.kind === 'sunset') {
@@ -872,21 +1120,21 @@ button { font: inherit; color: inherit; }
       art += `<rect width="300" height="424" fill="url(#${sky})"/><circle cx="150" cy="222" r="92" fill="url(#${sun})" mask="url(#${mk})"/>`;
       const ridge = (base, amp, seed, color) => { const rr = rng(seed); let d = `M0 ${base}`; for (let x = 0; x <= 300; x += 30) d += ` L${x} ${f1(base - rr() * amp)}`; return `<path d="${d} L300 424 L0 424 Z" fill="${color}"/>`; };
       art += ridge(286, 60, (o.seed || 7) + 1, P.c) + ridge(314, 46, (o.seed || 7) + 2, P.dark) + ridge(342, 30, (o.seed || 7) + 3, P.dark2);
-      art += `<text x="150" y="386" text-anchor="middle" font-family="${P.font}" font-weight="${P.fw}" font-size="34" fill="${P.paper}">${o.title || 'GOLDEN HOUR'}</text>` + sub('SUNSET SERIES · 03', 408, P.paper);
+      art += `<text x="150" y="386" text-anchor="middle" font-family="${P.font}" font-weight="${P.fw}" font-size="${ts(o.title || 'GOLDEN HOUR', 34, 270)}" fill="${P.paper}">${o.title || 'GOLDEN HOUR'}</text>` + sub('SUNSET SERIES · 03', 408, P.paper);
     } else if (o.kind === 'orbit') {
       const bg = uid('ob'), pl = uid('pl');
       defs += `<radialGradient id="${bg}" cx=".5" cy=".35" r=".9"><stop offset="0" stop-color="${P.dark2}"/><stop offset="1" stop-color="${P.dark}"/></radialGradient>` + grad(pl, [[0, P.d], [1, P.c]]);
       art += `<rect width="300" height="424" fill="url(#${bg})"/>`;
       for (let i = 0; i < 70; i++) art += `<circle cx="${f1(r() * 300)}" cy="${f1(r() * 330)}" r="${f1(0.5 + r() * 1.4)}" fill="#FFFFFF" opacity="${f1(0.3 + r() * 0.7)}"/>`;
       art += `<g fill="none" stroke="${P.paper}" stroke-opacity=".22"><ellipse cx="150" cy="190" rx="132" ry="42"/><ellipse cx="150" cy="190" rx="104" ry="31"/></g><circle cx="150" cy="190" r="62" fill="url(#${pl})"/><ellipse cx="150" cy="190" rx="104" ry="20" fill="none" stroke="${P.a}" stroke-width="7" transform="rotate(-16 150 190)"/><circle cx="236" cy="96" r="12" fill="${P.b}"/>`;
-      art += `<text x="150" y="380" text-anchor="middle" font-family="${P.font}" font-weight="${P.fw}" font-size="34" fill="#FFFFFF">${o.title || 'ZERO GRAVITY'}</text>` + sub('SPACE SERIES · 11', 404, '#FFFFFF');
+      art += `<text x="150" y="380" text-anchor="middle" font-family="${P.font}" font-weight="${P.fw}" font-size="${ts(o.title || 'ZERO GRAVITY', 34, 270)}" fill="#FFFFFF">${o.title || 'ZERO GRAVITY'}</text>` + sub('SPACE SERIES · 11', 404, '#FFFFFF');
     } else {
       const tc = textOn(P.light, P.ink);
       art += `<rect width="300" height="424" fill="${P.light}"/><path d="M150 230 C146 290 156 330 150 424" stroke="${P.f}" stroke-width="6" fill="none"/><ellipse cx="124" cy="304" rx="28" ry="10" fill="${P.d}" transform="rotate(-30 124 304)"/><ellipse cx="178" cy="282" rx="28" ry="10" fill="${P.d}" transform="rotate(28 178 282)"/>`;
       for (let i = 0; i < 12; i++) art += `<ellipse cx="150" cy="100" rx="20" ry="52" fill="${i % 2 ? P.b : P.e}" opacity=".94" transform="rotate(${i * 30} 150 150)"/>`;
       art += `<circle cx="150" cy="150" r="26" fill="${P.a}"/>`;
       for (let i = 0; i < 10; i++) { const a = (i / 10) * TAU; art += `<circle cx="${f1(150 + Math.cos(a) * 14)}" cy="${f1(150 + Math.sin(a) * 14)}" r="2.4" fill="${P.ink}" opacity=".45"/>`; }
-      art += `<text x="150" y="392" text-anchor="middle" font-family="${P.font}" font-weight="${P.fw}" font-size="30" fill="${tc}">${o.title || 'SLOW BLOOM'}</text>` + sub('BOTANICAL SERIES · 05', 412, tc);
+      art += `<text x="150" y="392" text-anchor="middle" font-family="${P.font}" font-weight="${P.fw}" font-size="${ts(o.title || 'SLOW BLOOM', 30, 270)}" fill="${tc}">${o.title || 'SLOW BLOOM'}</text>` + sub('BOTANICAL SERIES · 05', 412, tc);
     }
     if (!o.frame || o.frame === 'none') return { vb: o.vb || '0 0 300 424', w: 300, h: 424, defs, body: art };
     const fr = { black: ['#2A2A2A', '#111111'], white: ['#FFFFFF', '#E3E1DC'], wood: ['#A87445', '#6B4423'] }[o.frame];
@@ -997,7 +1245,7 @@ button { font: inherit; color: inherit; }
     for (let i = 0; i < 16; i++) { const a = (i / 16) * TAU; m += `<circle cx="${f1(80 + Math.cos(a) * 44)}" cy="${f1(108 + Math.sin(a) * 44)}" r="2.2" fill="${P.paper}" opacity=".9"/>`; }
     const s = `<defs>${shadow(sh)}<mask id="${mk}"><rect x="0" y="0" width="160" height="290" fill="#FFFFFF"/><circle cx="80" cy="30" r="5.5" fill="#000000"/></mask></defs>
       <g filter="url(#${sh})"><rect x="34" y="14" width="92" height="256" rx="8" fill="${P.c}" mask="url(#${mk})"/></g>${m}
-      <text transform="translate(80 210) rotate(-90)" text-anchor="middle" dominant-baseline="central" font-family="${P.font}" font-weight="${P.fw}" font-size="19" fill="${textOn(P.c, P.ink)}">${o.word || 'DESI VIBES'}</text>
+      <text transform="translate(80 210) rotate(-90)" text-anchor="middle" dominant-baseline="central" font-family="${P.font}" font-weight="${P.fw}" font-size="${Math.min(19, Math.round(130 / ((o.word || 'DESI VIBES').length * (P.wf || 0.6))))}" fill="${textOn(P.c, P.ink)}">${o.word || 'DESI VIBES'}</text>
       <path d="M80 30 C90 18 100 10 110 4" stroke="${P.b}" stroke-width="2.6" fill="none" stroke-linecap="round"/><g stroke="${P.b}" stroke-width="2.2" stroke-linecap="round"><path d="M110 4 l10 -2"/><path d="M110 4 l9 4"/><path d="M110 4 l6 8"/></g>`;
     return svg('0 0 160 290', s, o.label);
   }
@@ -1023,8 +1271,8 @@ button { font: inherit; color: inherit; }
     const P = ART[skin];
     const pp = posterParts(skin, { ...o.poster, frame: o.frame || 'none' });
     const g = uid('wl'), sh = uid('ws');
-    const wallC = { pop: ['#DCE8FF', '#C9D9FF'], neon: ['#1C1C2A', '#14141E'], gallery: ['#EFEDE7', '#E4E1D9'], scrap: ['#FCEFF6', '#F6E3EE'] }[skin];
-    const floor = skin === 'neon' ? '#0E0E16' : '#D9CFC2';
+    const wallC = { pop: ['#DCE8FF', '#C9D9FF'], neon: ['#1C1C2A', '#14141E'], gallery: ['#EFEDE7', '#E4E1D9'], scrap: ['#FCEFF6', '#F6E3EE'], desi: ['#FFE9C4', '#FFD99A'], holo: ['#ECE6FF', '#D9F7FF'], manga: ['#FFFFFF', '#EFECE4'], retro: ['#F2D9A8', '#E8C78C'] }[skin] || ['#EFEDE7', '#E4E1D9'];
+    const floor = skin === 'neon' ? '#0E0E16' : skin === 'manga' ? '#D6D6D6' : '#D9CFC2';
     const ph = 156, pw = (ph * pp.w) / pp.h;
     return svg('0 0 400 400', `<defs>${grad(g, [[0, wallC[0]], [1, wallC[1]]], true)}${pp.defs}${shadow(sh, 6, 6, 0.28)}</defs>
       <rect width="400" height="400" fill="url(#${g})"/><rect y="318" width="400" height="82" fill="${floor}"/><rect y="311" width="400" height="8" fill="${skin === 'neon' ? '#24243A' : '#EDE6DB'}"/>
@@ -1067,6 +1315,30 @@ button { font: inherit; color: inherit; }
 
   function heroArt(skin) {
     const at = (l, t, w, rot, inner, cls = '') => `<div class="ha ${cls}" style="left:${l}%;top:${t}%;width:${w}%;transform:rotate(${rot}deg)">${inner}</div>`;
+    const spark = (l, t, w) => { const id = uid('sp'); return `<div class="ha spark" style="left:${l}%;top:${t}%;width:${w}%">${svg('0 0 100 100', `<defs>${grad(id, [[0, '#9BF6FF'], [0.5, '#C8B6FF'], [1, '#FFC6FF']])}</defs><path d="${star(50, 50, 50, 13, 4)}" fill="url(#${id})"/>`)}</div>`; };
+    if (skin === 'desi') return '<div class="arch"></div>' + [
+      at(31, 22, 38, 0, poster(skin, { kind: 'sunset', seed: 71 })),
+      at(0, 52, 36, -10, sticker(skin, { shape: 'pill', word: 'CHAI', seed: 72, c1: 'a', c2: 'e' })),
+      at(64, 2, 34, 10, sticker(skin, { shape: 'badge', word: 'BINDAAS', seed: 73, c1: 'b', c2: 'f' })),
+      at(64, 58, 34, -6, sticker(skin, { shape: 'star', word: 'JUGAAD', seed: 74, c1: 'c', c2: 'd' })),
+    ].join('');
+    if (skin === 'holo') return [spark(4, 4, 8), spark(88, 10, 6), spark(46, 44, 5), spark(90, 74, 7), spark(8, 82, 5)].join('') + [
+      at(2, 6, 48, -8, sticker(skin, { shape: 'star', word: 'HOLO', seed: 81, c1: 'a', c2: 'd' })),
+      at(48, 0, 46, 6, sticker(skin, { shape: 'heart', seed: 82, c1: 'e', c2: 'd' })),
+      at(14, 50, 42, 8, sticker(skin, { shape: 'blob', word: 'Y2K', seed: 83, c1: 'c', c2: 'b' })),
+      at(56, 50, 40, -8, sticker(skin, { shape: 'moon', word: 'DREAM', seed: 84, c1: 'dark2', c2: 'c' })),
+    ].join('');
+    if (skin === 'manga') return '<div class="focus-lines"></div><div class="sfx">BAM!</div>' + [
+      at(27, 7, 46, -4, poster(skin, { kind: 'speed', seed: 91 })),
+      at(1, 58, 34, -12, sticker(skin, { shape: 'badge', word: 'OTAKU', seed: 92, c1: 'b', c2: 'f' })),
+      at(66, 60, 32, 10, sticker(skin, { shape: 'star', word: 'POW!', seed: 93, c1: 'a', c2: 'd' })),
+    ].join('');
+    if (skin === 'retro') return [
+      at(26, 4, 46, -4, poster(skin, { kind: 'sunset', seed: 101, frame: 'wood', title: 'FAR OUT' })),
+      at(0, 50, 36, -12, sticker(skin, { shape: 'badge', word: 'GROOVY', seed: 102, c1: 'a', c2: 'b' })),
+      at(68, 0, 30, 10, sticker(skin, { shape: 'star', word: 'PEACE', seed: 103, c1: 'c', c2: 'd' })),
+      at(64, 58, 34, -6, sticker(skin, { shape: 'pill', word: 'STAY RAD', seed: 104, c1: 'e', c2: 'a' })),
+    ].join('');
     if (skin === 'pop') return [
       at(46, 0, 44, 7, poster(skin, { kind: 'sunset', seed: 11 })),
       at(0, 6, 50, -9, sticker(skin, { shape: 'blob', word: 'VIBE', seed: 12, c1: 'b', c2: 'f' })),
@@ -1090,12 +1362,13 @@ button { font: inherit; color: inherit; }
     ].join('');
   }
   function packFan(skin) {
+    const w = COPY[skin].fan || ['HOLA', 'YAY', 'CHILL', 'NO DRAMA', '404'];
     const items = [
-      { shape: 'badge', word: 'HOLA', c1: 'd', c2: 'c', seed: 41 },
-      { shape: 'star', word: 'YAY', c1: 'b', c2: 'f', seed: 42 },
-      { shape: 'blob', word: 'CHILL', c1: 'a', c2: 'e', seed: 43 },
-      { shape: 'pill', word: 'NO DRAMA', c1: 'c', c2: 'd', seed: 44 },
-      { shape: 'blob', word: '404', c1: 'e', c2: 'b', seed: 45 },
+      { shape: 'badge', word: w[0], c1: 'd', c2: 'c', seed: 41 },
+      { shape: 'star', word: w[1], c1: 'b', c2: 'f', seed: 42 },
+      { shape: 'blob', word: w[2], c1: 'a', c2: 'e', seed: 43 },
+      { shape: 'pill', word: w[3], c1: 'c', c2: 'd', seed: 44 },
+      { shape: 'blob', word: w[4], c1: 'e', c2: 'b', seed: 45 },
     ];
     const pos = [[0, 30, -14], [18, 0, 8], [37, 34, -4], [56, 4, 12], [70, 44, -10]];
     return items.map((it, i) => `<div class="fan" style="left:${pos[i][0]}%;top:${pos[i][1]}%;transform:rotate(${pos[i][2]}deg)">${sticker(skin, it)}</div>`).join('');
@@ -1331,12 +1604,12 @@ button { font: inherit; color: inherit; }
   /* ---------- picker chrome ---------- */
   const picker = $('#picker'), tabs = $('#tabs');
   picker.innerHTML = Object.entries(SKINS).map(([k, s]) => `<button class="pick" type="button" data-pick="${k}" aria-pressed="false">
-      <span class="pick-top"><span class="swatches">${s.sw.map((c) => `<i style="--s:${c}"></i>`).join('')}</span><span class="pick-state"></span></span>
+      <span class="pick-top"><span class="swatches">${s.sw.map((c) => `<i style="--s:${c}"></i>`).join('')}</span><span class="pick-tags">${s.isNew ? '<span class="pick-new">New</span>' : ''}<span class="pick-state"></span></span></span>
       <span class="pick-name f-${k}">${s.name}</span>
       <span class="pick-desc">${s.desc}</span>
       <span class="pick-meta"><span><b>Fonts</b> ${s.fonts}</span><span><b>Best for</b> ${s.best}</span></span>
     </button>`).join('');
-  tabs.innerHTML = Object.entries(SKINS).map(([k, s]) => `<button class="tab" type="button" role="tab" data-pick="${k}" aria-selected="false"><span class="dot" style="--s:${s.sw[k === 'gallery' ? 3 : k === 'neon' ? 1 : 0]}"></span>${s.name}</button>`).join('');
+  tabs.innerHTML = Object.entries(SKINS).map(([k, s]) => `<button class="tab" type="button" role="tab" data-pick="${k}" aria-selected="false"><span class="dot" style="--s:${s.dot}"></span>${s.name}</button>`).join('');
 
   function syncPicker() {
     document.querySelectorAll('.pick').forEach((b) => { const on = b.dataset.pick === state.skin; b.setAttribute('aria-pressed', String(on)); b.querySelector('.pick-state').textContent = on ? 'Showing' : 'Preview'; });
@@ -1386,7 +1659,7 @@ button { font: inherit; color: inherit; }
   if (narrow.addEventListener) narrow.addEventListener('change', onNarrow);
   onNarrow();
 
-  state.skin = skinFromHash() || 'pop';
+  state.skin = skinFromHash() || 'desi';
   syncPicker();
   render();
 })();

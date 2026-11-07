@@ -120,7 +120,7 @@ export default async function HomePage() {
                   </div>
                 ))}
               </div>
-              <Link href="/c/laptop-stickers" className="btn btn-primary mt-6">
+              <Link href="/build-your-pack" className="btn btn-primary mt-6">
                 Start your pack
               </Link>
             </div>

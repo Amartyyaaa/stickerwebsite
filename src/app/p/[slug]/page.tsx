@@ -78,7 +78,7 @@ async function ProductContent({ params }: { params: PageProps<'/p/[slug]'>['para
         </ol>
       </nav>
 
-      <ProductExperience product={product} delivery={settings.delivery} />
+      <ProductExperience product={product} delivery={settings.delivery} packs={settings.packs} />
 
       <section className="mt-14 grid gap-8 border-t border-line pt-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12" aria-labelledby="about-title">
         <div>

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { OptionGroup, PriceProfile } from '@/lib/catalog/types';
 import { DEFAULT_SETTINGS, type StoreSettings } from '@/lib/settings';
-import { bestPackSaving, defaultOptions, lineKey, normalizeOptions, priceRange, quote, unitPrice, type PricedLine } from './engine';
+import { bestPackSaving, defaultOptions, lineKey, normalizeOptions, packEligible, packStatus, priceRange, quote, unitPrice, type PricedLine } from './engine';
 
 const posterGroups: OptionGroup[] = [
   { key: 'size', label: 'Size', values: [{ value: 'A4', label: 'A4' }, { value: 'A3', label: 'A3' }, { value: 'A2', label: 'A2' }] },
@@ -121,5 +121,33 @@ describe('cart quote', () => {
   it('returns zeros for an empty cart', () => {
     const q = quote([], settings);
     expect(q).toMatchObject({ itemCount: 0, subtotal: 0, shipping: 0, total: 0 });
+  });
+});
+
+describe('packStatus', () => {
+  const line = (key: string, qty: number, options: Record<string, string> = { size: 'S', finish: 'matte' }, typeId = 'laptop-stickers') => ({
+    key,
+    productId: 1,
+    typeId,
+    options,
+    qty,
+    unit: 2900,
+  });
+
+  it('counts only eligible stickers and finds the next tier', () => {
+    const st = packStatus([line('a', 4), line('b', 3, { size: 'L', finish: 'matte' }), line('c', 2, { size: 'S', finish: 'holographic' }), line('d', 5, {}, 'wall-posters')], DEFAULT_SETTINGS);
+    expect(st.count).toBe(4);
+    expect(st.reached).toBeNull();
+    expect(st.next).toEqual({ qty: 10, price: 19900 });
+    expect(st.saving).toBe(0);
+  });
+
+  it('reports the tier reached and the saving', () => {
+    const st = packStatus([line('a', 7), line('b', 5, { size: 'XS', finish: 'glossy' }, 'phone-bottle-stickers')], DEFAULT_SETTINGS);
+    expect(st.count).toBe(12);
+    expect(st.reached?.qty).toBe(10);
+    expect(st.next?.qty).toBe(20);
+    expect(st.saving).toBeGreaterThan(0);
+    expect(packEligible({ typeId: 'phone-bottle-stickers', options: { size: 'XS', finish: 'glossy' } }, DEFAULT_SETTINGS)).toBe(true);
   });
 });

@@ -100,7 +100,7 @@ export async function SiteHeader() {
                   </MegaLink>
                 ))}
               </Column>
-              <Link href="/c/laptop-stickers" className="grid content-start gap-2 rounded-card border border-line bg-bg p-5 hover:border-lime">
+              <Link href="/build-your-pack" className="grid content-start gap-2 rounded-card border border-line bg-bg p-5 hover:border-lime">
                 <span className="mx-auto h-32 w-32">
                   <Art spec={{ kind: 'sticker', seed: 61, shape: 'badge', word: String(tier?.qty ?? 10), c1: 'f', c2: 'c' }} idPrefix="mega" />
                 </span>

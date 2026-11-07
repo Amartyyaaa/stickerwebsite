@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, asc, desc, eq, inArray, sql, type SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
 import { cacheLife, cacheTag } from 'next/cache';
 import type { ArtSpec } from '@/lib/art/types';
 import { db } from '@/lib/db/client';
@@ -95,7 +95,35 @@ export async function getTypes(): Promise<ProductType[]> {
   'use cache';
   cacheLife('hours');
   cacheTag('catalog');
-  const rows = await db.select().from(s.productTypes).where(eq(s.productTypes.isActive, true)).orderBy(asc(s.productTypes.sortOrder));
+  const rows = await db
+    .select()
+    .from(s.productTypes)
+    .where(and(eq(s.productTypes.isActive, true), ne(s.productTypes.groupId, 'custom')))
+    .orderBy(asc(s.productTypes.sortOrder));
+  return rows.map(({ isActive: _a, ...t }) => t);
+}
+
+/** A custom-studio product type (hidden from menus and listings), with its options and price profile. */
+export async function getCustomType(id: string): Promise<ProductType | null> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('catalog');
+  const row = await db.query.productTypes.findFirst({
+    where: and(eq(s.productTypes.id, id), eq(s.productTypes.groupId, 'custom'), eq(s.productTypes.isActive, true)),
+  });
+  if (!row) return null;
+  const { isActive: _a, ...t } = row;
+  return t;
+}
+
+/** Custom-studio types in a cart, for pricing. Not cached: prices must be current. */
+export async function getQuoteTypes(ids: string[]): Promise<ProductType[]> {
+  const clean = [...new Set(ids)].slice(0, 20);
+  if (!clean.length) return [];
+  const rows = await db
+    .select()
+    .from(s.productTypes)
+    .where(and(inArray(s.productTypes.id, clean), eq(s.productTypes.groupId, 'custom'), eq(s.productTypes.isActive, true)));
   return rows.map(({ isActive: _a, ...t }) => t);
 }
 
@@ -307,7 +335,7 @@ export async function getSuggestions(q: string): Promise<Suggestions> {
   const like = `%${q.trim().toLowerCase().replace(/[%_]/g, '')}%`;
   const [products, types, vibes] = await Promise.all([
     listProducts({ q, sort: 'relevance', page: 1 }).then((r) => r.items.slice(0, 6)),
-    db.all<{ id: string; name: string }>(sql`SELECT id, name FROM product_types WHERE is_active = 1 AND (lower(name) LIKE ${like} OR lower(singular) LIKE ${like}) ORDER BY sort_order LIMIT 3`),
+    db.all<{ id: string; name: string }>(sql`SELECT id, name FROM product_types WHERE is_active = 1 AND group_id != 'custom' AND (lower(name) LIKE ${like} OR lower(singular) LIKE ${like}) ORDER BY sort_order LIMIT 3`),
     db.all<{ id: string; name: string }>(sql`SELECT id, name FROM vibes WHERE is_active = 1 AND lower(name) LIKE ${like} ORDER BY sort_order LIMIT 3`),
   ]);
   return { products, types, vibes };

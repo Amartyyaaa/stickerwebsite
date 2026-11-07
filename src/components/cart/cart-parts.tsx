@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { Art } from '@/components/art';
 import { MinusIcon, PlusIcon, TrashIcon } from '@/components/icons';
 import { cn } from '@/lib/cn';
+import { designSummary } from '@/lib/custom/studios';
 import { formatINR } from '@/lib/money';
 import type { QuoteResponse } from '@/lib/pricing/quote-types';
-import { MAX_QTY, useCart, type CartLine } from '@/lib/store/cart';
+import { lineHref, MAX_QTY, useCart, type CartLine } from '@/lib/store/cart';
 
 export function QtyStepper({ value, onChange, label, size = 'md' }: { value: number; onChange: (n: number) => void; label: string; size?: 'sm' | 'md' }) {
   const h = size === 'sm' ? 'h-8' : 'h-11';
@@ -36,19 +37,25 @@ export function CartLineRow({ line, priced, onNavigate, compact }: { line: CartL
   const remove = useCart((s) => s.remove);
   const unit = priced?.unit ?? line.unit;
   const labels = priced?.optionLabels ?? line.optionLabels;
+  const href = lineHref(line);
+  const photos = line.custom?.kind === 'polaroids' ? line.custom.items.length : 0;
   return (
     <li className="flex gap-3 py-4">
-      <Link href={`/p/${line.slug}`} onClick={onNavigate} className={cn('shrink-0 rounded-card border border-line bg-surface p-2', compact ? 'size-20' : 'size-24 sm:size-28')} tabIndex={-1} aria-hidden="true">
+      <Link href={href} onClick={onNavigate} className={cn('relative shrink-0 rounded-card border border-line bg-surface p-2', compact ? 'size-20' : 'size-24 sm:size-28')} tabIndex={-1} aria-hidden="true">
         <Art spec={line.art} image={line.image} idPrefix={`cart${compact ? 'd' : 'p'}`} />
+        {photos > 1 && (
+          <span className="absolute -right-1.5 -top-1.5 grid min-w-6 place-items-center rounded-full bg-lime px-1.5 text-[11px] font-bold leading-6 text-bg tabular-nums">{photos}</span>
+        )}
       </Link>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <Link href={`/p/${line.slug}`} onClick={onNavigate} className="font-display text-[17px] uppercase leading-tight hover:text-lime">
+            <Link href={href} onClick={onNavigate} className="font-display text-[17px] uppercase leading-tight hover:text-lime">
               {line.name}
             </Link>
             <p className="text-xs font-semibold uppercase tracking-[0.06em] text-muted">{line.typeName}</p>
             {labels.length > 0 && <p className="mt-0.5 text-[13px] text-muted">{labels.join(' · ')}</p>}
+            {line.custom && <p className="mt-0.5 break-all text-[13px] text-ink/85">{designSummary(line.custom, line.options)}</p>}
           </div>
           <p className="shrink-0 font-bold tabular-nums">{formatINR(unit * line.qty)}</p>
         </div>
@@ -63,13 +70,23 @@ export function CartLineRow({ line, priced, onNavigate, compact }: { line: CartL
   );
 }
 
-export function QuoteHints({ data }: { data: QuoteResponse | null }) {
+export function QuoteHints({ data, onNavigate }: { data: QuoteResponse | null; onNavigate?: () => void }) {
   if (!data?.summary.hints.length) return null;
   return (
     <ul className="grid gap-3">
       {data.summary.hints.map((h) => (
         <li key={h.id} className="text-[13px]">
-          <p className={cn('font-semibold', h.done ? 'text-lime' : 'text-ink')}>{h.text}</p>
+          <p className={cn('font-semibold', h.done ? 'text-lime' : 'text-ink')}>
+            {h.text}
+            {h.id === 'packs' && !h.done && (
+              <>
+                {' '}
+                <Link href="/build-your-pack" onClick={onNavigate} className="whitespace-nowrap text-lime underline underline-offset-2 hover:text-lime-2">
+                  Build your pack
+                </Link>
+              </>
+            )}
+          </p>
           {h.progress !== undefined && (
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line" aria-hidden="true">
               <div className="h-full rounded-full bg-lime transition-all" style={{ width: `${Math.round(Math.min(1, h.progress) * 100)}%` }} />

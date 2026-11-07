@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/cn';
 import { BagIcon, ChatIcon, HeartIcon, HomeIcon, GridIcon, SparkleIcon } from '@/components/icons';
 import { cartCount, useCart } from '@/lib/store/cart';
 import { useHydrateStores } from '@/lib/store/hydration';
@@ -8,6 +10,8 @@ import { useHydrateStores } from '@/lib/store/hydration';
 /** Floating WhatsApp button, the phone bottom bar, and loading saved cart data. */
 export function Dock({ whatsapp }: { whatsapp: string }) {
   useHydrateStores();
+  // The pack page has a sticky progress bar at the bottom; lift the chat button above it.
+  const raised = usePathname() === '/build-your-pack';
   const lines = useCart((s) => s.lines);
   const setOpen = useCart((s) => s.setOpen);
   const count = cartCount(lines);
@@ -20,7 +24,12 @@ export function Dock({ whatsapp }: { whatsapp: string }) {
       <a
         href={chatHref}
         {...(digits ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-        className="fixed bottom-[calc(76px+env(safe-area-inset-bottom,0px))] right-[max(16px,env(safe-area-inset-right,0px))] z-40 inline-flex size-[52px] items-center justify-center gap-2 rounded-full bg-lime text-bg shadow-[0_0_26px_rgb(198_255_61/0.35)] transition hover:bg-lime-2 md:bottom-[max(24px,env(safe-area-inset-bottom,0px))] md:size-auto md:min-h-[52px] md:px-5"
+        className={cn(
+          'fixed right-[max(16px,env(safe-area-inset-right,0px))] z-40 inline-flex size-[52px] items-center justify-center gap-2 rounded-full bg-lime text-bg shadow-[0_0_26px_rgb(198_255_61/0.35)] transition hover:bg-lime-2 md:size-auto md:min-h-[52px] md:px-5',
+          raised
+            ? 'bottom-[calc(152px+env(safe-area-inset-bottom,0px))] md:bottom-[max(112px,env(safe-area-inset-bottom,0px))]'
+            : 'bottom-[calc(76px+env(safe-area-inset-bottom,0px))] md:bottom-[max(24px,env(safe-area-inset-bottom,0px))]',
+        )}
         aria-label="Chat with us on WhatsApp"
       >
         <ChatIcon />

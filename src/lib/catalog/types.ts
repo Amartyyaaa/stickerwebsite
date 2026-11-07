@@ -1,8 +1,9 @@
 import type { ArtKind, ArtSpec } from '@/lib/art/types';
 
-export type GroupId = 'stickers' | 'posters' | 'polaroids' | 'more';
+/** `custom` holds the custom-studio types. They are priced like any other type but never listed in menus or listings. */
+export type GroupId = 'stickers' | 'posters' | 'polaroids' | 'more' | 'custom';
 
-export const GROUPS: ReadonlyArray<{ id: GroupId; name: string; blurb: string }> = [
+export const GROUPS: ReadonlyArray<{ id: Exclude<GroupId, 'custom'>; name: string; blurb: string }> = [
   { id: 'stickers', name: 'Stickers', blurb: 'Laptop, 3D, holographic, diary and more' },
   { id: 'posters', name: 'Posters', blurb: 'Wall, framed, split and collage kits' },
   { id: 'polaroids', name: 'Polaroids', blurb: 'Printed sets and wall kits' },

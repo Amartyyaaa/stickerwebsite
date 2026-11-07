@@ -59,7 +59,7 @@ export function CartDrawer() {
           <>
             <div className="flex-1 overflow-y-auto overscroll-contain px-5">
               <div className="border-b border-line py-4">
-                <QuoteHints data={data} />
+                <QuoteHints data={data} onNavigate={close} />
               </div>
               <ul className="divide-y divide-line">
                 {lines.map((l) => (

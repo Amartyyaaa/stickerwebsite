@@ -62,7 +62,8 @@ async function seedBase(): Promise<void> {
   }
   // Settings are only written once so changes made in admin are never overwritten.
   await db.insert(s.settings).values({ key: 'store', value: DEFAULT_SETTINGS }).onConflictDoNothing();
-  console.log(`Base data: ${PRODUCT_TYPES.length} product types, ${VIBES.length} vibes, store settings.`);
+  const custom = PRODUCT_TYPES.filter((t) => t.groupId === 'custom').length;
+  console.log(`Base data: ${PRODUCT_TYPES.length - custom} product types, ${custom} custom-studio types, ${VIBES.length} vibes, store settings.`);
 }
 
 async function clearSample(): Promise<number> {

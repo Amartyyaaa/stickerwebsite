@@ -425,6 +425,131 @@ export const PRODUCT_TYPES: ProductTypeDef[] = [
     highlights: ['Covers the whole lid', 'Trim-to-fit edges', 'Scratch-resistant laminate'],
     sample: 60,
   },
+
+  /* ---------- custom studio (hidden group: priced here, never listed) ---------- */
+  {
+    id: 'custom-stickers',
+    name: 'Custom Stickers',
+    singular: 'Custom stickers',
+    groupId: 'custom',
+    description: 'Your own image printed as waterproof vinyl stickers, cut to the shape you choose.',
+    options: [
+      pack('pack', 'How many', [['10', '10 stickers'], ['25', '25 stickers'], ['50', '50 stickers'], ['100', '100 stickers']]),
+      pack('shape', 'Shape', [['die-cut', 'Die-cut'], ['circle', 'Circle'], ['square', 'Square'], ['rounded', 'Rounded']]),
+      STICKER_SIZE,
+      {
+        key: 'finish',
+        label: 'Finish',
+        values: [
+          { value: 'matte', label: 'Matte' },
+          { value: 'glossy', label: 'Glossy' },
+          { value: 'holographic', label: 'Holographic' },
+          { value: 'transparent', label: 'Transparent' },
+        ],
+      },
+    ],
+    price: {
+      base: 29900,
+      deltas: {
+        pack: { '10': 0, '25': 30000, '50': 70000, '100': 120000 },
+        size: {
+          S: 0,
+          M: { by: 'pack', map: { '10': 5000, '25': 10000, '50': 18000, '100': 30000 } },
+          L: { by: 'pack', map: { '10': 10000, '25': 20000, '50': 36000, '100': 60000 } },
+        },
+        finish: {
+          matte: 0,
+          glossy: 0,
+          holographic: { by: 'pack', map: { '10': 10000, '25': 20000, '50': 35000, '100': 60000 } },
+          transparent: { by: 'pack', map: { '10': 5000, '25': 10000, '50': 18000, '100': 30000 } },
+        },
+      },
+    },
+    art: 'sticker',
+    highlights: ['Printed from your own image', 'Waterproof, scratch-resistant vinyl', 'We check every design before printing'],
+    sample: 0,
+  },
+  {
+    id: 'custom-polaroids',
+    name: 'Custom Polaroids',
+    singular: 'Custom polaroids',
+    groupId: 'custom',
+    description: 'Your photos printed as polaroid-style prints with a white border and your captions.',
+    options: [
+      pack('pack', 'Set of', [['10', '10 prints'], ['20', '20 prints'], ['30', '30 prints'], ['50', '50 prints']]),
+      {
+        key: 'size',
+        label: 'Size',
+        values: [
+          { value: 'classic', label: 'Classic', hint: '3.5 × 4.2 in' },
+          { value: 'mini', label: 'Mini', hint: '2.1 × 3.4 in' },
+        ],
+      },
+      { key: 'finish', label: 'Finish', values: [{ value: 'matte', label: 'Matte' }, { value: 'glossy', label: 'Glossy' }] },
+      {
+        key: 'extras',
+        label: 'Add-ons',
+        values: [
+          { value: 'none', label: 'Prints only' },
+          { value: 'clips', label: 'Clips + string' },
+          { value: 'lights', label: 'Clips + fairy lights' },
+        ],
+      },
+    ],
+    price: {
+      base: 17900,
+      deltas: {
+        pack: { '10': 0, '20': 12000, '30': 21000, '50': 35000 },
+        size: { classic: 0, mini: { by: 'pack', map: { '10': -4000, '20': -6000, '30': -8000, '50': -12000 } } },
+        extras: {
+          none: 0,
+          clips: { by: 'pack', map: { '10': 4900, '20': 6900, '30': 8900, '50': 12900 } },
+          lights: { by: 'pack', map: { '10': 14900, '20': 16900, '30': 18900, '50': 22900 } },
+        },
+      },
+    },
+    art: 'polaroids',
+    highlights: ['Classic white border with your caption', 'Thick photo card', 'We check every photo before printing'],
+    sample: 0,
+  },
+  {
+    id: 'custom-posters',
+    name: 'Custom Posters',
+    singular: 'Custom poster',
+    groupId: 'custom',
+    description: 'Your photo or artwork printed as a poster on thick 300 GSM paper, framed or unframed.',
+    options: [
+      POSTER_SIZE,
+      { key: 'paper', label: 'Paper', values: [{ value: 'matte', label: 'Matte', hint: '300 GSM' }, { value: 'glossy', label: 'Glossy', hint: '300 GSM' }] },
+      {
+        key: 'frame',
+        label: 'Frame',
+        values: [
+          { value: 'none', label: 'No frame' },
+          { value: 'black', label: 'Black' },
+          { value: 'white', label: 'White' },
+          { value: 'wood', label: 'Wood' },
+        ],
+      },
+      pack('orientation', 'Orientation', [['portrait', 'Portrait'], ['landscape', 'Landscape']]),
+    ],
+    price: {
+      base: 11900,
+      deltas: {
+        size: { A4: 0, A3: 5000, A2: 15000, '12x18': 6000 },
+        paper: { matte: 0, glossy: 2000 },
+        frame: {
+          none: 0,
+          black: { by: 'size', map: { A4: 20000, A3: 25000, A2: 40000, '12x18': 28000 } },
+          white: { by: 'size', map: { A4: 20000, A3: 25000, A2: 40000, '12x18': 28000 } },
+          wood: { by: 'size', map: { A4: 25000, A3: 30000, A2: 45000, '12x18': 33000 } },
+        },
+      },
+    },
+    art: 'framed',
+    highlights: ['Printed on thick 300 GSM paper', 'Preview on a wall before you order', 'We check every image before printing'],
+    sample: 0,
+  },
 ];
 
 export interface VibeDef {

@@ -1,75 +1,25 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { CheckIcon, PinIcon, ShareIcon } from '@/components/icons';
 import { QtyStepper } from '@/components/cart/cart-parts';
 import { WishButton } from '@/components/product/wish-button';
+import { OptionPicker } from './option-picker';
 import { galleryViews, renderGalleryView, type GalleryView } from '@/lib/art/render';
 import { SHEEN_KINDS, type FrameColor } from '@/lib/art/types';
-import type { OptionGroup, ProductDetail } from '@/lib/catalog/types';
+import type { ProductDetail } from '@/lib/catalog/types';
 import { cn } from '@/lib/cn';
 import { deliveryWindow, formatDeliveryDate, isPincode } from '@/lib/delivery';
 import { formatINR } from '@/lib/money';
-import { defaultOptions, optionLabels, unitPrice } from '@/lib/pricing/engine';
+import { defaultOptions, optionLabels, packEligible, unitPrice } from '@/lib/pricing/engine';
 import type { StoreSettings } from '@/lib/settings';
 import { useCart } from '@/lib/store/cart';
 import { useStoresHydrated } from '@/lib/store/hydration';
 import { useRecent } from '@/lib/store/saved';
 
 const VIEW_LABEL: Record<GalleryView, string> = { art: 'Design', laptop: 'On a laptop', wall: 'On the wall', closeup: 'Close-up', sizes: 'Size guide' };
-
-function OptionPicker({ group, value, onChange }: { group: OptionGroup; value: string | undefined; onChange: (v: string) => void }) {
-  const id = `opt-${group.key}`;
-  if (group.display === 'select') {
-    return (
-      <div className="grid gap-2">
-        <label htmlFor={id} className="text-sm font-bold uppercase tracking-[0.08em]">
-          {group.label}
-        </label>
-        <select
-          id={id}
-          value={value ?? ''}
-          onChange={(e) => onChange(e.target.value)}
-          className="min-h-11 max-w-sm rounded-[2px] border border-line-2 bg-surface px-3 text-[15px] focus:border-lime focus:outline-none"
-        >
-          <option value="" disabled>
-            Choose your {group.label.toLowerCase()}
-          </option>
-          {group.values.map((v) => (
-            <option key={v.value} value={v.value}>
-              {v.label}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  }
-  return (
-    <fieldset className="grid gap-2">
-      <legend className="mb-2 text-sm font-bold uppercase tracking-[0.08em]">{group.label}</legend>
-      <div className="flex flex-wrap gap-2">
-        {group.values.map((v) => {
-          const checked = value === v.value;
-          return (
-            <label key={v.value} className="relative cursor-pointer">
-              <input type="radio" name={id} value={v.value} checked={checked} onChange={() => onChange(v.value)} className="peer sr-only" />
-              <span
-                className={cn(
-                  'grid min-w-[76px] justify-items-center rounded-[2px] border px-3.5 py-2 text-center text-[13.5px] font-bold uppercase leading-tight tracking-[0.05em] transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan',
-                  checked ? 'border-lime bg-lime/10 text-lime shadow-[0_0_18px_rgb(198_255_61/0.2)]' : 'border-line-2 hover:border-[#5a5a78]',
-                )}
-              >
-                {v.label}
-                {v.hint && <small className="text-[11.5px] font-semibold normal-case tracking-normal text-muted">{v.hint}</small>}
-              </span>
-            </label>
-          );
-        })}
-      </div>
-    </fieldset>
-  );
-}
 
 function DeliveryCheck({ delivery }: { delivery: StoreSettings['delivery'] }) {
   const [pin, setPin] = useState('');
@@ -110,7 +60,7 @@ function DeliveryCheck({ delivery }: { delivery: StoreSettings['delivery'] }) {
   );
 }
 
-export function ProductExperience({ product, delivery }: { product: ProductDetail; delivery: StoreSettings['delivery'] }) {
+export function ProductExperience({ product, delivery, packs }: { product: ProductDetail; delivery: StoreSettings['delivery']; packs: StoreSettings['packs'] }) {
   const router = useRouter();
   const hydrated = useStoresHydrated();
   const add = useCart((s) => s.add);
@@ -141,6 +91,7 @@ export function ProductExperience({ product, delivery }: { product: ProductDetai
     if (unit === null) return false;
     add({
       productId: product.id,
+      typeId: product.typeId,
       slug: product.slug,
       name: product.name,
       typeName: product.typeName,
@@ -169,6 +120,13 @@ export function ProductExperience({ product, delivery }: { product: ProductDetai
   };
 
   const sheen = product.art && SHEEN_KINDS.has(product.art.kind) && view === 'art';
+  const packTier = packs.enabled && packs.types.includes(product.typeId) ? [...packs.tiers].sort((a, b) => a.qty - b.qty)[0] : undefined;
+  const packFits = packTier ? packEligible({ typeId: product.typeId, options }, { packs }) : false;
+  const sizeGroup = product.options.find((g) => g.key === 'size');
+  const packSizes = (sizeGroup?.values ?? [])
+    .filter((v) => packs.options.size?.includes(v.value))
+    .map((v) => v.label.toLowerCase())
+    .join(' or ');
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
@@ -245,6 +203,14 @@ export function ProductExperience({ product, delivery }: { product: ProductDetai
           </button>
         </div>
         {missing && <p className="mt-2 text-sm text-orange">Choose your {missing.label.toLowerCase()} to add this to your cart.</p>}
+        {packTier && (
+          <p className="mt-3 text-sm text-muted">
+            {packFits ? 'Counts towards a sticker pack' : `In matte or glossy at ${packSizes}, this counts towards a sticker pack`}: any {packTier.qty} for {formatINR(packTier.price)}.{' '}
+            <Link href="/build-your-pack" className="font-semibold text-lime underline underline-offset-2 hover:text-lime-2">
+              Build your pack
+            </Link>
+          </p>
+        )}
 
         <div className="mt-4 flex flex-wrap gap-2">
           <WishButton id={product.id} name={product.name} variant="button" className="btn-sm" />

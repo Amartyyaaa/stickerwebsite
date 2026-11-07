@@ -5,7 +5,19 @@ import { formatINR } from '@/lib/money';
 import { QuickAddButton } from './quick-add-button';
 import { WishButton } from './wish-button';
 
-export function ProductCard({ product, idPrefix }: { product: Card; idPrefix?: string }) {
+export function ProductCard({
+  product,
+  idPrefix,
+  action,
+  price,
+}: {
+  product: Card;
+  idPrefix?: string;
+  /** Replaces the quick "Add" button, for example with a pack counter. */
+  action?: React.ReactNode;
+  /** Replaces the "from ₹…" price line. */
+  price?: React.ReactNode;
+}) {
   const href = `/p/${product.slug}`;
   return (
     <article className="group relative flex min-w-0 flex-col overflow-hidden rounded-card border border-line bg-surface transition hover:border-lime hover:shadow-glow">
@@ -26,11 +38,13 @@ export function ProductCard({ product, idPrefix }: { product: Card; idPrefix?: s
           </Link>
         </h3>
         <div className="relative z-10 mt-auto flex items-center justify-between gap-2 pt-2.5">
-          <p className="font-bold tabular-nums text-lime">
-            <span className="text-[11.5px] font-semibold text-muted">from </span>
-            {formatINR(product.priceFrom)}
-          </p>
-          <QuickAddButton product={product} />
+          {price ?? (
+            <p className="font-bold tabular-nums text-lime">
+              <span className="text-[11.5px] font-semibold text-muted">from </span>
+              {formatINR(product.priceFrom)}
+            </p>
+          )}
+          {action ?? <QuickAddButton product={product} />}
         </div>
       </div>
     </article>

@@ -83,3 +83,29 @@ export const subscribers = sqliteTable('subscribers', {
   email: text('email').primaryKey(),
   createdAt: integer('created_at').notNull(),
 });
+
+/**
+ * Images shoppers upload in the custom studio. The original is kept untouched
+ * for printing; a web preview and a thumbnail are made when the upload is
+ * checked. Ids are random and unguessable.
+ */
+export const uploads = sqliteTable(
+  'uploads',
+  {
+    id: text('id').primaryKey(),
+    status: text('status').$type<'pending' | 'ready'>().notNull(),
+    /** The shopper's file name, for the order sheet. Never used as a storage path. */
+    name: text('name').notNull(),
+    contentType: text('content_type').notNull(),
+    bytes: integer('bytes').notNull(),
+    /** Pixel size after EXIF rotation. */
+    width: integer('width'),
+    height: integer('height'),
+    hasAlpha: integer('has_alpha', { mode: 'boolean' }),
+    originalKey: text('original_key').notNull(),
+    previewKey: text('preview_key'),
+    thumbKey: text('thumb_key'),
+    createdAt: integer('created_at').notNull(),
+  },
+  (t) => [index('uploads_created_idx').on(t.createdAt)],
+);

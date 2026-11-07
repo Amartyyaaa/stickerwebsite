@@ -1,13 +1,16 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { designInputs } from '@/lib/custom/rules';
 import type { QuoteResponse } from '@/lib/pricing/quote-types';
 import { useCart } from '@/lib/store/cart';
 import { useStoresHydrated } from '@/lib/store/hydration';
 
 /**
  * Ask the server to price the cart whenever it changes. Lines the server can't
- * price any more (a removed product, say) are dropped from the cart.
+ * price any more (a removed product, say) are dropped from the cart. A custom
+ * line's key already changes with its design, so the key is enough to tell
+ * when to ask again.
  */
 export function useQuote({ enabled = true, payment }: { enabled?: boolean; payment?: 'online' | 'cod' } = {}) {
   const hydrated = useStoresHydrated();
@@ -24,7 +27,16 @@ export function useQuote({ enabled = true, payment }: { enabled?: boolean; payme
         const res = await fetch('/api/cart/quote', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ lines: lines.map((l) => ({ key: l.key, productId: l.productId, options: l.options, qty: l.qty })), payment }),
+          body: JSON.stringify({
+            lines: lines.map((l) => ({
+              key: l.key,
+              productId: l.productId,
+              options: l.options,
+              qty: l.qty,
+              ...(l.custom && l.typeId ? { custom: { typeId: l.typeId, items: designInputs(l.custom), note: l.custom.note } } : {}),
+            })),
+            payment,
+          }),
           signal: ctrl.signal,
         });
         if (!res.ok) throw new Error(String(res.status));

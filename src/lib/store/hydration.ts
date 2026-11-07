@@ -3,9 +3,10 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { useCart } from './cart';
 import { useRecent, useWishlist } from './saved';
+import { useStudioDrafts } from './studio';
 
 /**
- * Saved cart, wishlist and recently viewed items live in localStorage. They are
+ * Saved cart, wishlist, recently viewed items and studio drafts live in localStorage. They are
  * loaded after the first render so the server HTML and the first client render
  * match, then components re-render with the saved data.
  */
@@ -26,7 +27,7 @@ export function useStoresHydrated(): boolean {
 export function useHydrateStores(): void {
   useEffect(() => {
     if (hydrated) return;
-    Promise.all([useCart.persist.rehydrate(), useWishlist.persist.rehydrate(), useRecent.persist.rehydrate()]).finally(() => {
+    Promise.all([useCart.persist.rehydrate(), useWishlist.persist.rehydrate(), useRecent.persist.rehydrate(), useStudioDrafts.persist.rehydrate()]).finally(() => {
       hydrated = true;
       listeners.forEach((l) => l());
     });

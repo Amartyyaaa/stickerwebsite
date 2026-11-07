@@ -27,6 +27,7 @@ export function QuickAddButton({ product }: { product: ProductCard }) {
       onClick={() =>
         add({
           productId: product.id,
+          typeId: product.typeId,
           slug: product.slug,
           name: product.name,
           typeName: product.typeName,

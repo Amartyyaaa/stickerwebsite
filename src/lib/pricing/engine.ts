@@ -5,7 +5,7 @@
  */
 import type { Delta, OptionGroup, PriceProfile } from '@/lib/catalog/types';
 import { formatINR } from '@/lib/money';
-import type { StoreSettings } from '@/lib/settings';
+import type { PackTier, StoreSettings } from '@/lib/settings';
 
 export type Options = Record<string, string>;
 
@@ -172,6 +172,35 @@ export function bestPackSaving(units: number[], tiers: { qty: number; price: num
   return best;
 }
 
+/** Whether a line counts towards build-your-own packs: the right product type, size and finish. */
+export function packEligible(l: Pick<PricedLine, 'typeId' | 'options'>, s: Pick<StoreSettings, 'packs'>): boolean {
+  return s.packs.types.includes(l.typeId) && Object.entries(s.packs.options).every(([k, allowed]) => !(k in l.options) || allowed.includes(l.options[k]));
+}
+
+export interface PackStatus {
+  /** Stickers in the cart that count towards a pack. */
+  count: number;
+  saving: number;
+  bundled: number;
+  /** Biggest tier already reached, and the next one to aim for. */
+  reached: PackTier | null;
+  next: PackTier | null;
+}
+
+/** Where the cart stands on build-your-own packs, for progress bars. */
+export function packStatus(lines: PricedLine[], s: StoreSettings): PackStatus {
+  const tiers = [...s.packs.tiers].sort((a, b) => a.qty - b.qty);
+  const units = eligibleUnits(lines, (l) => packEligible(l, s));
+  const { saving, bundled } = s.packs.enabled ? bestPackSaving(units, tiers) : { saving: 0, bundled: 0 };
+  return {
+    count: units.length,
+    saving,
+    bundled,
+    reached: [...tiers].reverse().find((t) => t.qty <= units.length) ?? null,
+    next: tiers.find((t) => t.qty > units.length) ?? null,
+  };
+}
+
 export function quote(input: PricedLine[], s: StoreSettings, opts: { payment?: 'online' | 'cod' } = {}): Quote {
   const lines: QuoteLine[] = input.filter((l) => l.qty > 0).map((l) => ({ ...l, total: l.unit * l.qty }));
   const itemCount = lines.reduce((n, l) => n + l.qty, 0);
@@ -182,9 +211,7 @@ export function quote(input: PricedLine[], s: StoreSettings, opts: { payment?: '
   // Build-your-own pack ("any 10 stickers for ₹199").
   if (s.packs.enabled && s.packs.tiers.length) {
     const tiers = [...s.packs.tiers].sort((a, b) => a.qty - b.qty);
-    const fits = (l: PricedLine) =>
-      s.packs.types.includes(l.typeId) && Object.entries(s.packs.options).every(([k, allowed]) => !(k in l.options) || allowed.includes(l.options[k]));
-    const units = eligibleUnits(lines, fits);
+    const units = eligibleUnits(lines, (l) => packEligible(l, s));
     if (units.length) {
       const { saving, bundled } = bestPackSaving(units, tiers);
       if (saving > 0) discounts.push({ id: 'packs', label: `Sticker pack price (${bundled} stickers)`, amount: saving });

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Fragment } from 'react';
+import { Fragment, Suspense } from 'react';
 import { getInfoPage, PAGE_SLUGS } from '@/content/pages';
 import { getSettings } from '@/lib/catalog/queries';
 
@@ -36,13 +36,24 @@ function Text({ children }: { children: string }) {
   );
 }
 
-export default async function InfoPageRoute({ params }: PageProps<'/pages/[slug]'>) {
+export default function InfoPageRoute({ params }: PageProps<'/pages/[slug]'>) {
+  return (
+    <div className="wrap py-8 md:py-12">
+      <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+        <InfoPage params={params} />
+      </Suspense>
+    </div>
+  );
+}
+
+/** Reads the URL inside Suspense, so the shared page shell stays the same for every info page. */
+async function InfoPage({ params }: { params: PageProps<'/pages/[slug]'>['params'] }) {
   const { slug } = await params;
   const settings = await getSettings();
   const page = getInfoPage(slug, settings);
   if (!page) notFound();
   return (
-    <div className="wrap py-8 md:py-12">
+    <>
       <div className="grid gap-10 lg:grid-cols-[220px_minmax(0,720px)]">
         <nav aria-label="Help pages" className="order-2 lg:order-1">
           <ul className="grid gap-1.5 text-[15px]">
@@ -96,6 +107,6 @@ export default async function InfoPageRoute({ params }: PageProps<'/pages/[slug]
           ))}
         </article>
       </div>
-    </div>
+    </>
   );
 }

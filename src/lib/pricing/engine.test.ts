@@ -114,7 +114,8 @@ describe('cart quote', () => {
     const lines = [poster(1, 1, 49900)];
     expect(quote(lines, settings, { payment: 'cod' }).codFee).toBe(settings.cod.fee);
     const online = quote(lines, settings, { payment: 'online' });
-    expect(online.prepaidDiscount).toBe(Math.min(settings.prepaidDiscount.max, Math.round(49900 * 0.05)));
+    expect(online.prepaidDiscount).toBe(Math.min(settings.prepaidDiscount.max, Math.round((49900 * 0.05) / 100) * 100));
+    expect(online.prepaidDiscount % 100).toBe(0);
     expect(online.total).toBe(49900 - online.prepaidDiscount);
   });
 

@@ -274,6 +274,16 @@
     mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent);
   }
 
+  /* The pack page's sticky bar sits at the bottom; lift the chat button above it. */
+  html.has-bottom-bar .chat-fab {
+    bottom: calc(152px + env(safe-area-inset-bottom, 0px));
+  }
+  @media (min-width: 768px) {
+    html.has-bottom-bar .chat-fab {
+      bottom: max(112px, env(safe-area-inset-bottom, 0px));
+    }
+  }
+
   .scrollbar-none {
     scrollbar-width: none;
   }

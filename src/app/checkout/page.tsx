@@ -1,17 +1,46 @@
 import type { Metadata } from 'next';
-import { ComingSoon } from '@/components/coming-soon';
+import { Suspense } from 'react';
+import { CheckoutForm } from '@/components/checkout/checkout-form';
+import { getSettings } from '@/lib/catalog/queries';
+import { listAddresses } from '@/lib/orders/addresses';
+import { paymentsMode } from '@/lib/payments/razorpay';
+import { getViewer } from '@/lib/viewer';
 
 export const metadata: Metadata = { title: 'Checkout', robots: { index: false } };
 
+function CheckoutSkeleton() {
+  return (
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]" aria-busy="true">
+      <div className="grid content-start gap-5">
+        <div className="h-48 rounded-card border border-line bg-surface/60" />
+        <div className="h-96 rounded-card border border-line bg-surface/60" />
+      </div>
+      <div className="h-96 rounded-card border border-line bg-surface" />
+    </div>
+  );
+}
+
+/** The parts of checkout that depend on who is signed in. */
+async function CheckoutLoader() {
+  const [viewer, settings] = await Promise.all([getViewer(), getSettings()]);
+  const saved = viewer ? await listAddresses(viewer.id) : [];
+  return (
+    <CheckoutForm
+      viewer={viewer ? { email: viewer.email } : null}
+      addresses={saved}
+      settings={{ cod: settings.cod, delivery: settings.delivery, prepaidDiscount: settings.prepaidDiscount }}
+      mode={paymentsMode()}
+    />
+  );
+}
+
 export default function CheckoutPage() {
   return (
-    <ComingSoon
-      kicker="Checkout"
-      title="Checkout is next"
-      body="Your cart is saved on this device. Checkout with address, delivery and payment is being built in the next step."
-      points={['Guest checkout or sign in with email or Google', 'Indian address form with pincode check', 'Pay by UPI, cards, netbanking or wallets through Razorpay', 'Or Cash on Delivery', 'Order confirmation email and order tracking']}
-      art={{ kind: 'sticker', seed: 71, shape: 'pill', word: 'SOON', c1: 'a', c2: 'd' }}
-      step="Coming in Step 3: accounts, checkout and payments"
-    />
+    <div className="wrap py-8 md:py-10">
+      <h1 className="display mb-6 text-[clamp(38px,5vw,60px)]">Checkout</h1>
+      <Suspense fallback={<CheckoutSkeleton />}>
+        <CheckoutLoader />
+      </Suspense>
+    </div>
   );
 }

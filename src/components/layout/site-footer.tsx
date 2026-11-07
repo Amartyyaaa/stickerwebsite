@@ -40,6 +40,7 @@ export function SiteFooter() {
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.12em]">Help</p>
           <ul className="grid gap-2">
             {[
+              ['/track', 'Track your order'],
               ['/pages/shipping', 'Shipping & delivery'],
               ['/pages/returns', 'Returns & refunds'],
               ['/pages/faq', 'FAQ'],

@@ -263,8 +263,9 @@ export function quote(input: PricedLine[], s: StoreSettings, opts: { payment?: '
   }
 
   const codFee = opts.payment === 'cod' && itemCount > 0 ? s.cod.fee : 0;
+  // Rounded to whole rupees so totals never show paise.
   const prepaidDiscount =
-    opts.payment === 'online' && itemCount > 0 ? Math.min(s.prepaidDiscount.max, Math.round((merchandise * s.prepaidDiscount.percent) / 100)) : 0;
+    opts.payment === 'online' && itemCount > 0 ? Math.min(s.prepaidDiscount.max, Math.round((merchandise * s.prepaidDiscount.percent) / 100 / 100) * 100) : 0;
   const total = merchandise + shipping + codFee - prepaidDiscount;
 
   return { lines, itemCount, subtotal, discounts, discountTotal, shipping, codFee, prepaidDiscount, total, hints };

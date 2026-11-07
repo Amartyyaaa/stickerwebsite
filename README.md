@@ -8,9 +8,9 @@ An online store for custom-printed stickers (2D and 3D), polaroids, wall posters
 | --- | --- | --- |
 | 0 | Pick a theme (`design/theme-showcase.html`) | Done: Midnight Neon |
 | 1 | Storefront: catalog, listings, search, product pages, cart | Done |
-| 2 | Custom studio and build-your-own sticker packs | **Done** |
-| 3 | Accounts, checkout, Razorpay and Cash on Delivery | Next |
-| 4 | Admin panel, including bulk CSV import | Planned |
+| 2 | Custom studio and build-your-own sticker packs | Done |
+| 3 | Accounts, checkout, Razorpay and Cash on Delivery | **Done** |
+| 4 | Admin panel, including bulk CSV import | Next |
 | 5 | Launch readiness and the deployment guide | Planned |
 
 ## Run it on your computer
@@ -25,7 +25,9 @@ npm run dev        # open http://localhost:3000
 
 Local development needs no accounts or settings. The database is a single file in `data/`, and images uploaded in the custom studio go to `uploads/`.
 
-Already set up from Step 1? Run `npm run db:migrate` and `npm run db:seed` to add the uploads table and the custom-studio product types. Your products aren't touched.
+Already set up from an earlier step? Run `npm run db:migrate` and `npm run db:seed` to add the new tables and product types. Your products and orders aren't touched.
+
+In development, emails (sign-in codes, order confirmations) are saved as files in `data/outbox/` instead of being sent, and online payments open a test screen. See `.env.example` for the keys the live site needs.
 
 | Command | What it does |
 | --- | --- |
@@ -35,6 +37,7 @@ Already set up from Step 1? Run `npm run db:migrate` and `npm run db:seed` to ad
 | `npm run lint` / `npm run typecheck` | Code checks |
 | `npm run db:migrate` | Apply database migrations |
 | `npm run db:seed` | Write product types, vibes and store settings (`-- sample` adds demo products, `-- clear` removes them) |
+| `npm run maintenance` | Daily housekeeping: cancels unpaid online orders after 24 hours and deletes unused uploads after 7 days. Run it once a day on the server |
 
 ## What's in Step 1
 
@@ -51,7 +54,7 @@ Already set up from Step 1? Run `npm run db:migrate` and `npm run db:seed` to ad
   - wishlist and recently viewed, saved in the browser
   - info and policy pages Razorpay asks for (`/pages/…`); the placeholders in [brackets] are highlighted for you to replace
   - newsletter sign-up, WhatsApp chat button, and a phone bottom bar
-- **Placeholders:** `/checkout` and `/account` are placeholder pages that Step 3 fills in.
+- **Placeholders:** none left from Step 1. Checkout and accounts arrived in Step 3.
 
 ## What's in Step 2
 
@@ -84,6 +87,37 @@ Already set up from Step 1? Run `npm run db:migrate` and `npm run db:seed` to ad
   - Files are stored in `uploads/` (or `UPLOADS_DIR`). Cloud storage (Cloudflare R2) comes in Step 5 and uses the same upload flow.
 - **Prices:** the custom types' prices are placeholders, in `src/lib/catalog/taxonomy.ts` like the rest. Step 4's admin panel will let you edit them.
 
+## What's in Step 3
+
+- **Checkout** (`/checkout`):
+  - Guest checkout, or sign in for faster checkout with saved addresses.
+  - Indian address form with a state list, a pincode delivery estimate and checks for mobile numbers and pincodes.
+  - Pay online (5% off, up to ₹50) or Cash on Delivery (₹49 fee, ₹199 to ₹3,000).
+    - COD isn't offered for custom-studio items, because they're made for one buyer. The `cod.allowCustom` setting changes this.
+  - The server prices the cart again before creating the order. If anything changed, the shopper sees the new total first.
+- **Payments:**
+  - Razorpay Checkout (UPI, cards, netbanking, wallets) with signature checks, plus a webhook for shoppers who close the tab after paying.
+  - Without keys, development uses a clearly labelled test payment screen. The live site without keys offers COD only.
+  - If the shopper closes the payment window, the order is kept and they can pay again from checkout or the order page.
+- **Orders:**
+  - Order numbers look like `PYV-7KQ2MD`, with a status timeline: Placed → Confirmed → Printing → Shipped → Delivered.
+  - The order page (`/order/PYV-…`) opens from the private link in the confirmation email, or for the signed-in shopper.
+  - `/track` finds an order by number and phone, without showing the address.
+  - Custom designs and their uploads are saved with the order, so cleanup never deletes them.
+- **Emails:** an order confirmation to the shopper, a new-order alert to you (`ORDER_ALERT_EMAIL`) and sign-in codes. They're sent through Resend when `RESEND_API_KEY` is set.
+- **Accounts** (`/account`):
+  - Sign in with a 6-digit code by email, or Google when its keys are set. No passwords.
+  - The account page shows every order placed with that email, including earlier guest orders, plus an address book.
+- **Protection:** rate limits on sign-in codes, checkout, tracking and uploads. Order links use long random keys.
+
+### Going live with Razorpay
+
+1. Complete Razorpay KYC. In the dashboard, create **test** API keys and put them in `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET`.
+2. Turn on **automatic capture** for payments (Account & Settings → Payment capture).
+3. Add a webhook pointing to `https://<your site>/api/payments/razorpay/webhook` for `payment.captured`, `order.paid` and `payment.failed`. Put its secret in `RAZORPAY_WEBHOOK_SECRET`.
+4. Place a test order with Razorpay's test UPI ID or a test card, and check it shows as Paid on the order page. Then try closing the tab right after paying, and check the webhook still marks it paid.
+5. Switch to live keys.
+
 ## Project layout
 
 ```
@@ -96,6 +130,11 @@ src/lib/custom/          custom studio rules: print sizes, crops, resolution che
 src/lib/storage/         file storage for uploads (local folder now, Cloudflare R2 in Step 5)
 src/components/custom/   the three studios, crop editor, upload queue and wall preview
 src/components/pack/     build-your-own pack grid and progress bar
+src/components/checkout/ checkout form, address fields, payment window (Razorpay or test)
+src/lib/orders/          order service, statuses, COD rules, order numbers, saved addresses
+src/lib/payments/        Razorpay orders and signature checks
+src/lib/email/           email sending (Resend or the local outbox) and templates
+src/lib/auth.ts          sign-in (Better Auth: email codes and Google)
 src/lib/db/              database schema and client (Drizzle ORM + libSQL / SQLite)
 src/content/pages.ts     text of the info and policy pages
 scripts/                 migrate and seed scripts

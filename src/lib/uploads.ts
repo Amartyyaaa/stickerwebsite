@@ -1,6 +1,6 @@
 import 'server-only';
 import { randomBytes } from 'node:crypto';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, isNull, lt } from 'drizzle-orm';
 import type { Metadata } from 'sharp';
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_PIXELS, MIN_UPLOAD_SIDE, UPLOAD_ID_RE, uploadSrc, type UploadInfo, type UploadType } from '@/lib/custom/types';
 import { db } from '@/lib/db/client';
@@ -161,4 +161,12 @@ export async function readyUploadIds(ids: string[]): Promise<Set<string>> {
     for (const r of rows) found.add(r.id);
   }
   return found;
+}
+
+/** Delete uploads that never became part of an order. Returns how many were removed. */
+export async function deleteUnorderedUploads(olderThanSec: number): Promise<number> {
+  const cutoff = Math.floor(Date.now() / 1000) - olderThanSec;
+  const rows = await db.select().from(uploads).where(and(isNull(uploads.orderId), lt(uploads.createdAt, cutoff)));
+  for (const row of rows) await deleteUpload(row);
+  return rows.length;
 }

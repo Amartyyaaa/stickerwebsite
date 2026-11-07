@@ -20,7 +20,15 @@ export interface BuyXGetY {
 
 export interface StoreSettings {
   shipping: { freeAbove: number; fee: number };
-  cod: { enabled: boolean; fee: number; min: number; max: number };
+  cod: {
+    enabled: boolean;
+    fee: number;
+    /** Order value limits for COD, before the COD fee. */
+    min: number;
+    max: number;
+    /** Allow COD on orders with custom-studio items (off: they're made for one buyer, so a refused parcel is a total loss). */
+    allowCustom: boolean;
+  };
   prepaidDiscount: { percent: number; max: number };
   packs: {
     enabled: boolean;
@@ -38,7 +46,7 @@ export interface StoreSettings {
 
 export const DEFAULT_SETTINGS: StoreSettings = {
   shipping: { freeAbove: 49900, fee: 4900 },
-  cod: { enabled: true, fee: 4900, min: 19900, max: 300000 },
+  cod: { enabled: true, fee: 4900, min: 19900, max: 300000, allowCustom: false },
   prepaidDiscount: { percent: 5, max: 5000 },
   packs: {
     enabled: true,

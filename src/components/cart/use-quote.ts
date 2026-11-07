@@ -3,8 +3,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { designInputs } from '@/lib/custom/rules';
 import type { QuoteResponse } from '@/lib/pricing/quote-types';
-import { useCart } from '@/lib/store/cart';
+import { useCart, type CartLine } from '@/lib/store/cart';
 import { useStoresHydrated } from '@/lib/store/hydration';
+
+/** Cart lines in the shape the server prices (the quote API and checkout). */
+export function requestLines(lines: CartLine[]) {
+  return lines.map((l) => ({
+    key: l.key,
+    productId: l.productId,
+    options: l.options,
+    qty: l.qty,
+    ...(l.custom && l.typeId ? { custom: { typeId: l.typeId, items: designInputs(l.custom), note: l.custom.note } } : {}),
+  }));
+}
 
 /**
  * Ask the server to price the cart whenever it changes. Lines the server can't
@@ -12,11 +23,11 @@ import { useStoresHydrated } from '@/lib/store/hydration';
  * line's key already changes with its design, so the key is enough to tell
  * when to ask again.
  */
-export function useQuote({ enabled = true, payment }: { enabled?: boolean; payment?: 'online' | 'cod' } = {}) {
+export function useQuote({ enabled = true, payment, nonce = 0 }: { enabled?: boolean; payment?: 'online' | 'cod'; /** Change to fetch the prices again. */ nonce?: number } = {}) {
   const hydrated = useStoresHydrated();
   const lines = useCart((s) => s.lines);
   const removeMany = useCart((s) => s.removeMany);
-  const sig = useMemo(() => JSON.stringify([payment ?? '', lines.map((l) => [l.key, l.productId, l.options, l.qty])]), [lines, payment]);
+  const sig = useMemo(() => JSON.stringify([payment ?? '', nonce, lines.map((l) => [l.key, l.productId, l.options, l.qty])]), [lines, payment, nonce]);
   const [result, setResult] = useState<{ sig: string; data: QuoteResponse | null; error: boolean } | null>(null);
 
   useEffect(() => {
@@ -27,16 +38,7 @@ export function useQuote({ enabled = true, payment }: { enabled?: boolean; payme
         const res = await fetch('/api/cart/quote', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            lines: lines.map((l) => ({
-              key: l.key,
-              productId: l.productId,
-              options: l.options,
-              qty: l.qty,
-              ...(l.custom && l.typeId ? { custom: { typeId: l.typeId, items: designInputs(l.custom), note: l.custom.note } } : {}),
-            })),
-            payment,
-          }),
+          body: JSON.stringify({ lines: requestLines(lines), payment }),
           signal: ctrl.signal,
         });
         if (!res.ok) throw new Error(String(res.status));

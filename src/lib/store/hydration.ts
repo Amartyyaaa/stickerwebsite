@@ -29,6 +29,8 @@ export function useHydrateStores(): void {
     if (hydrated) return;
     Promise.all([useCart.persist.rehydrate(), useWishlist.persist.rehydrate(), useRecent.persist.rehydrate(), useStudioDrafts.persist.rehydrate()]).finally(() => {
       hydrated = true;
+      // A marker for automated tests: the page is interactive and saved data is loaded.
+      document.documentElement.dataset.ready = '1';
       listeners.forEach((l) => l());
     });
   }, []);

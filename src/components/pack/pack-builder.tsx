@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MinusIcon, PlusIcon } from '@/components/icons';
 import { OptionPicker } from '@/components/pdp/option-picker';
 import { ProductCard } from '@/components/product/product-card';
@@ -93,6 +93,10 @@ function PackCounter({ product, type, options }: { product: Card; type: PackType
 
 function PackBar({ settings }: { settings: StoreSettings }) {
   const hydrated = useStoresHydrated();
+  useEffect(() => {
+    document.documentElement.classList.add('has-bottom-bar');
+    return () => document.documentElement.classList.remove('has-bottom-bar');
+  }, []);
   const lines = useCart((s) => s.lines);
   const setOpen = useCart((s) => s.setOpen);
   const st = packStatus(

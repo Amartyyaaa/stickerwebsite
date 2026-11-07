@@ -87,6 +87,16 @@ export function MobileMenu({ groups, className }: { groups: MenuGroup[]; classNa
                 </Link>
               </li>
               <li>
+                <Link href="/account" onClick={close}>
+                  Your account
+                </Link>
+              </li>
+              <li>
+                <Link href="/track" onClick={close}>
+                  Track your order
+                </Link>
+              </li>
+              <li>
                 <Link href="/pages/shipping" onClick={close}>
                   Shipping &amp; delivery
                 </Link>

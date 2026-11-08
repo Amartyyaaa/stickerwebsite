@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { paymentsMode } from '@/lib/payments/razorpay';
 import { CartLinesInput, priceCart } from '@/lib/pricing/price-cart';
 import type { QuoteResponse } from '@/lib/pricing/quote-types';
 
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
   try {
     const { payment, coupon, email } = parsed.data;
     const { lines, invalid, summary } = await priceCart(parsed.data.lines, { payment, coupon, email: email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : undefined });
-    const body: QuoteResponse = { lines: lines.map(({ typeId: _t, custom: _c, ...rest }) => rest), invalid, summary };
+    const body: QuoteResponse = { lines: lines.map(({ typeId: _t, custom: _c, ...rest }) => rest), invalid, summary, onlinePayments: paymentsMode() !== 'off' };
     return Response.json(body, { headers: { 'Cache-Control': 'no-store' } });
   } catch (err) {
     return Response.json({ error: (err as Error).message }, { status: 400 });

@@ -62,7 +62,7 @@ export async function placeOrder(raw: unknown): Promise<PlaceOrderResult> {
   if (coupon && !coupon.applied) return { ok: false, error: coupon.reason ?? 'That coupon can’t be used.', refresh: true };
   if (input.payment === 'cod') {
     const before = priced.summary.total - priced.summary.codFee;
-    const cod = codCheck(priced.settings, before, priced.lines.some((l) => l.custom));
+    const cod = codCheck(priced.settings, before, priced.lines.some((l) => l.custom), { online: paymentsMode() !== 'off' });
     if (!cod.ok) return { ok: false, error: cod.reason, refresh: true };
   }
   if (priced.summary.total !== input.expectedTotal) {

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { GoLivePanel } from '@/components/admin/go-live';
+import { DownloadIcon } from '@/components/icons';
 import { OrderTable } from '@/components/admin/order-table';
 import { AdminHeader, Panel, StatTile } from '@/components/admin/ui';
 import { adminOrNull } from '@/lib/admin/guard';
@@ -77,7 +78,16 @@ async function Dashboard() {
 export default function AdminHome() {
   return (
     <>
-      <AdminHeader title="Dashboard" subtitle="Today’s orders and what needs doing." />
+      <AdminHeader
+        title="Dashboard"
+        subtitle="Today’s orders and what needs doing."
+        actions={
+          // A plain link: the browser downloads the file. Keep a copy on your computer now and then.
+          <a href="/api/admin/backup" className="btn btn-ghost btn-sm" download>
+            <DownloadIcon size={16} /> Download a backup
+          </a>
+        }
+      />
       <Suspense fallback={<div className="h-96" aria-busy="true" />}>
         <Dashboard />
       </Suspense>

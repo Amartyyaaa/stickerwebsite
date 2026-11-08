@@ -47,7 +47,24 @@ function Section({ n, title, children, aside }: { n: number; title: string; chil
   );
 }
 
-export function CheckoutForm({ viewer, addresses, settings, mode }: { viewer: { email: string } | null; addresses: SavedAddress[]; settings: Settings; mode: Mode }) {
+/** `accounts` is false while shoppers can't sign in yet, which hides the sign-in link; `emails` is false while nothing is emailed. */
+export function CheckoutForm({
+  viewer,
+  addresses,
+  settings,
+  mode,
+  accounts,
+  emails,
+}: {
+  viewer: { email: string } | null;
+  addresses: SavedAddress[];
+  settings: Settings;
+  mode: Mode;
+  accounts: boolean;
+  /** False while the store can't send email yet. */
+  emails: boolean;
+}) {
+  const emailHint = emails ? 'For your order confirmation and updates' : 'So we can reach you about your order';
   const router = useRouter();
   const clear = useCart((s) => s.clear);
   const first = addresses.find((a) => a.isDefault) ?? addresses[0];
@@ -79,7 +96,7 @@ export function CheckoutForm({ viewer, addresses, settings, mode }: { viewer: { 
     if (code) setCoupon(code);
   };
   // COD depends only on the order value (items after offers, plus shipping), which is the same whichever method is picked.
-  const cod = s ? codCheck(settings, s.subtotal - s.discountTotal + s.shipping, lines.some((l) => l.custom)) : ({ ok: true } as const);
+  const cod = s ? codCheck(settings, s.subtotal - s.discountTotal + s.shipping, lines.some((l) => l.custom), { online: mode !== 'off' }) : ({ ok: true } as const);
   if (payment === 'cod' && !cod.ok && mode !== 'off') setPayment('online');
   const effective = payment;
   const blocked = mode === 'off' && !cod.ok;
@@ -196,15 +213,15 @@ export function CheckoutForm({ viewer, addresses, settings, mode }: { viewer: { 
           aside={
             viewer ? (
               <span className="text-[13px] text-muted">Signed in as {viewer.email}</span>
-            ) : (
+            ) : accounts ? (
               <Link href="/account?next=/checkout" className="text-[13px] font-semibold text-lime underline underline-offset-2">
                 Sign in for faster checkout
               </Link>
-            )
+            ) : undefined
           }
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field id="contact-email" label="Email" error={err('contact.email')} hint="For your order confirmation and updates">
+            <Field id="contact-email" label="Email" error={err('contact.email')} hint={emailHint}>
               <input
                 id="contact-email"
                 type="email"
@@ -212,7 +229,7 @@ export function CheckoutForm({ viewer, addresses, settings, mode }: { viewer: { 
                 value={contact.email}
                 onChange={(e) => updateContact({ ...contact, email: e.target.value })}
                 className={inputClass(err('contact.email'))}
-                {...described('contact-email', err('contact.email'), 'For your order confirmation and updates')}
+                {...described('contact-email', err('contact.email'), emailHint)}
               />
             </Field>
             <Field id="contact-phone" label="Mobile number" error={err('contact.phone')} hint="For delivery and WhatsApp updates">
@@ -295,35 +312,34 @@ export function CheckoutForm({ viewer, addresses, settings, mode }: { viewer: { 
         <Section n={3} title="Payment">
           <fieldset className="grid gap-3">
             <legend className="sr-only">How would you like to pay?</legend>
-            <label
-              className={cn(
-                'flex gap-3 rounded-[3px] border p-4',
-                mode === 'off' ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
-                effective === 'online' && mode !== 'off' ? 'border-lime bg-lime/5' : 'border-line-2',
-              )}
-            >
-              <input type="radio" name="payment" value="online" disabled={mode === 'off'} checked={effective === 'online' && mode !== 'off'} onChange={() => setPayment('online')} className="mt-1 accent-lime" />
-              <span className="grid gap-0.5">
-                <span className="flex items-center gap-2 font-bold">
-                  <CardIcon size={18} className="text-lime" /> Pay online
-                  {settings.prepaidDiscount.percent > 0 && (
-                    <span className="rounded-[2px] bg-lime px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.06em] text-bg">Extra {settings.prepaidDiscount.percent}% off</span>
-                  )}
+            {/* Without Razorpay keys the store takes Cash on Delivery only, so the online option isn't shown at all. */}
+            {mode !== 'off' && (
+              <label className={cn('flex cursor-pointer gap-3 rounded-[3px] border p-4', effective === 'online' ? 'border-lime bg-lime/5' : 'border-line-2')}>
+                <input type="radio" name="payment" value="online" checked={effective === 'online'} onChange={() => setPayment('online')} className="mt-1 accent-lime" />
+                <span className="grid gap-0.5">
+                  <span className="flex items-center gap-2 font-bold">
+                    <CardIcon size={18} className="text-lime" /> Pay online
+                    {settings.prepaidDiscount.percent > 0 && (
+                      <span className="rounded-[2px] bg-lime px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.06em] text-bg">Extra {settings.prepaidDiscount.percent}% off</span>
+                    )}
+                  </span>
+                  <span className="text-[13.5px] text-muted">UPI, cards, netbanking and wallets, secured by Razorpay.</span>
                 </span>
-                <span className="text-[13.5px] text-muted">{mode === 'off' ? 'Online payment isn’t set up yet.' : 'UPI, cards, netbanking and wallets, secured by Razorpay.'}</span>
-              </span>
-            </label>
+              </label>
+            )}
             <label className={cn('flex gap-3 rounded-[3px] border p-4', cod.ok ? 'cursor-pointer' : 'cursor-not-allowed opacity-60', effective === 'cod' ? 'border-lime bg-lime/5' : 'border-line-2')}>
               <input type="radio" name="payment" value="cod" disabled={!cod.ok} checked={effective === 'cod'} onChange={() => setPayment('cod')} className="mt-1 accent-lime" />
               <span className="grid gap-0.5">
                 <span className="flex items-center gap-2 font-bold">
                   <TruckIcon size={18} className="text-lime" /> Cash on Delivery
                 </span>
-                <span className="text-[13.5px] text-muted">{cod.ok ? `Pay in cash when it arrives. ${formatINR(settings.cod.fee)} COD fee.` : cod.reason}</span>
+                <span className="text-[13.5px] text-muted">
+                  {cod.ok ? `Pay in cash when your parcel arrives.${settings.cod.fee > 0 ? ` ${formatINR(settings.cod.fee)} COD fee.` : ''}` : cod.reason}
+                </span>
               </span>
             </label>
           </fieldset>
-          {blocked && <p className="mt-3 text-sm font-semibold text-orange">Online payment isn’t set up yet and Cash on Delivery isn’t available for this order. Please contact us to order.</p>}
+          {blocked && <p className="mt-3 text-sm font-semibold text-orange">Cash on Delivery isn’t available for this order. Please contact us to order.</p>}
         </Section>
       </div>
 

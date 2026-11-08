@@ -29,4 +29,13 @@ describe('backup retention', () => {
   it('never touches other files', () => {
     expect(snapshotsToDelete(['db/notes.txt', 'uploads/originals/x'])).toEqual([]);
   });
+  it('keeps two weeks of copies on the server while R2 isn’t set up', () => {
+    // Two copies a day for 20 days (1 to 20 Nov 2026).
+    const keys = Array.from({ length: 20 }, (_, i) => `2026-11-${String(i + 1).padStart(2, '0')}`).flatMap((d) => [`db/${d}-0400.sqlite.gz`, `db/${d}-1630.sqlite.gz`]);
+    const gone = new Set(snapshotsToDelete(keys, { daily: 14, monthly: 0 }));
+    const left = keys.filter((k) => !gone.has(k));
+    expect(left).toHaveLength(14);
+    expect(left[0]).toBe('db/2026-11-07-1630.sqlite.gz');
+    expect(left.at(-1)).toBe('db/2026-11-20-1630.sqlite.gz');
+  });
 });

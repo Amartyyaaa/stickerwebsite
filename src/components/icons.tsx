@@ -85,6 +85,13 @@ export const UploadIcon = make(
   </>,
   'UploadIcon',
 );
+export const DownloadIcon = make(
+  <>
+    <path d="M12 4v12M7 11l5 5 5-5" />
+    <path d="M5 20h14" />
+  </>,
+  'DownloadIcon',
+);
 export const DropIcon = make(<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z" />, 'DropIcon');
 export const LayersIcon = make(
   <>

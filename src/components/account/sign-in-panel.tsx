@@ -20,7 +20,8 @@ function friendly(err: AuthError, fallback: string): string {
 }
 
 /** Sign in with a 6-digit code sent by email, or with Google when it's set up. Without `next`, the shopper stays on the page they're on. */
-export function SignInPanel({ googleEnabled, next }: { googleEnabled: boolean; next?: string }) {
+/** `emailCodes: false` hides sign-in by email code (for shoppers while the store can't send email yet), leaving Google. */
+export function SignInPanel({ googleEnabled, next, emailCodes = true }: { googleEnabled: boolean; next?: string; emailCodes?: boolean }) {
   const router = useRouter();
   const target = () => next ?? `${window.location.pathname}${window.location.search}`;
   const [step, setStep] = useState<'email' | 'code'>('email');
@@ -67,9 +68,11 @@ export function SignInPanel({ googleEnabled, next }: { googleEnabled: boolean; n
     <div className="mx-auto grid w-full max-w-md gap-5 rounded-card border border-line bg-surface p-5 sm:p-7">
       <div>
         <h2 className="font-display text-3xl uppercase">Sign in</h2>
-        <p className="mt-1 text-sm text-muted">No password needed. We’ll email you a 6-digit code. New here? The same code creates your account.</p>
+        <p className="mt-1 text-sm text-muted">
+          {emailCodes ? 'No password needed. We’ll email you a 6-digit code. New here? The same code creates your account.' : 'Use your Google account. New here? It creates your account.'}
+        </p>
       </div>
-      {step === 'email' ? (
+      {!emailCodes ? null : step === 'email' ? (
         <form
           className="grid gap-4"
           onSubmit={(e) => {
@@ -131,9 +134,11 @@ export function SignInPanel({ googleEnabled, next }: { googleEnabled: boolean; n
       )}
       {googleEnabled && (
         <>
-          <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.1em] text-muted" aria-hidden="true">
-            <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
-          </div>
+          {emailCodes && (
+            <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.1em] text-muted" aria-hidden="true">
+              <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
+            </div>
+          )}
           <button type="button" className="btn btn-ghost" onClick={() => void authClient.signIn.social({ provider: 'google', callbackURL: target() })}>
             Continue with Google
           </button>

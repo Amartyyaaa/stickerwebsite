@@ -1,6 +1,7 @@
 import 'server-only';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { isLocalSite } from '@/lib/site';
 
 /**
  * Sends email through Resend when RESEND_API_KEY is set. Without it (local
@@ -15,6 +16,13 @@ export interface Mail {
   text: string;
   replyTo?: string;
 }
+
+/**
+ * Whether emails reach people: a Resend key is set, or this is a local copy (where you read
+ * the outbox yourself). Without it on the live site, shopper sign-in by email code is hidden,
+ * and admin codes are read on the server with `sudo pyv code`.
+ */
+export const emailReady = () => Boolean(process.env.RESEND_API_KEY) || isLocalSite();
 
 const outboxDir = () => resolve(/*turbopackIgnore: true*/ process.env.MAIL_OUTBOX_DIR || 'data/outbox');
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
@@ -41,6 +49,25 @@ export async function sendMail(mail: Mail): Promise<void> {
   const file = join(dir, `${Date.now()}-${slug(mail.to)}-${slug(mail.subject)}.json`);
   await writeFile(file, JSON.stringify({ from, at: new Date().toISOString(), ...mail }, null, 2));
   console.log(`[mail] "${mail.subject}" to ${mail.to} saved to the outbox`);
+}
+
+/**
+ * Deletes emails saved in the outbox more than `maxAge` seconds ago: they hold customers'
+ * addresses and sign-in codes. The nightly clean-up runs it. Returns how many it deleted.
+ */
+export async function deleteOldOutboxMail(maxAge: number): Promise<number> {
+  const dir = outboxDir();
+  const names = await readdir(dir).catch(() => [] as string[]);
+  const cutoff = Date.now() - maxAge * 1000;
+  let deleted = 0;
+  for (const name of names) {
+    // Saved emails are named <time in ms>-<to>-<subject>.json.
+    const at = Number(name.split('-')[0]);
+    if (!name.endsWith('.json') || !Number.isFinite(at) || at >= cutoff) continue;
+    await rm(join(dir, name), { force: true });
+    deleted++;
+  }
+  return deleted;
 }
 
 /** Send without letting a mail failure break the request; failures are logged. */

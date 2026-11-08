@@ -13,7 +13,8 @@ export interface MenuGroup {
   links: Array<{ href: string; label: string }>;
 }
 
-export function MobileMenu({ groups, className }: { groups: MenuGroup[]; className?: string }) {
+/** `accounts` is false while shoppers can't sign in yet, which hides the account link. */
+export function MobileMenu({ groups, accounts, className }: { groups: MenuGroup[]; accounts: boolean; className?: string }) {
   const [open, setOpen] = useState(false);
   const [section, setSection] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -96,11 +97,13 @@ export function MobileMenu({ groups, className }: { groups: MenuGroup[]; classNa
                     Wishlist
                   </Link>
                 </li>
-                <li>
-                  <Link href="/account" onClick={close}>
-                    Your account
-                  </Link>
-                </li>
+                {accounts && (
+                  <li>
+                    <Link href="/account" onClick={close}>
+                      Your account
+                    </Link>
+                  </li>
+                )}
                 <li>
                   <Link href="/track" onClick={close}>
                     Track your order

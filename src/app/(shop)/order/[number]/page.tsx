@@ -5,8 +5,10 @@ import { ChatIcon } from '@/components/icons';
 import { AddressBlock, OrderItems, OrderTotals, ShipmentNote, StatusChip, Timeline } from '@/components/orders/order-parts';
 import { PayNow } from '@/components/orders/pay-now';
 import { ItemReview } from '@/components/orders/review-form';
+import { shopperAccounts } from '@/lib/accounts';
 import { getSettings } from '@/lib/catalog/queries';
 import { formatDate } from '@/lib/dates';
+import { emailReady } from '@/lib/email/send';
 import { formatINR } from '@/lib/money';
 import { normalizeOrderNumber } from '@/lib/orders/numbers';
 import { getOrderForViewer } from '@/lib/orders/service';
@@ -18,18 +20,24 @@ export const metadata: Metadata = { title: 'Your order', robots: { index: false,
 
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
-function NotFoundOrder() {
+function NotFoundOrder({ accounts }: { accounts: boolean }) {
   return (
     <div className="mx-auto grid max-w-lg justify-items-center gap-4 py-16 text-center">
       <h1 className="display text-[clamp(34px,5vw,52px)]">We couldn’t find that order</h1>
-      <p className="text-muted">Open the link in your order confirmation email, sign in with the email you ordered with, or track it with your order number and phone.</p>
+      <p className="text-muted">
+        {accounts
+          ? 'Open the link in your order confirmation email, sign in with the email you ordered with, or track it with your order number and phone.'
+          : 'Track it with your order number and the phone number you gave.'}
+      </p>
       <div className="flex flex-wrap justify-center gap-3">
         <Link href="/track" className="btn btn-primary">
           Track an order
         </Link>
-        <Link href="/account" className="btn btn-ghost">
-          Sign in
-        </Link>
+        {accounts && (
+          <Link href="/account" className="btn btn-ghost">
+            Sign in
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -40,7 +48,7 @@ async function OrderContent({ params, searchParams }: PageProps<'/order/[number]
   const key = first(sp.key) ?? null;
   const n = normalizeOrderNumber(number);
   const order = n ? await getOrderForViewer(n, { key, viewer }) : null;
-  if (!order) return <NotFoundOrder />;
+  if (!order) return <NotFoundOrder accounts={shopperAccounts()} />;
 
   const placed = first(sp.placed) === '1' && order.status !== 'pending_payment';
   // Delivered catalog items can be reviewed (custom-printed ones are one of a kind).
@@ -61,7 +69,18 @@ async function OrderContent({ params, searchParams }: PageProps<'/order/[number]
             {order.number} · placed {formatDate(order.createdAt)} · {PAYMENT_LABEL[order.paymentStatus]}
           </span>
         </p>
-        {placed && <p className="text-[15px] text-muted">We’ve emailed a confirmation to {order.email}. Keep it: its link opens this page any time.</p>}
+        {placed &&
+          (emailReady() ? (
+            <p className="text-[15px] text-muted">We’ve emailed a confirmation to {order.email}. Keep it: its link opens this page any time.</p>
+          ) : (
+            <p className="rounded-[3px] border border-lime/40 bg-lime/5 px-4 py-3 text-[15px]">
+              We don’t send emails yet, so note your order number: <b className="tabular-nums">{order.number}</b>. You can check on it any time on{' '}
+              <Link href="/track" className="font-semibold text-lime underline underline-offset-2">
+                Track order
+              </Link>{' '}
+              with your phone number, or bookmark this page.
+            </p>
+          ))}
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-12">

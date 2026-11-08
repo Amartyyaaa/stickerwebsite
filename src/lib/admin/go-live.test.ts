@@ -32,13 +32,31 @@ describe('go-live checklist', () => {
       realProducts: 0,
       ops: {},
     };
-    expect(failing(fresh)).toEqual(['site', 'auth', 'payments', 'webhook', 'email', 'contact', 'business', 'grievance', 'policies', 'products', 'demo', 'backups', 'maintenance']);
+    expect(failing(fresh)).toEqual(['site', 'auth', 'payments', 'email', 'contact', 'business', 'grievance', 'policies', 'products', 'demo', 'backups', 'offsite', 'maintenance']);
+  });
+  it('lets a store open without Razorpay, Resend and R2, listing them for later', () => {
+    const items = goLiveChecklist({
+      ...ready,
+      env: { ...ready.env, razorpayKeyId: '', razorpaySecret: false, webhookSecret: false, resendKey: false, mailFrom: '', backups: false },
+      ops: { ...ready.ops, backup: { at: NOW - 3600, ok: true, message: 'Database saved on this server only', local: true } },
+    });
+    const later = items.filter((i) => i.later).map((i) => i.id);
+    expect(later).toEqual(['payments', 'email', 'offsite']);
+    expect(items.filter((i) => !i.later && !i.ok)).toEqual([]);
+    expect(items.find((i) => i.id === 'webhook')).toBeUndefined();
+    expect(items.find((i) => i.id === 'email')!.detail).toMatch(/sudo pyv code/);
+  });
+  it('still asks for a proper from-address once email is set up', () => {
+    const email = goLiveChecklist({ ...ready, env: { ...ready.env, mailFrom: 'PrintYourVibe <orders@yourdomain.in>' } }).find((x) => x.id === 'email')!;
+    expect(email).toMatchObject({ ok: false, detail: expect.stringMatching(/MAIL_FROM/) });
+    expect(email.later).toBeUndefined();
   });
   it('explains payment problems', () => {
     const pay = (env: Partial<GoLiveInput['env']>) => goLiveChecklist({ ...ready, env: { ...ready.env, ...env } }).find((x) => x.id === 'payments')!;
     expect(pay({ razorpayKeyId: 'rzp_test_abc' }).detail).toMatch(/test keys/);
     expect(pay({ paymentsMock: true }).detail).toMatch(/PAYMENTS_MOCK/);
-    expect(pay({ razorpayKeyId: '' }).detail).toMatch(/Cash on Delivery/);
+    expect(pay({ razorpayKeyId: '' })).toMatchObject({ later: true, detail: expect.stringMatching(/Cash on Delivery/) });
+    expect(pay({ paymentsMock: true }).later).toBeUndefined();
   });
   it('notices old or failed backups', () => {
     const backup = (b: GoLiveInput['ops']['backup']) => goLiveChecklist({ ...ready, ops: { ...ready.ops, backup: b } }).find((x) => x.id === 'backups')!;

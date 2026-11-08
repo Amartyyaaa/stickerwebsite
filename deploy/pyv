@@ -32,6 +32,18 @@ case $cmd in
     ${EDITOR:-nano} "$APP_DIR/shared/.env.production"
     echo "Restart the store to use the new settings: sudo pyv restart"
     ;;
+  code)
+    # The newest sign-in code, for signing in to the admin while the store can't send email yet.
+    outbox="$APP_DIR/shared/data/outbox"
+    newest=$(grep -l '"subject": "Your PrintYourVibe sign-in code' "$outbox"/*.json 2>/dev/null | xargs -r ls -t | head -n 1 || true)
+    if [[ -z $newest ]]; then
+      echo "No sign-in code yet. Ask for one on the sign-in page (your-domain/admin), then run this again."
+      exit 1
+    fi
+    code=$(grep -o '"subject": "[^"]*' "$newest" | grep -o '[0-9]\{6\}' | head -n 1)
+    to=$(grep -o '"to": "[^"]*' "$newest" | head -n 1 | sed 's/"to": "//')
+    echo "Sign-in code for $to: $code (asked for $(( ($(date +%s) - $(stat -c %Y "$newest")) / 60 )) minute(s) ago; codes work for 5 minutes)"
+    ;;
   backup) app_run backup ;;
   maintenance) app_run maintenance ;;
   restore)
@@ -50,9 +62,12 @@ PrintYourVibe server commands (run with sudo):
   pyv logs          follow the store's log (Ctrl+C to stop)
   pyv settings      edit .env.production (then: pyv restart)
   pyv restart       restart the store
-  pyv backup        back up the database and photos to R2 now
-  pyv restore       bring back the latest backup (add --force to replace the current database,
-                    --from 2026-11-01 for an older one, --photos-only for just the photos)
+  pyv code          show the newest admin sign-in code (while the store can't send email)
+  pyv backup        back up now (to R2 if it's set up, otherwise a copy on this server)
+  pyv restore       bring back the latest backup from R2 (add --force to replace the current database,
+                    --from 2026-11-01 for an older one, --photos-only for just the photos);
+                    without R2: --local for the newest copy on this server, or --file <path>
+                    for a backup you downloaded from the admin dashboard
   pyv maintenance   run the nightly clean-up now
 EOF
     ;;

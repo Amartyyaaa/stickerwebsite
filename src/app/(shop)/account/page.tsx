@@ -6,8 +6,10 @@ import { AddressBook } from '@/components/account/address-book';
 import { SignInPanel, SignOutButton } from '@/components/account/sign-in-panel';
 import { HeartIcon, PinIcon } from '@/components/icons';
 import { StatusChip } from '@/components/orders/order-parts';
+import { shopperAccounts } from '@/lib/accounts';
 import { googleEnabled } from '@/lib/auth';
 import { formatDate } from '@/lib/dates';
+import { emailReady } from '@/lib/email/send';
 import { formatINR } from '@/lib/money';
 import { listAddresses } from '@/lib/orders/addresses';
 import { listOrdersForViewer } from '@/lib/orders/service';
@@ -20,12 +22,26 @@ const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v
 /** Only allow returning to a page on this site. */
 const safeNext = (v: string | undefined) => (v && v.startsWith('/') && !v.startsWith('//') ? v : '/account');
 
+/** Shown while shoppers can't sign in yet (the store doesn't send email yet). */
+function AccountsSoon() {
+  return (
+    <div className="mx-auto grid w-full max-w-md gap-4 rounded-card border border-line bg-surface p-5 text-center sm:p-7">
+      <h2 className="font-display text-3xl uppercase">Accounts are coming soon</h2>
+      <p className="text-muted">You don’t need one to order. Check any order with its number and the phone number you gave.</p>
+      <Link href="/track" className="btn btn-primary">
+        <PinIcon size={18} /> Track an order
+      </Link>
+    </div>
+  );
+}
+
 async function AccountContent({ searchParams }: { searchParams: PageProps<'/account'>['searchParams'] }) {
   const [sp, viewer] = await Promise.all([searchParams, getViewer()]);
+  if (!viewer && !shopperAccounts()) return <AccountsSoon />;
   if (!viewer) {
     return (
       <div className="py-4">
-        <SignInPanel googleEnabled={googleEnabled} next={safeNext(first(sp.next))} />
+        <SignInPanel googleEnabled={googleEnabled} emailCodes={emailReady()} next={safeNext(first(sp.next))} />
       </div>
     );
   }

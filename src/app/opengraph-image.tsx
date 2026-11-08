@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { Brand, C, OG_SIZE, ogFonts, Stripes } from '@/lib/og';
+import { onlinePayments } from '@/lib/payments/methods';
 
 export const alt = 'PrintYourVibe: stickers, posters and polaroids for every fandom';
 export const size = OG_SIZE;
@@ -20,7 +21,7 @@ export default async function Image() {
           <div style={{ fontSize: 34, fontWeight: 500, color: C.muted, marginTop: 22 }}>For every fandom and mood. Or upload your own.</div>
         </div>
         <div style={{ display: 'flex', gap: 14, fontSize: 24, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>
-          {['Printed in India', 'UPI & cards', 'Cash on Delivery'].map((t) => (
+          {(onlinePayments() ? ['Printed in India', 'UPI & cards', 'Cash on Delivery'] : ['Printed in India', 'Cash on Delivery', 'Ships across India']).map((t) => (
             <div key={t} style={{ display: 'flex', border: `2px solid ${C.line}`, borderRadius: 4, padding: '8px 16px', color: C.ink }}>
               {t}
             </div>

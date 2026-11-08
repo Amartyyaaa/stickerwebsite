@@ -20,6 +20,8 @@ export interface BackupRun extends OpsRun {
   /** Photos copied this time, and in the bucket in all. */
   copied?: number;
   stored?: number;
+  /** True when the copy stayed on this server because Cloudflare R2 isn't set up. */
+  local?: boolean;
 }
 
 export interface OpsStatus {

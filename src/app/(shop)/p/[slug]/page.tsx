@@ -10,6 +10,7 @@ import { ProductReviews } from '@/components/reviews/product-reviews';
 import { SectionHead } from '@/components/section-head';
 import { getPopularSlugs, getProduct, getRelated, getSettings } from '@/lib/catalog/queries';
 import { GROUPS } from '@/lib/catalog/types';
+import { payLine } from '@/lib/payments/methods';
 import { priceRange } from '@/lib/pricing/engine';
 import { getProductReviews } from '@/lib/reviews';
 import { breadcrumbList } from '@/lib/seo';
@@ -135,7 +136,7 @@ async function ProductContent({ params }: { params: PageProps<'/p/[slug]'>['para
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-muted">Payment</dt>
-            <dd>UPI, cards, netbanking or Cash on Delivery</dd>
+            <dd>{payLine()}</dd>
           </div>
         </dl>
       </section>

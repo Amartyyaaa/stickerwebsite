@@ -18,6 +18,13 @@ describe('Cash on Delivery', () => {
   it('can allow custom items when the store says so', () => {
     expect(codCheck({ cod: { ...DEFAULT_SETTINGS.cod, allowCustom: true } }, 50000, true)).toEqual({ ok: true });
   });
+  it('drops the minimum and the custom-print rule while online payments are off', () => {
+    const off = { online: false };
+    expect(codCheck(DEFAULT_SETTINGS, 2900, false, off)).toEqual({ ok: true });
+    expect(codCheck(DEFAULT_SETTINGS, 50000, true, off)).toEqual({ ok: true });
+    expect(codCheck(DEFAULT_SETTINGS, 350000, false, off)).toMatchObject({ ok: false, reason: expect.stringMatching(/up to ₹3,000\. Please contact us/) });
+    expect(codCheck({ cod: { ...DEFAULT_SETTINGS.cod, enabled: false } }, 50000, false, off)).toMatchObject({ ok: false, reason: expect.not.stringMatching(/pay online/) });
+  });
 });
 
 describe('order numbers and keys', () => {

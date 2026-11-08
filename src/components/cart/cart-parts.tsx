@@ -134,7 +134,11 @@ export function QuoteSummary({ data, loading, note = true }: { data: QuoteRespon
           <dd className="font-display text-2xl tabular-nums text-lime">{s ? formatINR(s.total) : '…'}</dd>
         </div>
       </dl>
-      {note && <p className="text-xs text-muted">Pay online for an extra 5% off, or pay Cash on Delivery. Both options are at checkout.</p>}
+      {note && data && (
+        <p className="text-xs text-muted">
+          {data.onlinePayments === false ? 'Pay with Cash on Delivery when your order arrives.' : 'Pay online for an extra 5% off, or pay Cash on Delivery. Both options are at checkout.'}
+        </p>
+      )}
     </div>
   );
 }

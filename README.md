@@ -39,8 +39,8 @@ In development, emails (sign-in codes, order confirmations) are saved as files i
 | `npm run db:migrate` | Apply database migrations |
 | `npm run db:seed` | Write product types, vibes and store settings (`-- sample` adds demo products, `-- clear` removes them) |
 | `npm run maintenance` | Daily housekeeping: cancels unpaid online orders after 24 hours, and deletes unused customer uploads and product photos after 7 days. The server runs it every night |
-| `npm run backup` | Back up the database and new photos to Cloudflare R2 (keeps 30 daily and 12 monthly snapshots). The server runs it every night |
-| `npm run restore` | Bring back the latest backup (`-- --force` to replace an existing database, `-- --from 2026-11-01` for an older one, `-- --photos-only`) |
+| `npm run backup` | Back up the database and new photos to Cloudflare R2 (keeps 30 daily and 12 monthly snapshots), or, without R2, a database copy in `data/backups` (14 days). The server runs it every night |
+| `npm run restore` | Bring back the latest backup (`-- --force` to replace an existing database, `-- --from 2026-11-01` for an older one, `-- --photos-only`, `-- --local` for a copy kept on the server, `-- --file <path>` for a downloaded one) |
 
 ## What's in Step 1
 
@@ -160,8 +160,13 @@ Open `/admin` and sign in with an email listed in `ADMIN_EMAILS`, using the same
 [DEPLOY.md](DEPLOY.md) walks through everything, from buying a server in India to the first real order. In short:
 - `deploy/setup.sh` prepares an Ubuntu 24.04 server: Node.js, Caddy for HTTPS, the firewall, the service and nightly timers.
 - `sudo pyv deploy` builds and switches to new code. The store keeps running the old version if anything fails, and `sudo pyv rollback` goes back.
-- Backups go to Cloudflare R2 every night.
+- Backups run every night: to Cloudflare R2, or a copy on the server until R2 is set up. **Download a backup** on the dashboard saves one to your computer.
 - **Admin → Dashboard** lists anything still missing before launch.
+- **You can open before setting up Razorpay, Resend and R2.**
+  - Shoppers pay Cash on Delivery (no smallest order, custom prints included).
+  - Shopper accounts stay hidden, and orders are tracked by number and phone.
+  - `sudo pyv code` shows your admin sign-in code.
+  - Each one switches on when you add its keys (DEPLOY.md, steps 6 to 8).
 
 ## Search engines, sharing, speed and accessibility
 

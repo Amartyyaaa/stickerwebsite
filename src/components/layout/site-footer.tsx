@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { GROUPS } from '@/lib/catalog/types';
+import { onlinePayments, payMethods } from '@/lib/payments/methods';
 import type { StoreSettings } from '@/lib/settings';
 import { Logo } from './logo';
 import { NewsletterForm } from './newsletter-form';
@@ -78,13 +79,13 @@ export function SiteFooter({ social }: { social?: StoreSettings['social'] }) {
         <div>
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.12em]">We accept</p>
           <div className="flex flex-wrap gap-1.5">
-            {['UPI', 'Cards', 'Netbanking', 'Wallets', 'Cash on Delivery'].map((m) => (
+            {payMethods().map((m) => (
               <span key={m} className="rounded-[3px] border border-line-2 px-2 py-1 text-xs font-bold uppercase tracking-[0.05em]">
                 {m}
               </span>
             ))}
           </div>
-          <p className="mt-4 text-sm text-muted">Secure online payments by Razorpay.</p>
+          <p className="mt-4 text-sm text-muted">{onlinePayments() ? 'Secure online payments by Razorpay.' : 'Pay in cash when your order arrives.'}</p>
         </div>
       </div>
       <div className="wrap flex flex-wrap justify-between gap-x-6 gap-y-2 border-t border-line py-5 text-[13px] text-muted">

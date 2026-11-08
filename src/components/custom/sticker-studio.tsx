@@ -171,7 +171,8 @@ function Preview({ img, crop, o, view }: { img: Img; crop?: Crop; o: Options; vi
   );
 }
 
-export function StickerStudio({ type }: { type: ProductType }) {
+/** `payNote` says how a custom print can be paid for (it depends on the payment setup). */
+export function StickerStudio({ type, payNote }: { type: ProductType; payNote: string }) {
   const [draft, setDraft] = useStudioDraft('stickers', type.options);
   const add = useCart((s) => s.add);
   const [view, setView] = useState<'close' | 'laptop'>('close');
@@ -297,6 +298,7 @@ export function StickerStudio({ type }: { type: ProductType }) {
           </div>
         )}
         <StudioSummary
+          payNote={payNote}
           unit={unit}
           qty={draft.qty}
           onQty={(qty) => setDraft((d) => ({ ...d, qty }))}

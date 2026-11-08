@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Anton, Barlow, Caveat } from 'next/font/google';
+import { onlinePayments } from '@/lib/payments/methods';
 import './globals.css';
 
 const anton = Anton({ weight: '400', subsets: ['latin'], variable: '--font-anton', display: 'swap' });
@@ -10,7 +11,7 @@ const caveat = Caveat({ weight: '700', subsets: ['latin'], variable: '--font-cav
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
   title: { default: 'PrintYourVibe: stickers, posters and polaroids', template: '%s | PrintYourVibe' },
-  description: 'Laptop stickers, 3D stickers, wall posters, framed posters and polaroids for every fandom and mood. Printed in India, with UPI and Cash on Delivery.',
+  description: `Laptop stickers, 3D stickers, wall posters, framed posters and polaroids for every fandom and mood. Printed in India, with ${onlinePayments() ? 'UPI and Cash on Delivery' : 'Cash on Delivery'}.`,
   applicationName: 'PrintYourVibe',
   openGraph: { siteName: 'PrintYourVibe', type: 'website', locale: 'en_IN' },
   twitter: { card: 'summary_large_image' },

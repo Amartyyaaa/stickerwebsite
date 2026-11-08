@@ -6,9 +6,10 @@ import { PosterStudio } from '@/components/custom/poster-studio';
 import { StickerStudio } from '@/components/custom/sticker-studio';
 import { StudioTabs } from '@/components/custom/studio-tabs';
 import { CheckIcon } from '@/components/icons';
-import { getCustomType } from '@/lib/catalog/queries';
+import { getCustomType, getSettings } from '@/lib/catalog/queries';
 import { isStudioKind, STUDIO_KINDS, STUDIOS } from '@/lib/custom/studios';
 import type { StudioKind } from '@/lib/custom/types';
+import { customPayNote } from '@/lib/payments/methods';
 
 const STEPS: Record<StudioKind, [string, string][]> = {
   stickers: [
@@ -94,8 +95,9 @@ async function Studio({ params }: { params: PageProps<'/custom/[kind]'>['params'
   const { kind } = await params;
   if (!isStudioKind(kind)) notFound();
   const studio = STUDIOS[kind];
-  const type = await getCustomType(studio.typeId);
+  const [type, settings] = await Promise.all([getCustomType(studio.typeId), getSettings()]);
   if (!type) notFound();
+  const payNote = customPayNote(settings);
 
   return (
     <>
@@ -108,7 +110,7 @@ async function Studio({ params }: { params: PageProps<'/custom/[kind]'>['params'
         <StudioTabs active={kind} />
       </header>
 
-      {kind === 'stickers' ? <StickerStudio type={type} /> : kind === 'polaroids' ? <PolaroidStudio type={type} /> : <PosterStudio type={type} />}
+      {kind === 'stickers' ? <StickerStudio type={type} payNote={payNote} /> : kind === 'polaroids' ? <PolaroidStudio type={type} payNote={payNote} /> : <PosterStudio type={type} payNote={payNote} />}
 
       <section className="mt-16 grid gap-10 border-t border-line pt-10 lg:grid-cols-[1.4fr_1fr]" aria-labelledby="how-title">
         <div>

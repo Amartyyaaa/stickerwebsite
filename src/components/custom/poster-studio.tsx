@@ -47,7 +47,8 @@ function PosterView({ src, img, crop, o }: { src: string; img: { w: number; h: n
   );
 }
 
-export function PosterStudio({ type }: { type: ProductType }) {
+/** `payNote` says how a custom print can be paid for (it depends on the payment setup). */
+export function PosterStudio({ type, payNote }: { type: ProductType; payNote: string }) {
   const [draft, setDraft] = useStudioDraft('posters', type.options);
   const add = useCart((s) => s.add);
   const [view, setView] = useState<'poster' | 'wall'>('poster');
@@ -155,6 +156,7 @@ export function PosterStudio({ type }: { type: ProductType }) {
         ))}
         {item && !pending && <QualityNote level={level} dpi={dpi} sizeLabel={sizeLabel} />}
         <StudioSummary
+          payNote={payNote}
           unit={unit}
           qty={draft.qty}
           onQty={(qty) => setDraft((d) => ({ ...d, qty }))}

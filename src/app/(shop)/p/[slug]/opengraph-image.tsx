@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { getProduct } from '@/lib/catalog/queries';
 import { photoUploadId } from '@/lib/catalog/images';
 import { formatINR } from '@/lib/money';
+import { onlinePayments } from '@/lib/payments/methods';
 import { Brand, C, OG_SIZE, ogFonts, Price, Stripes } from '@/lib/og';
 import { readPreview } from '@/lib/uploads';
 
@@ -49,7 +50,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
               <span style={{ fontSize: 30, fontWeight: 500, color: C.muted }}>from</span>
               <Price text={formatINR(product.priceFrom)} size={64} color={C.lime} />
-              <span style={{ fontSize: 24, fontWeight: 500, color: C.muted, marginLeft: 10 }}>UPI · Cards · Cash on Delivery</span>
+              <span style={{ fontSize: 24, fontWeight: 500, color: C.muted, marginLeft: 10 }}>{onlinePayments() ? 'UPI · Cards · Cash on Delivery' : 'Cash on Delivery'}</span>
             </div>
           ) : (
             <div style={{ display: 'flex', fontSize: 30, color: C.muted }}>Stickers, posters and polaroids, printed in India</div>

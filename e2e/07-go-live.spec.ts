@@ -15,7 +15,8 @@ test('go-live checklist and policy pages', async ({ browser }) => {
   await signIn(a, OWNER, '/admin');
   await a.waitForSelector('h2:has-text("Before you go live")');
   const before = (await a.locator('section[aria-labelledby="golive-title"]').textContent()) ?? '';
-  check('dashboard lists what’s missing before launch', /of 13 done/.test(before) && before.includes('Grievance officer named') && before.includes('Store address uses https'), before.match(/\d+ of 13 done/)?.[0]);
+  check('dashboard lists what’s missing before launch', /\d+ of \d+ done/.test(before) && before.includes('Grievance officer named') && before.includes('Store address uses https'), before.match(/\d+ of \d+ done/)?.[0]);
+  check('email and off-server backups wait under "Later"', before.includes('Later: the store works without these') && before.includes('Emails (Resend)') && before.includes('Backups off the server'));
   check('it never shows secret values', !before.includes(serverEnv.BETTER_AUTH_SECRET));
 
   await test.step('fill in the business details', async () => {

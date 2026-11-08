@@ -2,13 +2,15 @@
 
 This guide takes you from nothing to a live store on your own server in India, with HTTPS, payments, emails and nightly backups. It assumes no server experience: copy the commands as they are.
 
-Plan on an afternoon for the first time, plus a day or two of waiting for Razorpay to check your business (KYC).
+Plan on an afternoon for the first time.
+
+**You can open before setting up Razorpay, Resend and Cloudflare R2.** Steps 1 to 5 are enough to take Cash on Delivery orders. [Opening before Razorpay, Resend and R2](#opening-before-razorpay-resend-and-r2) explains what works meanwhile. Steps 6 to 8 add online payments, emails and off-server backups whenever you're ready (Razorpay takes a day or two to check your business).
 
 **What you'll end up with:**
 - The store runs on a small Ubuntu server.
 - Caddy handles HTTPS: it gets and renews the certificate automatically.
 - The store restarts by itself if it ever crashes or the server reboots.
-- Every night the server tidies up old unpaid orders and unused uploads (3:30 am), then backs up the database and photos to Cloudflare R2 (4:00 am).
+- Every night the server tidies up old unpaid orders and unused uploads (3:30 am), then backs up the database (4:00 am): to Cloudflare R2 with the photos once it's set up, and until then as a copy on the server.
 - One command, `sudo pyv deploy`, puts new code online. If the new code doesn't build or start, your store keeps running the old version.
 
 ## 1. What you need
@@ -17,9 +19,9 @@ Plan on an afternoon for the first time, plus a day or two of waiting for Razorp
 | --- | --- | --- |
 | A server (VPS) in India: Ubuntu 24.04 LTS, at least 2 GB of memory, 40 GB of disk | Hostinger India, DigitalOcean (Bangalore) or AWS Lightsail (Mumbai) | ₹500 to ₹1,000 a month |
 | A domain, like printyourvibe.in | Any registrar (Hostinger, GoDaddy, BigRock, Namecheap…) | ₹800 to ₹1,200 a year |
-| A Cloudflare account, for R2 backups | cloudflare.com | Free up to 10 GB |
-| A Resend account, for emails | resend.com | Free up to 3,000 emails a month (100 a day) |
-| A Razorpay account, with KYC done | razorpay.com | A small fee per online payment (see Razorpay's pricing page) |
+| Later: a Cloudflare account, for R2 backups | cloudflare.com | Free up to 10 GB |
+| Later: a Resend account, for emails | resend.com | Free up to 3,000 emails a month (100 a day) |
+| Later: a Razorpay account, with KYC done | razorpay.com | A small fee per online payment (see Razorpay's pricing page) |
 | A password manager | Bitwarden, 1Password, Google Password Manager… | Free |
 
 Keep every key and password from this guide in the password manager. You'll need them again if you ever move to a new server.
@@ -81,12 +83,12 @@ This opens `/srv/printyourvibe/shared/.env.production` in a simple editor. Save 
 | `NEXT_PUBLIC_SITE_URL` | `https://yourdomain.in` (already filled in) | |
 | `BETTER_AUTH_SECRET` | already filled in with a random secret; keep it | |
 | `ADMIN_EMAILS` | your email, and anyone else who runs the shop, comma-separated | |
-| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` | your Razorpay keys | step 6 |
-| `RESEND_API_KEY`, `MAIL_FROM` | your Resend key, and an address on your domain | step 7 |
-| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | your backup bucket | step 8 |
+| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` | later: your Razorpay keys | step 6 |
+| `RESEND_API_KEY`, `MAIL_FROM` | later: your Resend key, and an address on your domain | step 7 |
+| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | later: your backup bucket | step 8 |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | optional "Continue with Google" | Google Cloud |
 
-You can fill in Razorpay, Resend and R2 later. Never set `PAYMENTS_MOCK` here; it's only for testing on your own computer.
+Leave the Razorpay, Resend and R2 lines empty until you set them up. Never set `PAYMENTS_MOCK` here; it's only for testing on your own computer.
 
 **When you change settings later:**
 - For most settings, restart the store with `sudo pyv restart`.
@@ -103,12 +105,14 @@ sudo pyv deploy
 The first time takes three to five minutes. Then open `https://yourdomain.in`. The very first visit can take a few seconds while Caddy gets the HTTPS certificate.
 
 **First sign-in:**
-1. Open `https://yourdomain.in/admin` and sign in with an email from `ADMIN_EMAILS`.
-2. The code arrives by email once step 7 is done. Until then, it's saved on the server, and this command shows the newest saved email, code included:
+1. Open `https://yourdomain.in/admin`, enter an email from `ADMIN_EMAILS` and click **Email me a code**.
+2. The code arrives by email once step 7 is done. Until then, it's saved on the server, and this command shows it:
 
 ```bash
-sudo bash -c 'cat "$(ls -t /srv/printyourvibe/shared/data/outbox/*.json | head -1)"'
+sudo pyv code
 ```
+
+3. Codes work for 5 minutes, and you stay signed in for 30 days.
 
 The live store starts with your product types and vibes but no products.
 - Add your own in **Admin → Products**, one by one or with a CSV file.
@@ -120,7 +124,27 @@ cd /srv/printyourvibe/current && sudo -u pyv npm run db:seed -- sample
 
 Remove them later with the **Remove demo products** button on the Products page.
 
-## 6. Razorpay
+### Opening before Razorpay, Resend and R2
+
+The store works without them, with these limits:
+
+- **Payments:** shoppers pay Cash on Delivery only. Until Razorpay is set up:
+  - COD has no smallest order, and custom prints can use it too.
+  - Confirm every COD order on WhatsApp before printing, especially custom prints: **Admin → Orders → To confirm** has a WhatsApp button on each order.
+  - Pages say "Cash on Delivery" instead of "UPI, cards & COD".
+  - Your COD settings (smallest order, custom prints) apply again once you add Razorpay.
+- **Emails:** nothing is emailed yet.
+  - Shoppers can't make accounts. They check orders on **Track order** with their order number and phone, and the order page asks them to note the number.
+  - You don't get new-order emails: check **Admin → Dashboard** (it lists COD orders to confirm) at least once a day.
+  - Get your admin sign-in code with `sudo pyv code`.
+  - Saved emails are deleted after 14 days.
+- **Backups:** each night the database is copied to `/srv/printyourvibe/shared/data/backups`, and the last 14 days are kept. These copies undo mistakes, like a bad import, but they're on the same server.
+  - Use **Download a backup** on the dashboard every week and keep the file on your computer.
+  - It holds orders, products and settings. Photos stay on the server until R2 is set up.
+
+**Admin → Dashboard** lists these under "Later". Add each one when you're ready, with steps 6, 7 and 8.
+
+## 6. Razorpay (when you're ready)
 
 1. In the Razorpay dashboard, switch to **Test mode** and create API keys (Account & Settings → API keys). Put them in `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET`.
 2. Turn on **automatic capture** (Account & Settings → Payment capture).
@@ -128,22 +152,23 @@ Remove them later with the **Remove demo products** button on the Products page.
    - URL: `https://yourdomain.in/api/payments/razorpay/webhook`
    - Events: `payment.captured`, `order.paid` and `payment.failed`
    - Choose a secret and put it in `RAZORPAY_WEBHOOK_SECRET`.
-4. Run `sudo pyv restart`. Place a test order with Razorpay's test card or test UPI ID and check it shows as Paid. Also try closing the tab right after paying: the webhook should still mark the order paid.
+4. Run `sudo pyv deploy` (not just restart: it rebuilds the pages so they mention UPI and cards). Place a test order with Razorpay's test card or test UPI ID and check it shows as Paid. Also try closing the tab right after paying: the webhook should still mark the order paid.
 5. Once your KYC is approved, switch to **Live mode** and repeat steps 1 to 3 with the live keys and a live webhook. Then run `sudo pyv restart`.
+6. Check **Admin → Settings → Cash on Delivery**: your smallest order and the custom-prints switch apply again now.
 
 Razorpay also checks that your site has About, Contact, Shipping, Returns, Privacy and Terms pages. These are in the footer. Fill in the details they need in **Admin → Settings** (step 9).
 
-## 7. Emails (Resend)
+## 7. Emails (Resend, when you're ready)
 
 1. Sign up at resend.com and add your domain (Domains → Add domain).
 2. Resend shows a few DNS records (TXT and MX). Add them where you added the A records in step 2, then click **Verify** in Resend. It can take up to an hour.
 3. Create an API key (API Keys → Create) and put it in `RESEND_API_KEY`.
 4. Set `MAIL_FROM` to an address on that domain, like `PrintYourVibe <orders@yourdomain.in>`.
-5. Run `sudo pyv restart`, then sign in to the admin again: the code should arrive by email.
+5. Run `sudo pyv deploy` (it rebuilds the pages so shoppers can sign in), then sign in to the admin again: the code should arrive by email.
 
 New-order alerts go to the support email in **Admin → Settings**, or to `ORDER_ALERT_EMAIL` if you set it.
 
-## 8. Backups (Cloudflare R2)
+## 8. Backups off the server (Cloudflare R2, when you're ready)
 
 1. In Cloudflare, open **R2** and create a bucket, like `printyourvibe-backups` (location: Asia-Pacific).
 2. Create a key for it: R2 → Manage API tokens → Create API token.
@@ -151,7 +176,7 @@ New-order alerts go to the support email in **Admin → Settings**, or to `ORDER
    - Copy the **Access Key ID** and **Secret Access Key** into `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`.
    - Your **Account ID** is on the R2 overview page; it goes in `R2_ACCOUNT_ID`.
    - The bucket name goes in `R2_BUCKET`.
-3. Run the first backup now:
+3. Run `sudo pyv restart`, then the first backup:
 
 ```bash
 sudo pyv backup
@@ -166,6 +191,8 @@ It saves the database as `db/<date>.sqlite.gz` and copies every photo into `uplo
 The settings file isn't backed up, because it holds secrets. That's why it belongs in your password manager.
 
 ### If the server is ever lost
+
+**With R2 set up:**
 1. Create a new server and point the domain at it (step 2).
 2. Run the setup (step 3).
 3. Put back your settings file from the password manager (step 4).
@@ -182,11 +209,26 @@ Other ways to restore:
 - `sudo pyv restore --force --from 2026-11-01` brings back an older backup.
 - `sudo pyv restore --photos-only` only downloads missing photos.
 
+**Before R2 is set up:** do steps 1 to 4 above, then bring back the last backup you downloaded.
+1. Copy it from your computer to the server (in PowerShell or Terminal):
+
+```bash
+scp printyourvibe-2026-11-08-1030.sqlite.gz root@203.0.113.25:/root/
+```
+
+2. Then, on the server:
+
+```bash
+sudo pyv restore --force --file /root/printyourvibe-2026-11-08-1030.sqlite.gz
+```
+
+Orders, products and settings come back. Photos don't: upload product photos again, and ask customers with open custom orders to send their photos again.
+
+To undo a mistake on a running server (a bad import, deleted products), bring back last night's copy: `sudo pyv restore --force --local` (or `--local --from 2026-11-01` for an older one). The current database is kept as a copy next to it.
+
 ## 9. Before you announce the launch
 
 Open **Admin → Dashboard**. The **Before you go live** list shows what's still missing, with a link to fix each one:
-- live payments and the webhook
-- emails
 - support email and WhatsApp number
 - business name and address
 - a grievance officer (Indian e-commerce rules require one)
@@ -194,7 +236,9 @@ Open **Admin → Dashboard**. The **Before you go live** list shows what's still
 - your own products in, and demo products removed
 - backups and the nightly clean-up running
 
-Then place one real order with a small amount, pay with UPI, and refund it from **Admin → Orders**.
+Online payments, emails and off-server backups appear under **Later**: the store can open without them.
+
+Then place one real order with a small amount and walk it through **Admin → Orders**: Cash on Delivery for now, or a UPI payment and a refund once Razorpay is set up.
 
 ## Day to day
 
@@ -205,7 +249,8 @@ Then place one real order with a small amount, pay with UPI, and refund it from 
 | `sudo pyv status` | Is the store up, which version is running, and when do the nightly jobs run next? |
 | `sudo pyv logs` | Follow the store's log (Ctrl+C to stop). |
 | `sudo pyv settings` | Edit the settings file. Then run `sudo pyv restart`. |
-| `sudo pyv backup` | Back up right now. |
+| `sudo pyv code` | Show the newest admin sign-in code (until emails are set up). |
+| `sudo pyv backup` | Back up right now (to R2, or a copy on the server until R2 is set up). |
 | `sudo pyv maintenance` | Run the nightly clean-up right now. |
 
 **Keeping an eye on it:** create a free monitor at uptimerobot.com for `https://yourdomain.in/api/health` (keyword `"ok":true`). It emails you if the store goes down.
@@ -222,7 +267,7 @@ Then place one real order with a small amount, pay with UPI, and refund it from 
   - It can't get a certificate until the domain points at this server.
 - **A deploy stopped:** read the line that starts with "Deploy stopped". Your store kept running the previous version, so you can fix the problem and run `sudo pyv deploy` again.
 - **The build ran out of memory:** the setup adds 2 GB of swap on small servers. If it still fails, move to a plan with more memory.
-- **No emails:** check the domain is verified in Resend and look at Resend's Logs page.
+- **No emails:** until step 7 is done, nothing is emailed (that's expected; use `sudo pyv code` to sign in). After it, check the domain is verified in Resend and look at Resend's Logs page.
 - **A payment isn't marked paid:** check the webhook URL and secret in Razorpay match step 6.
 - **The admin says "No access":** make sure your email is in `ADMIN_EMAILS`, then run `sudo pyv restart`.
 

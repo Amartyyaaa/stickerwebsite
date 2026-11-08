@@ -28,4 +28,6 @@ export interface QuoteResponse {
   /** Cart keys the server could not price (removed products or invalid options). */
   invalid: string[];
   summary: Omit<Quote, 'lines'>;
+  /** False while online payments aren't set up, so the cart only mentions Cash on Delivery. */
+  onlinePayments?: boolean;
 }

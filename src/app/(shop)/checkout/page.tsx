@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { CheckoutForm } from '@/components/checkout/checkout-form';
+import { shopperAccounts } from '@/lib/accounts';
+import { emailReady } from '@/lib/email/send';
 import { getSettings } from '@/lib/catalog/queries';
 import { listAddresses } from '@/lib/orders/addresses';
 import { paymentsMode } from '@/lib/payments/razorpay';
@@ -30,6 +32,8 @@ async function CheckoutLoader() {
       addresses={saved}
       settings={{ cod: settings.cod, delivery: settings.delivery, prepaidDiscount: settings.prepaidDiscount }}
       mode={paymentsMode()}
+      accounts={shopperAccounts()}
+      emails={emailReady()}
     />
   );
 }

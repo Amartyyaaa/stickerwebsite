@@ -44,7 +44,8 @@ function Card({ size, children, className }: { size: string; children: React.Rea
 
 const iconBtn = 'grid size-9 place-items-center rounded-full bg-bg/80 text-ink backdrop-blur hover:bg-bg hover:text-lime';
 
-export function PolaroidStudio({ type }: { type: ProductType }) {
+/** `payNote` says how a custom print can be paid for (it depends on the payment setup). */
+export function PolaroidStudio({ type, payNote }: { type: ProductType; payNote: string }) {
   const [draft, setDraft] = useStudioDraft('polaroids', type.options);
   const add = useCart((s) => s.add);
   const [cropIndex, setCropIndex] = useState<number | null>(null);
@@ -206,6 +207,7 @@ export function PolaroidStudio({ type }: { type: ProductType }) {
           </p>
         )}
         <StudioSummary
+          payNote={payNote}
           unit={unit}
           qty={draft.qty}
           onQty={(qty) => setDraft((d) => ({ ...d, qty }))}

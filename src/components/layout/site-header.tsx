@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { CartButton } from '@/components/cart/cart-drawer';
 import { HeartIcon, UserIcon } from '@/components/icons';
+import { shopperAccounts } from '@/lib/accounts';
 import { getCounts, getSettings, getTypes, getVibes } from '@/lib/catalog/queries';
 import { GROUPS, type ProductType, type Vibe } from '@/lib/catalog/types';
 import { formatINR } from '@/lib/money';
@@ -50,6 +51,7 @@ export async function SiteHeader() {
   const ofGroup = (g: string) => types.filter((t) => t.groupId === g);
   const featured = vibes.filter((v) => v.featured);
   const tier = settings.packs.tiers[0];
+  const accounts = shopperAccounts();
 
   return (
     <>
@@ -67,7 +69,7 @@ export async function SiteHeader() {
       )}
       <header className="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur-md">
         <div className="wrap relative grid grid-cols-[auto_1fr_auto] items-center gap-x-1.5 gap-y-2.5 py-2.5 md:grid-cols-[auto_auto_1fr_auto] md:gap-x-4 xl:grid-cols-[auto_1fr_minmax(220px,300px)_auto] xl:py-3">
-          <MobileMenu groups={menuGroups(types, vibes)} className={`${iconBtn} xl:hidden`} />
+          <MobileMenu groups={menuGroups(types, vibes)} accounts={accounts} className={`${iconBtn} xl:hidden`} />
           <Logo className="justify-self-start" />
           <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Shop">
             <NavItem label="Stickers">
@@ -165,9 +167,11 @@ export async function SiteHeader() {
             <Link href="/wishlist" className={`${iconBtn} max-md:hidden`} aria-label="Wishlist">
               <HeartIcon />
             </Link>
-            <Link href="/account" className={`${iconBtn} max-md:hidden`} aria-label="Your account">
-              <UserIcon />
-            </Link>
+            {accounts && (
+              <Link href="/account" className={`${iconBtn} max-md:hidden`} aria-label="Your account">
+                <UserIcon />
+              </Link>
+            )}
             <CartButton className={iconBtn} />
           </div>
         </div>

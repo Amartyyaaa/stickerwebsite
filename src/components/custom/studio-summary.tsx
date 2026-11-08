@@ -17,6 +17,7 @@ export function StudioSummary({
   note,
   onNote,
   label,
+  payNote,
 }: {
   unit: number;
   qty: number;
@@ -29,6 +30,8 @@ export function StudioSummary({
   note: string;
   onNote: (s: string) => void;
   label: string;
+  /** How a custom print can be paid for. */
+  payNote: string;
 }) {
   return (
     <div className="grid gap-4 rounded-card border border-line bg-surface p-4 sm:p-5">
@@ -69,7 +72,7 @@ export function StudioSummary({
           <CheckIcon size={17} className="mt-px shrink-0 text-lime" /> We check every design before printing, and message you if anything needs fixing.
         </li>
         <li className="flex items-start gap-2">
-          <CheckIcon size={17} className="mt-px shrink-0 text-lime" /> Pay online or with Cash on Delivery.
+          <CheckIcon size={17} className="mt-px shrink-0 text-lime" /> {payNote}
         </li>
       </ul>
     </div>

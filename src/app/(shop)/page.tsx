@@ -7,6 +7,7 @@ import { SectionHead } from '@/components/section-head';
 import { getCounts, getHomeRows, getSettings, getTypes, getVibes } from '@/lib/catalog/queries';
 import { CUSTOM_CARDS, HERO_ART, HOME_TILES } from '@/lib/home';
 import { formatINR } from '@/lib/money';
+import { payBadge } from '@/lib/payments/methods';
 import { storeLd } from '@/lib/seo';
 import { siteUrl } from '@/lib/site';
 
@@ -54,7 +55,7 @@ export default async function HomePage() {
                 <LayersIcon size={17} className="text-lime" /> 300 GSM posters
               </li>
               <li className="inline-flex items-center gap-1.5">
-                <CardIcon size={17} className="text-lime" /> UPI, cards &amp; COD
+                <CardIcon size={17} className="text-lime" /> {payBadge()}
               </li>
               <li className="inline-flex items-center gap-1.5">
                 <TruckIcon size={17} className="text-lime" /> Ships across India

@@ -1,5 +1,5 @@
 import 'server-only';
-import { siteUrl } from '@/lib/site';
+import { isLocalSite } from '@/lib/site';
 import { verifyPaymentSignature } from './signature';
 
 /**
@@ -20,7 +20,7 @@ export function paymentsMode(): PaymentsMode {
   return 'off';
 }
 
-export const isLocalSite = () => /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(siteUrl());
+export { isLocalSite };
 
 export const razorpayKeyId = () => process.env.RAZORPAY_KEY_ID ?? '';
 

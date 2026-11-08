@@ -35,6 +35,11 @@ export interface GoLiveItem {
   detail: string;
   /** Where to fix it in the admin, when it's fixed there. */
   href?: string;
+  /**
+   * Can wait until after opening (online payments, email, backups off the server): the store
+   * works without it, with limits the detail explains. Not counted in "x of N done".
+   */
+  later?: boolean;
 }
 
 const DAY = 86400;
@@ -49,6 +54,7 @@ export function goLiveChecklist(i: GoLiveInput): GoLiveItem[] {
   const { env, settings: s, ops, now } = i;
   const items: GoLiveItem[] = [];
   const add = (id: string, label: string, ok: boolean, detail: string, href?: string) => items.push({ id, label, ok, detail, href });
+  const later = (id: string, label: string, detail: string) => items.push({ id, label, ok: false, detail, later: true });
 
   let host = '';
   try {
@@ -64,16 +70,31 @@ export function goLiveChecklist(i: GoLiveInput): GoLiveItem[] {
   if (env.paymentsMock) {
     add('payments', 'Online payments are live', false, 'PAYMENTS_MOCK is set: remove it from .env.production. It’s only for testing on your own computer.');
   } else if (!env.razorpayKeyId || !env.razorpaySecret) {
-    add('payments', 'Online payments are live', false, 'Add your Razorpay keys. Until then shoppers can only pay Cash on Delivery (DEPLOY.md, step 6).');
+    later(
+      'payments',
+      'Online payments (Razorpay)',
+      'Shoppers pay Cash on Delivery for now, with no smallest order and custom prints included. Add Razorpay to take UPI and cards (DEPLOY.md, step 6).',
+    );
   } else if (env.razorpayKeyId.startsWith('rzp_test_')) {
     add('payments', 'Online payments are live', false, 'You’re using Razorpay test keys. Once a test payment works, switch to your live keys (DEPLOY.md, step 6).');
   } else {
     add('payments', 'Online payments are live', true, 'Razorpay live keys are set.');
   }
-  add('webhook', 'Razorpay webhook is set up', env.webhookSecret, env.webhookSecret ? 'Payments are confirmed even if a shopper closes the page.' : 'Add the webhook in Razorpay and put its secret in RAZORPAY_WEBHOOK_SECRET (DEPLOY.md, step 6).');
+  // The webhook only matters once Razorpay keys are in.
+  if (env.razorpayKeyId && env.razorpaySecret) {
+    add('webhook', 'Razorpay webhook is set up', env.webhookSecret, env.webhookSecret ? 'Payments are confirmed even if a shopper closes the page.' : 'Add the webhook in Razorpay and put its secret in RAZORPAY_WEBHOOK_SECRET (DEPLOY.md, step 6).');
+  }
 
-  const mailOk = env.resendKey && /@/.test(env.mailFrom) && !/yourdomain/.test(env.mailFrom);
-  add('email', 'Emails are sent', mailOk, mailOk ? `From ${env.mailFrom}.` : 'Add RESEND_API_KEY and MAIL_FROM. Without them shoppers get no sign-in codes or order emails (DEPLOY.md, step 7).');
+  if (!env.resendKey) {
+    later(
+      'email',
+      'Emails (Resend)',
+      'Nothing is emailed yet: shoppers can’t sign in (they track orders by number and phone), and new orders only show here. Get your admin sign-in code with sudo pyv code (DEPLOY.md, step 7).',
+    );
+  } else {
+    const fromOk = /@/.test(env.mailFrom) && !/yourdomain/.test(env.mailFrom);
+    add('email', 'Emails are sent', fromOk, fromOk ? `From ${env.mailFrom}.` : 'Set MAIL_FROM to an address on your domain, like PrintYourVibe <orders@yourdomain.in> (DEPLOY.md, step 7).');
+  }
 
   const contactOk = Boolean(s.contact.email && (s.contact.whatsapp || s.contact.phone));
   add('contact', 'Support email and WhatsApp number', contactOk, contactOk ? `${s.contact.email} · ${s.contact.whatsapp || s.contact.phone}` : 'Add them in Settings → Contact. They appear on the contact page, packing slips and the chat button.', '/admin/settings');
@@ -90,11 +111,18 @@ export function goLiveChecklist(i: GoLiveInput): GoLiveItem[] {
   add('products', 'Your own products are in', i.realProducts > 0, i.realProducts > 0 ? `${i.realProducts.toLocaleString('en-IN')} of your products are in the store.` : 'Add products one by one or import a CSV.', '/admin/products');
   add('demo', 'Demo products removed', i.demoProducts === 0, i.demoProducts === 0 ? 'Only your products are in the store.' : `${i.demoProducts.toLocaleString('en-IN')} demo products are still in the store. Remove them on the Products page.`, '/admin/products');
 
+  // Nightly backups run either way: to Cloudflare R2, or (until it's set up) as a copy on this server.
   const b = ops.backup;
-  if (!env.backups) add('backups', 'Daily backups are running', false, 'Set up Cloudflare R2 backups (DEPLOY.md, step 8).');
-  else if (!b) add('backups', 'Daily backups are running', false, 'No backup has run yet. Run npm run backup on the server once to check it works.');
-  else if (!b.ok) add('backups', 'Daily backups are running', false, `The last backup failed ${ago(now - b.at)}: ${b.message}`);
-  else add('backups', 'Daily backups are running', now - b.at < 1.5 * DAY, `Last backup ${ago(now - b.at)}: ${b.message}.`);
+  if (!b) add('backups', 'Nightly backups are running', false, 'No backup has run yet. The server runs one every night at 4 am, or run sudo pyv backup now.');
+  else if (!b.ok) add('backups', 'Nightly backups are running', false, `The last backup failed ${ago(now - b.at)}: ${b.message}`);
+  else add('backups', 'Nightly backups are running', now - b.at < 1.5 * DAY, `Last backup ${ago(now - b.at)}: ${b.message}.`);
+  if (!env.backups) {
+    later(
+      'offsite',
+      'Backups off the server (Cloudflare R2)',
+      'Backups are kept on this server for 14 days, so losing the server would lose them. Until R2 is set up, use Download a backup (top of this page) every week (DEPLOY.md, step 8).',
+    );
+  }
 
   const m = ops.maintenance;
   add(

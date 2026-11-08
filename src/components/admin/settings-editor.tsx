@@ -36,7 +36,8 @@ function Check({ checked, onChange, label, hint }: { checked: boolean; onChange:
   );
 }
 
-export function SettingsEditor({ initial, types }: { initial: SettingsForm; types: Array<{ id: string; name: string }> }) {
+/** `onlinePayments` is false while no Razorpay keys are set: COD is then the only way to pay, with relaxed rules (see codCheck). */
+export function SettingsEditor({ initial, types, onlinePayments }: { initial: SettingsForm; types: Array<{ id: string; name: string }>; onlinePayments: boolean }) {
   const router = useRouter();
   const [f, setF] = useState(initial);
   const [error, setError] = useState<Err>(null);
@@ -135,6 +136,11 @@ export function SettingsEditor({ initial, types }: { initial: SettingsForm; type
       </Section>
 
       <Section title="Cash on Delivery">
+        {!onlinePayments && (
+          <p className="rounded-[3px] border border-orange/50 bg-orange/10 px-3.5 py-2.5 text-[13.5px] font-semibold text-orange">
+            Online payments aren’t set up yet, so Cash on Delivery is the only way to pay. Until you add Razorpay, COD has no smallest order and covers custom prints. The settings below apply once online payments are on.
+          </p>
+        )}
         <Check checked={f.cod.enabled} onChange={(v) => up((d) => (d.cod.enabled = v))} label="Offer Cash on Delivery" />
         <div className="grid gap-4 sm:grid-cols-3">
           {text('cod.fee', 'COD fee (₹)', f.cod.fee, (d, v) => (d.cod.fee = v), { money: true })}
@@ -149,7 +155,7 @@ export function SettingsEditor({ initial, types }: { initial: SettingsForm; type
         />
       </Section>
 
-      <Section title="Online payment discount" hint="An extra discount for paying online, to win shoppers over from COD.">
+      <Section title="Online payment discount" hint={`An extra discount for paying online, to win shoppers over from COD.${onlinePayments ? '' : ' It applies once online payments are set up.'}`}>
         <div className="grid gap-4 sm:grid-cols-2">
           {text('prepaidDiscount.percent', 'Percent off', f.prepaidDiscount.percent, (d, v) => (d.prepaidDiscount.percent = v.replace(/\D/g, '')), { money: true, hint: '0 to switch it off' })}
           {text('prepaidDiscount.max', 'At most (₹)', f.prepaidDiscount.max, (d, v) => (d.prepaidDiscount.max = v), { money: true })}

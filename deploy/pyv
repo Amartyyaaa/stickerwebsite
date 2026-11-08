@@ -44,6 +44,45 @@ case $cmd in
     to=$(grep -o '"to": "[^"]*' "$newest" | head -n 1 | sed 's/"to": "//')
     echo "Sign-in code for $to: $code (asked for $(( ($(date +%s) - $(stat -c %Y "$newest")) / 60 )) minute(s) ago; codes work for 5 minutes)"
     ;;
+  domain)
+    # Move the store to a new address, like from a free DuckDNS name to your own domain.
+    # The old address keeps working: it redirects to the new one.
+    new=${1:-}
+    [[ $new =~ ^[a-z0-9-]+(\.[a-z0-9-]+)+$ ]] || { echo "Give the new domain without https://, for example: sudo pyv domain printyourvibe.in"; exit 1; }
+    env_file="$APP_DIR/shared/.env.production"
+    old=$(sed -n 's#^NEXT_PUBLIC_SITE_URL=https\{0,1\}://\([^/]*\).*#\1#p' "$env_file" | head -n 1)
+    if [[ $new == "$old" ]]; then echo "The store already uses $new."; exit 0; fi
+    # The domain must point at this server first, or HTTPS can't be set up for it.
+    here=$(curl -fsS4 --max-time 10 https://api.ipify.org || true)
+    there=$(getent ahostsv4 "$new" | awk '{ print $1; exit }')
+    if [[ -z $there ]]; then
+      echo "$new doesn't point anywhere yet. Add its A records (DEPLOY.md, step 2), wait until ping $new shows this server, then run this again."
+      exit 1
+    fi
+    if [[ -n $here && $there != "$here" ]]; then
+      echo "$new points at $there, but this server is $here. Fix its A records (DEPLOY.md, step 2), then run this again."
+      exit 1
+    fi
+    echo "Moving the store from ${old:-its old address} to $new..."
+    # 1. HTTPS for the new domain, and redirects from every earlier address.
+    old_list="$APP_DIR/old-domains"
+    touch "$old_list"
+    if [[ -n $old ]] && ! grep -qx "$old" "$old_list"; then echo "$old" >> "$old_list"; fi
+    sed -e "s#@DOMAIN@#$new#g" "$APP_DIR/current/deploy/Caddyfile" > /etc/caddy/Caddyfile.new
+    while read -r d; do
+      if [[ -n $d && $d != "$new" ]]; then printf '\n# An earlier address of the store.\n%s, www.%s {\n\tredir https://%s{uri} permanent\n}\n' "$d" "$d" "$new" >> /etc/caddy/Caddyfile.new; fi
+    done < "$old_list"
+    caddy validate --config /etc/caddy/Caddyfile.new --adapter caddyfile >/dev/null
+    mv /etc/caddy/Caddyfile.new /etc/caddy/Caddyfile
+    systemctl reload caddy
+    # 2. The store's own address. It's built into the pages, so the site is rebuilt.
+    sed -i -e "s#^NEXT_PUBLIC_SITE_URL=.*#NEXT_PUBLIC_SITE_URL=https://$new#" -e "s#^BETTER_AUTH_URL=.*#BETTER_AUTH_URL=https://$new#" "$env_file"
+    if [[ -n $old ]]; then sed -i -e "s#^\(MAIL_FROM=.*\)@$old>#\1@$new>#" "$env_file"; fi
+    sudo -u "$APP_USER" -H "$APP_DIR/bin/deploy.sh"
+    echo
+    echo "Done: the store is at https://$new, and ${old:-the old address} redirects there."
+    echo "Sign in again at https://$new/admin (sign-ins don't carry over to a new address)."
+    ;;
   backup) app_run backup ;;
   maintenance) app_run maintenance ;;
   restore)
@@ -63,6 +102,7 @@ PrintYourVibe server commands (run with sudo):
   pyv settings      edit .env.production (then: pyv restart)
   pyv restart       restart the store
   pyv code          show the newest admin sign-in code (while the store can't send email)
+  pyv domain NEW    move the store to a new domain (the old address redirects there)
   pyv backup        back up now (to R2 if it's set up, otherwise a copy on this server)
   pyv restore       bring back the latest backup from R2 (add --force to replace the current database,
                     --from 2026-11-01 for an older one, --photos-only for just the photos);

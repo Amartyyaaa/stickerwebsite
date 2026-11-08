@@ -51,6 +51,16 @@ ufw allow OpenSSH >/dev/null
 ufw allow 80/tcp >/dev/null
 ufw allow 443 >/dev/null
 ufw --force enable >/dev/null
+# Oracle Cloud's Ubuntu images have their own firewall rules that block everything except SSH.
+# Let web traffic through them too (the console's security list needs ports 80 and 443 open as well).
+if iptables -C INPUT -j REJECT --reject-with icmp-host-prohibited 2>/dev/null; then
+  echo "Oracle Cloud firewall found: opening ports 80 and 443"
+  for rule in "-p tcp --dport 80" "-p tcp --dport 443" "-p udp --dport 443"; do
+    # shellcheck disable=SC2086
+    iptables -C INPUT $rule -j ACCEPT 2>/dev/null || iptables -I INPUT $rule -j ACCEPT
+  done
+  if command -v netfilter-persistent >/dev/null; then netfilter-persistent save >/dev/null 2>&1 || true; fi
+fi
 
 if ! node -v 2>/dev/null | grep -q '^v22\.'; then
   say "Installing Node.js 22"

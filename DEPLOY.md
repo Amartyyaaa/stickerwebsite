@@ -4,6 +4,8 @@ This guide takes you from nothing to a live store on your own server in India, w
 
 Plan on an afternoon for the first time.
 
+**No domain yet?** You can start on a free Oracle Cloud server with a free DuckDNS address, then move to your own domain later with one command. See [Starting free](#starting-free-oracle-cloud-and-a-duckdns-address).
+
 **You can open before setting up Razorpay, Resend and Cloudflare R2.** Steps 1 to 5 are enough to take Cash on Delivery orders. [Opening before Razorpay, Resend and R2](#opening-before-razorpay-resend-and-r2) explains what works meanwhile. Steps 6 to 8 add online payments, emails and off-server backups whenever you're ready (Razorpay takes a day or two to check your business).
 
 **What you'll end up with:**
@@ -34,9 +36,52 @@ Keep every key and password from this guide in the password manager. You'll need
    - Type **A**, name **www**, value: the same IP address.
 3. Wait until the domain points at the server. It's usually a few minutes, sometimes a few hours. To check, open a terminal and run `ping yourdomain.in`: it should show your server's IP.
 
+### Starting free: Oracle Cloud and a DuckDNS address
+
+Use this instead of buying a server and a domain right away. Everything else in this guide stays the same.
+
+**A free server (Oracle Cloud "Always Free"):**
+1. Sign up at cloud.oracle.com.
+   - Choose **India West (Mumbai)** or **India South (Hyderabad)** as your home region. It can't be changed later.
+   - Oracle asks for a card to check who you are. Always Free resources aren't charged.
+2. Go to **Compute → Instances → Create instance**:
+   - **Image:** Canonical Ubuntu 24.04.
+   - **Shape:** Ampere, VM.Standard.A1.Flex, with 2 OCPUs and 12 GB of memory. Always Free covers up to 4 OCPUs and 24 GB in total.
+   - **Networking:** keep "Assign a public IPv4 address" on.
+   - **SSH keys:** choose "Generate a key pair for me" and download the private key. Keep it in your password manager: it's the only way into the server.
+   - If it says "out of capacity", try again later, or pick another availability domain.
+3. Open the web ports in Oracle's network firewall:
+   - Open the instance, click its **subnet**, then its **Security List**, then **Add Ingress Rules**.
+   - Add source `0.0.0.0/0`, protocol TCP, destination port `80`. Add the same again for port `443`.
+   - (The setup script opens the server's own firewall.)
+4. Copy the instance's **public IP address**.
+
+**A free address (DuckDNS):**
+1. Go to duckdns.org and sign in with Google or GitHub.
+2. Type a name, like `printyourvibe`, and click **add domain**.
+3. In **current ip**, paste the server's IP and click **update ip**.
+4. Your store's address is now `printyourvibe.duckdns.org`. Check it with `ping printyourvibe.duckdns.org`.
+
+Then carry on with step 3:
+- Connect with the key you downloaded. On a Mac, run `chmod 600` on the key file first.
+
+```bash
+ssh -i oracle-key.key ubuntu@203.0.113.25
+```
+
+- Use your DuckDNS address in the setup:
+
+```bash
+sudo bash deploy/setup.sh printyourvibe.duckdns.org
+```
+
+When you buy your domain, see [Moving to your own domain](#moving-to-your-own-domain).
+
+> **Good to know:** Oracle can reclaim Always Free servers that stay almost idle for a week, and a new store with few visitors can look idle. Upgrading the account to **Pay As You Go** stops that, and the Always Free resources stay free. Either way, keep downloading a backup every week (step 5).
+
 ## 3. Set up the server
 
-Connect to the server. On Windows use PowerShell; on a Mac use Terminal. Use the username your provider gives: `root` on most, `ubuntu` on AWS Lightsail.
+Connect to the server. On Windows use PowerShell; on a Mac use Terminal. Use the username your provider gives: `root` on most, `ubuntu` on AWS Lightsail and Oracle Cloud.
 
 ```bash
 ssh root@203.0.113.25
@@ -240,6 +285,21 @@ Online payments, emails and off-server backups appear under **Later**: the store
 
 Then place one real order with a small amount and walk it through **Admin → Orders**: Cash on Delivery for now, or a UPI payment and a refund once Razorpay is set up.
 
+## Moving to your own domain
+
+When you started on a free DuckDNS address (or want to change domain later):
+1. Buy the domain and add its two A records, pointing at your server's IP (step 2).
+2. Wait until `ping yourdomain.in` shows the server's IP.
+3. Run this, with your domain. It takes about 5 minutes, because it rebuilds the site for the new address:
+
+```bash
+sudo pyv domain printyourvibe.in
+```
+
+4. Sign in again at `https://printyourvibe.in/admin`.
+
+Links to the old address keep working: they redirect to the new domain. Keep the DuckDNS name pointing at the server for a few months, so links people saved still work.
+
 ## Day to day
 
 | Command | What it does |
@@ -250,6 +310,7 @@ Then place one real order with a small amount and walk it through **Admin → Or
 | `sudo pyv logs` | Follow the store's log (Ctrl+C to stop). |
 | `sudo pyv settings` | Edit the settings file. Then run `sudo pyv restart`. |
 | `sudo pyv code` | Show the newest admin sign-in code (until emails are set up). |
+| `sudo pyv domain yourdomain.in` | Move the store to a new domain; the old address redirects there. |
 | `sudo pyv backup` | Back up right now (to R2, or a copy on the server until R2 is set up). |
 | `sudo pyv maintenance` | Run the nightly clean-up right now. |
 

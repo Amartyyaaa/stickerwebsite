@@ -28,7 +28,7 @@ async function AdminGate({ children }: { children: React.ReactNode }) {
     return (
       <Frame>
         <p className="text-center text-muted">Store admin. Sign in with your admin email.</p>
-        <SignInPanel googleEnabled={googleEnabled} next="/admin" />
+        <SignInPanel googleEnabled={googleEnabled} />
       </Frame>
     );
   }

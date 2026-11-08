@@ -9,6 +9,7 @@ import { WishButton } from '@/components/product/wish-button';
 import { OptionPicker } from './option-picker';
 import { galleryViews, renderGalleryView, type GalleryView } from '@/lib/art/render';
 import { SHEEN_KINDS, type FrameColor } from '@/lib/art/types';
+import { cardImage } from '@/lib/catalog/images';
 import type { ProductDetail } from '@/lib/catalog/types';
 import { cn } from '@/lib/cn';
 import { deliveryWindow, formatDeliveryDate, isPincode } from '@/lib/delivery';
@@ -68,6 +69,8 @@ export function ProductExperience({ product, delivery, packs }: { product: Produ
   const [options, setOptions] = useState<Record<string, string>>(() => defaultOptions(product.options));
   const [qty, setQty] = useState(1);
   const [view, setView] = useState<GalleryView>('art');
+  const [photo, setPhoto] = useState(0);
+  const photos = product.images;
   const [shared, setShared] = useState(false);
 
   useEffect(() => {
@@ -119,7 +122,7 @@ export function ProductExperience({ product, delivery, packs }: { product: Produ
     }
   };
 
-  const sheen = product.art && SHEEN_KINDS.has(product.art.kind) && view === 'art';
+  const sheen = !photos.length && product.art && SHEEN_KINDS.has(product.art.kind) && view === 'art';
   const packTier = packs.enabled && packs.types.includes(product.typeId) ? [...packs.tiers].sort((a, b) => a.qty - b.qty)[0] : undefined;
   const packFits = packTier ? packEligible({ typeId: product.typeId, options }, { packs }) : false;
   const sizeGroup = product.options.find((g) => g.key === 'size');
@@ -132,9 +135,9 @@ export function ProductExperience({ product, delivery, packs }: { product: Produ
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
       <div className="min-w-0">
         <div className={cn('relative grid aspect-square place-items-center overflow-hidden rounded-card border border-line bg-surface', sheen && 'sheen')}>
-          {product.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={product.image} alt={product.name} className="h-full w-full object-contain p-6" />
+          {photos.length ? (
+            // eslint-disable-next-line @next/next/no-img-element -- product photos come from the store's own uploads
+            <img src={photos[photo] ?? photos[0]} alt={photos.length > 1 ? `${product.name}, photo ${photo + 1} of ${photos.length}` : product.name} className="h-full w-full object-contain p-6" />
           ) : (
             <div
               className={cn('art absolute inset-0', view === 'art' || view === 'closeup' ? 'p-[9%]' : view === 'sizes' ? 'p-[6%]' : '')}
@@ -143,7 +146,24 @@ export function ProductExperience({ product, delivery, packs }: { product: Produ
           )}
           {product.isNew && <span className="absolute left-3 top-3 rounded-[2px] bg-red px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] text-white">New</span>}
         </div>
-        {views.length > 1 && (
+        {photos.length > 1 && (
+          <div className="mt-3 grid grid-cols-4 gap-2.5 sm:grid-cols-5" role="group" aria-label="Product photos">
+            {photos.map((src, i) => (
+              <button
+                key={src}
+                type="button"
+                onClick={() => setPhoto(i)}
+                aria-pressed={photo === i}
+                aria-label={`Photo ${i + 1}`}
+                className={cn('relative aspect-square overflow-hidden rounded-[4px] border bg-surface transition', photo === i ? 'border-lime shadow-[0_0_18px_rgb(198_255_61/0.2)]' : 'border-line hover:border-line-2')}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={cardImage(src) ?? src} alt="" className="h-full w-full object-contain p-1.5" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        )}
+        {!photos.length && views.length > 1 && (
           <div className="mt-3 grid grid-cols-4 gap-2.5" role="group" aria-label="Product images">
             {views.map((v) => (
               <button

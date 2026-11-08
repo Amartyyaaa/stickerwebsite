@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { OrderTable } from '@/components/admin/order-table';
 import { AdminHeader, Pager, Tabs } from '@/components/admin/ui';
-import { inputClass } from '@/components/checkout/fields';
+import { inputClass, selectClass } from '@/components/checkout/fields';
 import { buildQuery } from '@/lib/catalog/filters';
 import { adminOrNull } from '@/lib/admin/guard';
 import { listOrders, ORDER_TABS, PER_PAGE, TAB_LABEL, tabCounts, type OrderTab } from '@/lib/admin/orders';
@@ -27,7 +27,7 @@ async function Orders({ searchParams }: { searchParams: PageProps<'/admin/orders
           Search orders
         </label>
         <input id="order-search" name="q" defaultValue={q} placeholder="Order number, email, phone or name" className={`${inputClass()} max-w-sm flex-1`} />
-        <select name="payment" defaultValue={payment ?? ''} aria-label="Payment method" className={`${inputClass()} w-auto`}>
+        <select name="payment" defaultValue={payment ?? ''} aria-label="Payment method" className={selectClass()}>
           <option value="">All payments</option>
           <option value="online">Paid online</option>
           <option value="cod">Cash on Delivery</option>

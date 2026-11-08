@@ -5,24 +5,27 @@
  *
  * - cancels online orders that were never paid within 24 hours
  * - deletes custom-studio uploads that never became part of an order (after 7 days)
+ * - deletes product photos that no product or order uses (after 7 days)
  * - clears old rate-limit counters
  */
 import { lt } from 'drizzle-orm';
+import { deleteUnusedProductPhotos } from '@/lib/admin/products';
 import { db } from '@/lib/db/client';
 import { requestLimits } from '@/lib/db/schema';
 import { cancelUnpaidOrders } from '@/lib/orders/service';
-import { deleteUnorderedUploads } from '@/lib/uploads';
+import { deleteUnorderedUploads, deleteUpload } from '@/lib/uploads';
 
 const DAY = 86400;
 
 async function main() {
   const cancelled = await cancelUnpaidOrders(DAY);
   const uploads = await deleteUnorderedUploads(7 * DAY);
+  const photos = await deleteUnusedProductPhotos(7 * DAY, deleteUpload);
   const limits = await db
     .delete(requestLimits)
     .where(lt(requestLimits.windowStart, Math.floor(Date.now() / 1000) - DAY))
     .returning({ key: requestLimits.key });
-  console.log(`Maintenance: cancelled ${cancelled} unpaid order(s), deleted ${uploads} unused upload(s), cleared ${limits.length} old rate-limit counter(s).`);
+  console.log(`Maintenance: cancelled ${cancelled} unpaid order(s), deleted ${uploads} unused upload(s) and ${photos} unused product photo(s), cleared ${limits.length} old rate-limit counter(s).`);
 }
 
 main().catch((err) => {

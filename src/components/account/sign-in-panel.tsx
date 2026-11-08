@@ -19,9 +19,10 @@ function friendly(err: AuthError, fallback: string): string {
   return err.message || fallback;
 }
 
-/** Sign in with a 6-digit code sent by email, or with Google when it's set up. */
-export function SignInPanel({ googleEnabled, next }: { googleEnabled: boolean; next: string }) {
+/** Sign in with a 6-digit code sent by email, or with Google when it's set up. Without `next`, the shopper stays on the page they're on. */
+export function SignInPanel({ googleEnabled, next }: { googleEnabled: boolean; next?: string }) {
   const router = useRouter();
+  const target = () => next ?? `${window.location.pathname}${window.location.search}`;
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -58,7 +59,7 @@ export function SignInPanel({ googleEnabled, next }: { googleEnabled: boolean; n
       setBusy(false);
       return setError(friendly(err, 'We couldn’t sign you in. Please try again.'));
     }
-    router.replace(next);
+    router.replace(target());
     router.refresh();
   };
 
@@ -133,7 +134,7 @@ export function SignInPanel({ googleEnabled, next }: { googleEnabled: boolean; n
           <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.1em] text-muted" aria-hidden="true">
             <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
           </div>
-          <button type="button" className="btn btn-ghost" onClick={() => void authClient.signIn.social({ provider: 'google', callbackURL: next })}>
+          <button type="button" className="btn btn-ghost" onClick={() => void authClient.signIn.social({ provider: 'google', callbackURL: target() })}>
             Continue with Google
           </button>
         </>

@@ -95,6 +95,8 @@ export const uploads = sqliteTable(
   {
     id: text('id').primaryKey(),
     status: text('status').$type<'pending' | 'ready'>().notNull(),
+    /** custom: a shopper's design (private). product: a catalog photo (public). review: a review photo. */
+    kind: text('kind').$type<'custom' | 'product' | 'review'>().notNull().default('custom'),
     /** The shopper's file name, for the order sheet. Never used as a storage path. */
     name: text('name').notNull(),
     contentType: text('content_type').notNull(),

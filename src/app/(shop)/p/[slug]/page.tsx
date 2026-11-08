@@ -9,6 +9,7 @@ import { SectionHead } from '@/components/section-head';
 import { getPopularSlugs, getProduct, getRelated, getSettings } from '@/lib/catalog/queries';
 import { GROUPS } from '@/lib/catalog/types';
 import { priceRange } from '@/lib/pricing/engine';
+import { siteUrl } from '@/lib/site';
 
 /** Every page here is built from cached data, so it is served as a complete static page and unknown URLs get a real 404. */
 export const ensureStatic = 'navigation';
@@ -39,6 +40,7 @@ async function ProductContent({ params }: { params: PageProps<'/p/[slug]'>['para
     name: `${product.name} ${product.typeName}`,
     description: product.description,
     category: product.typeSlugName,
+    ...(product.images.length ? { image: product.images.map((src) => new URL(src, siteUrl()).toString()) } : {}),
     brand: { '@type': 'Brand', name: 'PrintYourVibe' },
     offers: {
       '@type': 'AggregateOffer',
@@ -109,7 +111,7 @@ async function ProductContent({ params }: { params: PageProps<'/p/[slug]'>['para
 
       {related.length > 0 && (
         <section className="pt-14" aria-labelledby="related-title">
-          <SectionHead id="related-title" title={`More ${product.vibeName}`} href={`/v/${product.vibeId}`} />
+          <SectionHead id="related-title" title={`More ${product.vibeName}`} href={product.vibeShown ? `/v/${product.vibeId}` : undefined} />
           <ProductGrid products={related} idPrefix="rel" />
         </section>
       )}

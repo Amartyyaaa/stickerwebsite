@@ -36,12 +36,13 @@ function cleanName(name: string): string {
   return clean || 'image';
 }
 
-export async function createUpload(input: { name: string; type: UploadType; size: number }): Promise<{ id: string; put: UploadTarget }> {
+export async function createUpload(input: { name: string; type: UploadType; size: number; kind?: 'custom' | 'product' | 'review' }): Promise<{ id: string; put: UploadTarget }> {
   const id = randomBytes(16).toString('base64url');
   const originalKey = `originals/${id}`;
   await db.insert(uploads).values({
     id,
     status: 'pending',
+    kind: input.kind ?? 'custom',
     name: cleanName(input.name),
     contentType: input.type,
     bytes: input.size,
@@ -141,12 +142,13 @@ export async function processUpload(id: string): Promise<UploadInfo> {
   return toUploadInfo(done);
 }
 
-/** Preview or thumbnail bytes for a finished upload. */
-export async function readPreview(id: string, size: 'preview' | 'thumb'): Promise<Buffer | null> {
+/** Preview or thumbnail bytes for a finished upload, and whether it's a public catalog photo. */
+export async function readPreview(id: string, size: 'preview' | 'thumb'): Promise<{ data: Buffer; isPublic: boolean } | null> {
   const row = await getUpload(id);
   if (!row || row.status !== 'ready') return null;
   const key = size === 'thumb' ? row.thumbKey : row.previewKey;
-  return key ? getStorage().get(key) : null;
+  const data = key ? await getStorage().get(key) : null;
+  return data ? { data, isPublic: row.kind === 'product' } : null;
 }
 
 /** Which of these upload ids exist and are ready to print. */
@@ -166,7 +168,7 @@ export async function readyUploadIds(ids: string[]): Promise<Set<string>> {
 /** Delete uploads that never became part of an order. Returns how many were removed. */
 export async function deleteUnorderedUploads(olderThanSec: number): Promise<number> {
   const cutoff = Math.floor(Date.now() / 1000) - olderThanSec;
-  const rows = await db.select().from(uploads).where(and(isNull(uploads.orderId), lt(uploads.createdAt, cutoff)));
+  const rows = await db.select().from(uploads).where(and(eq(uploads.kind, 'custom'), isNull(uploads.orderId), lt(uploads.createdAt, cutoff)));
   for (const row of rows) await deleteUpload(row);
   return rows.length;
 }

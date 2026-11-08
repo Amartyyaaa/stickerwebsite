@@ -10,7 +10,7 @@ An online store for custom-printed stickers (2D and 3D), polaroids, wall posters
 | 1 | Storefront: catalog, listings, search, product pages, cart | Done |
 | 2 | Custom studio and build-your-own sticker packs | Done |
 | 3 | Accounts, checkout, Razorpay and Cash on Delivery | Done |
-| 4 | Admin panel, including bulk CSV import | **In progress**: orders done; catalog, offers and settings next |
+| 4 | Admin panel, including bulk CSV import | **In progress**: orders and catalog done; offers, settings and reviews next |
 | 5 | Launch readiness and the deployment guide | Planned |
 
 ## Run it on your computer
@@ -25,7 +25,7 @@ npm run dev        # open http://localhost:3000
 
 Local development needs no accounts or settings. The database is a single file in `data/`, and images uploaded in the custom studio go to `uploads/`.
 
-Already set up from an earlier step? Run `npm run db:migrate` and `npm run db:seed` to add the new tables and product types. Your products and orders aren't touched.
+Already set up from an earlier step? Run `npm run db:migrate` and `npm run db:seed` to add the new tables and product types. Your products and orders aren't touched, and neither are names, prices, order or visibility you changed in the admin panel: the seed only adds what's missing.
 
 In development, emails (sign-in codes, order confirmations) are saved as files in `data/outbox/` instead of being sent, and online payments open a test screen. See `.env.example` for the keys the live site needs.
 
@@ -33,11 +33,11 @@ In development, emails (sign-in codes, order confirmations) are saved as files i
 | --- | --- |
 | `npm run dev` | Start the development server |
 | `npm run build` then `npm start` | Production build and server |
-| `npm test` | Unit tests (pricing, sticker packs, shipping, COD, crops and print resolution) |
+| `npm test` | Unit tests (pricing, sticker packs, shipping, COD, crops and print resolution, CSV import, price tables) |
 | `npm run lint` / `npm run typecheck` | Code checks |
 | `npm run db:migrate` | Apply database migrations |
 | `npm run db:seed` | Write product types, vibes and store settings (`-- sample` adds demo products, `-- clear` removes them) |
-| `npm run maintenance` | Daily housekeeping: cancels unpaid online orders after 24 hours and deletes unused uploads after 7 days. Run it once a day on the server |
+| `npm run maintenance` | Daily housekeeping: cancels unpaid online orders after 24 hours, and deletes unused customer uploads and product photos after 7 days. Run it once a day on the server |
 
 ## What's in Step 1
 
@@ -130,6 +130,18 @@ Open `/admin` and sign in with an email listed in `ADMIN_EMAILS`, using the same
   - **Customer files** for custom items: the untouched originals, print-ready files with the shopper's crop at full resolution, or everything as one zip with a `design.txt`
   - a printable **packing slip** (shows the COD amount to collect) and **receipt**, and a private note
 - Customers are emailed automatically when their order ships (with tracking), is delivered, cancelled or refunded. The order and track pages show a **Track parcel** link once it ships.
+- **Products:** search by name, web address or id, filter by type, vibe, shown or hidden, and demo or yours. Tick products to show, hide, move to another vibe or delete several at once.
+  - **Add or edit a product:** name, type, main vibe and up to four more, description, search words, web address, popularity, and up to 8 photos (drag to upload; the first is the cover). A card preview shows how it will look.
+  - **Price:** leave it empty to use the type's price table, or set the product's own starting price; every option then moves by the same amount.
+  - Products with photos show them on their page as a gallery (1600 px), and cards use a 480 px version. Product photos are public and cached for a year; customer uploads stay private.
+  - **Remove demo products** deletes the 5,910 demo products in one go once your own are in. A demo product you edited counts as yours and stays.
+- **CSV import and export** (`/admin/products/import`):
+  1. Upload the photos the file mentions. Rows are matched to photos by file name.
+  2. Paste the CSV (or text copied from Excel or Google Sheets), or choose the file, and press **Check file**. Each row shows as new, update, unchanged or error, with the reason. Nothing changes until you press **Import**.
+  - Columns: `id, slug, name, type, vibes, description, tags, price_from_rupees, popularity, images, active`. Columns you leave out are left as they are. The page explains each one, and **Download template** gives you a file with example rows.
+  - **Export** gives the same format, so you can bulk-edit in Excel and import the file back. Importing the same file twice changes nothing the second time.
+- **Categories:** each product type's name, description, highlights, visibility and order, and its **price table**: a base price plus the extra for each choice, with a grid where the price depends on another option (like a frame by size). A price check shows what any combination costs. Saving updates every product's starting price. The custom-studio prices are here too.
+- **Vibes:** add, rename, describe, feature on the home page and menu, hide, reorder, and delete (only when no product uses it).
 
 ## Project layout
 
@@ -138,7 +150,7 @@ src/app/(shop)/          storefront pages (Next.js App Router; the folder name d
 src/app/admin/           admin panel pages
 src/app/api/             API routes
 src/actions/             server actions (checkout, account, tracking, admin)
-src/lib/admin/           admin access checks, order operations, customer file downloads
+src/lib/admin/           admin access checks, orders, customer file downloads, products, CSV import, price tables, vibes
 src/components/          UI: layout, product cards, listing filters, product page, cart
 src/lib/catalog/         catalog definitions (taxonomy.ts), cached queries, search, filters
 src/lib/pricing/         the pricing engine shared by product pages and the cart API
@@ -161,7 +173,9 @@ design/                  theme showcase from Step 0
 
 ## Things to change before launch
 
-- **Prices:** set real prices in `src/lib/catalog/taxonomy.ts` for now. They become editable in the admin panel in Step 4.
+- **Prices:** set your real prices in **Admin → Categories**. The amounts in `src/lib/catalog/taxonomy.ts` are only the starting placeholders.
+- **Products:** add your own (one by one or by CSV), then **Remove demo products**.
+- **Backups:** the local database runs in write-ahead (WAL) mode, so back up `data/printyourvibe.db` together with its `-wal` file, or use `sqlite3 data/printyourvibe.db ".backup backup.db"`.
 - **Store settings:** shipping, COD, offers and contact details are in the database (`src/lib/settings.ts` holds the defaults).
 - **Policy pages:** replace every highlighted [placeholder] in `src/content/pages.ts`, and have the policies reviewed. This includes how long you keep customer uploads.
 - **Uploads:** customer photos are personal data. Keep the `uploads/` folder (or `UPLOADS_DIR`) out of public web folders and include it in your backups.

@@ -60,9 +60,9 @@ function put(target: Target, file: File, onProgress: (p: number) => void, signal
   });
 }
 
-/** Upload one image: ask for a slot, send the file, then ask the server to check it. */
-export async function uploadImage(file: File, onProgress: (p: number) => void, signal: AbortSignal): Promise<UploadInfo> {
-  const init = await fetch('/api/uploads', {
+/** Upload one image: ask for a slot, send the file, then ask the server to check it. Admins start product-photo uploads at their own address. */
+export async function uploadImage(file: File, onProgress: (p: number) => void, signal: AbortSignal, initUrl = '/api/uploads'): Promise<UploadInfo> {
+  const init = await fetch(initUrl, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ name: file.name, type: file.type, size: file.size }),
@@ -88,7 +88,7 @@ function readSize(url: string): Promise<{ w: number; h: number }> {
 
 let seq = 0;
 
-export function useUploadQueue({ onDone, concurrency = 3 }: { onDone: (info: UploadInfo) => void; concurrency?: number }) {
+export function useUploadQueue({ onDone, concurrency = 3, initUrl }: { onDone: (info: UploadInfo) => void; concurrency?: number; initUrl?: string }) {
   const [pending, setPending] = useState<PendingUpload[]>([]);
   const files = useRef(new Map<string, File>());
   const locals = useRef(new Map<string, string>());
@@ -147,7 +147,7 @@ export function useUploadQueue({ onDone, concurrency = 3 }: { onDone: (info: Upl
         running.current++;
         const ctrl = new AbortController();
         ctrls.current.set(key, ctrl);
-        uploadImage(file, (progress) => patch(key, { progress }), ctrl.signal)
+        uploadImage(file, (progress) => patch(key, { progress }), ctrl.signal, initUrl)
           .then((info) => {
             results.current.set(key, info);
             patch(key, { progress: 1 });
@@ -166,7 +166,7 @@ export function useUploadQueue({ onDone, concurrency = 3 }: { onDone: (info: Upl
           });
       }
     };
-  }, [concurrency, patch, flush]);
+  }, [concurrency, patch, flush, initUrl]);
 
   /** Queue files for upload. Returns how many were accepted. */
   const add = useCallback(

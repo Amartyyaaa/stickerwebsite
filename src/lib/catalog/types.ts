@@ -79,11 +79,15 @@ export interface ProductCard {
 }
 
 export interface ProductDetail extends ProductCard {
+  /** Uploaded photos at full size (empty for products shown with generated artwork). */
+  images: string[];
   description: string;
   tags: string;
   groupId: GroupId;
   typeSlugName: string;
   vibeName: string;
+  /** False when the main vibe is hidden, so its page isn't linked. */
+  vibeShown: boolean;
   vibes: Array<{ id: string; name: string }>;
   options: OptionGroup[];
   price: PriceProfile;

@@ -7,6 +7,7 @@ import * as s from '@/lib/db/schema';
 import { defaultOptions, mergeProfile, optionLabels, unitPrice } from '@/lib/pricing/engine';
 import { withDefaults, type StoreSettings } from '@/lib/settings';
 import { toFtsQuery } from './fts';
+import { cardImage, fullImage } from './images';
 import type { ListingFilters, ListingResult, OptionGroup, PriceProfile, ProductCard, ProductDetail, ProductType, QuickAdd, Vibe } from './types';
 
 /**
@@ -57,7 +58,7 @@ function toCard(r: CardRow, newCutoff: number, quick: QuickMap): ProductCard {
     vibeId: r.vibe_id,
     priceFrom: r.price_from,
     art: parseJson<ArtSpec>(r.art),
-    image: images?.[0] ?? null,
+    image: cardImage(images?.[0]),
     isNew: r.created_at >= newCutoff,
     quick: quick[r.type_id] ?? null,
   };
@@ -140,9 +141,9 @@ export async function getCounts(): Promise<{ types: Record<string, number>; vibe
   'use cache';
   cacheLife('hours');
   cacheTag('catalog');
-  const byType = await db.all<{ id: string; n: number }>(sql`SELECT type_id AS id, count(*) AS n FROM products WHERE is_active = 1 GROUP BY type_id`);
+  const byType = await db.all<{ id: string; n: number }>(sql`SELECT p.type_id AS id, count(*) AS n FROM products p JOIN product_types t ON t.id = p.type_id WHERE p.is_active = 1 AND t.is_active = 1 GROUP BY p.type_id`);
   const byVibe = await db.all<{ id: string; n: number }>(
-    sql`SELECT pv.vibe_id AS id, count(*) AS n FROM product_vibes pv JOIN products p ON p.id = pv.product_id WHERE p.is_active = 1 GROUP BY pv.vibe_id`,
+    sql`SELECT pv.vibe_id AS id, count(*) AS n FROM product_vibes pv JOIN products p ON p.id = pv.product_id JOIN product_types t ON t.id = p.type_id WHERE p.is_active = 1 AND t.is_active = 1 GROUP BY pv.vibe_id`,
   );
   const types = Object.fromEntries(byType.map((r) => [r.id, r.n]));
   return { types, vibes: Object.fromEntries(byVibe.map((r) => [r.id, r.n])), total: byType.reduce((n, r) => n + r.n, 0) };
@@ -159,7 +160,7 @@ export async function listProducts(f: ListingFilters): Promise<ListingResult> {
   const fts = f.q ? toFtsQuery(f.q) : null;
   if (f.q && !fts) return { items: [], total: 0, page, perPage: PER_PAGE };
 
-  const where: SQL[] = [sql`p.is_active = 1`];
+  const where: SQL[] = [sql`p.is_active = 1 AND t.is_active = 1`];
   if (f.types?.length) where.push(sql`p.type_id IN (${list(f.types)})`);
   if (f.vibes?.length) where.push(sql`EXISTS (SELECT 1 FROM product_vibes pv WHERE pv.product_id = p.id AND pv.vibe_id IN (${list(f.vibes)}))`);
   if (f.min !== undefined) where.push(sql`p.price_from >= ${f.min}`);
@@ -198,7 +199,7 @@ async function onePerType(typeIds: string[], orderBy: SQL): Promise<ProductCard[
     SELECT * FROM (
       SELECT ${CARD_COLUMNS}, row_number() OVER (PARTITION BY p.type_id ORDER BY ${orderBy}) AS rk
       FROM products p JOIN product_types t ON t.id = p.type_id
-      WHERE p.is_active = 1 AND p.type_id IN (${list(typeIds)})
+      WHERE p.is_active = 1 AND t.is_active = 1 AND p.type_id IN (${list(typeIds)})
     ) WHERE rk = 1`);
   const byType = new Map(rows.map((r) => [r.type_id, toCard(r, cutoff, quick)]));
   return typeIds.map((id) => byType.get(id)).filter((c): c is ProductCard => Boolean(c));
@@ -243,12 +244,14 @@ export async function getProduct(slug: string): Promise<ProductDetail | null> {
       options: s.productTypes.options,
       price: s.productTypes.price,
       highlights: s.productTypes.highlights,
+      typeDescription: s.productTypes.description,
       vibeName: s.vibes.name,
+      vibeActive: s.vibes.isActive,
     })
     .from(s.products)
     .innerJoin(s.productTypes, eq(s.productTypes.id, s.products.typeId))
     .innerJoin(s.vibes, eq(s.vibes.id, s.products.vibeId))
-    .where(and(eq(s.products.slug, slug), eq(s.products.isActive, true)))
+    .where(and(eq(s.products.slug, slug), eq(s.products.isActive, true), eq(s.productTypes.isActive, true)))
     .get();
   if (!row) return null;
   const [vibes, cutoff, quick] = await Promise.all([
@@ -256,7 +259,7 @@ export async function getProduct(slug: string): Promise<ProductDetail | null> {
       .select({ id: s.vibes.id, name: s.vibes.name })
       .from(s.productVibes)
       .innerJoin(s.vibes, eq(s.vibes.id, s.productVibes.vibeId))
-      .where(eq(s.productVibes.productId, row.id)),
+      .where(and(eq(s.productVibes.productId, row.id), eq(s.vibes.isActive, true))),
     newCutoff(),
     quickByType(),
   ]);
@@ -269,13 +272,16 @@ export async function getProduct(slug: string): Promise<ProductDetail | null> {
     typeSlugName: row.typePlural,
     vibeId: row.vibeId,
     vibeName: row.vibeName,
+    vibeShown: row.vibeActive,
     vibes,
     priceFrom: row.priceFrom,
     art: row.art,
-    image: row.images?.[0] ?? null,
+    image: cardImage(row.images?.[0]),
+    images: (row.images ?? []).map(fullImage),
     isNew: row.createdAt >= cutoff,
     quick: quick[row.typeId] ?? null,
-    description: row.description,
+    // Products added without a description use their type's.
+    description: row.description || `${row.name} ${row.typeName.toLowerCase()}. ${row.typeDescription}`,
     tags: row.tags,
     groupId: row.groupId,
     options: row.options,
@@ -291,7 +297,7 @@ export async function getRelated(productId: number, vibeId: string): Promise<Pro
   const [rows, cutoff, quick] = await Promise.all([
     db.all<CardRow>(sql`
       SELECT ${CARD_COLUMNS} FROM products p JOIN product_types t ON t.id = p.type_id
-      WHERE p.is_active = 1 AND p.id != ${productId}
+      WHERE p.is_active = 1 AND t.is_active = 1 AND p.id != ${productId}
         AND EXISTS (SELECT 1 FROM product_vibes pv WHERE pv.product_id = p.id AND pv.vibe_id = ${vibeId})
       ORDER BY p.popularity DESC LIMIT 8`),
     newCutoff(),
@@ -308,7 +314,7 @@ export async function getCardsByIds(ids: number[]): Promise<ProductCard[]> {
   if (!clean.length) return [];
   const [rows, cutoff, quick] = await Promise.all([
     db.all<CardRow>(
-      sql`SELECT ${CARD_COLUMNS} FROM products p JOIN product_types t ON t.id = p.type_id WHERE p.is_active = 1 AND p.id IN (${sql.join(
+      sql`SELECT ${CARD_COLUMNS} FROM products p JOIN product_types t ON t.id = p.type_id WHERE p.is_active = 1 AND t.is_active = 1 AND p.id IN (${sql.join(
         clean.map((n) => sql`${n}`),
         sql`, `,
       )})`,
@@ -381,7 +387,7 @@ export async function getQuoteProducts(ids: number[]): Promise<QuoteProduct[]> {
     .from(s.products)
     .innerJoin(s.productTypes, eq(s.productTypes.id, s.products.typeId))
     .where(and(inArray(s.products.id, clean), eq(s.products.isActive, true), eq(s.productTypes.isActive, true)));
-  return rows.map(({ priceOverride, images, ...r }) => ({ ...r, price: mergeProfile(r.price, priceOverride), image: images?.[0] ?? null }));
+  return rows.map(({ priceOverride, images, ...r }) => ({ ...r, price: mergeProfile(r.price, priceOverride), image: cardImage(images?.[0]) }));
 }
 
 /** The most popular product's artwork for each vibe, used as cover art on /vibes. */

@@ -1,10 +1,11 @@
 import { cn } from '@/lib/cn';
 
-export const inputClass = (error?: string) =>
-  cn(
-    'min-h-11 w-full rounded-[2px] border bg-surface px-3.5 text-[15px] text-ink placeholder:text-muted focus:border-lime focus:outline-none',
-    error ? 'border-red' : 'border-line-2',
-  );
+const fieldBase = 'min-h-11 rounded-[2px] border bg-surface px-3.5 text-[15px] text-ink placeholder:text-muted focus:border-lime focus:outline-none';
+
+export const inputClass = (error?: string) => cn(fieldBase, 'w-full', error ? 'border-red' : 'border-line-2');
+
+/** For a dropdown that is only as wide as its choices, like a filter. */
+export const selectClass = (error?: string) => cn(fieldBase, error ? 'border-red' : 'border-line-2');
 
 /** A labelled form field with an optional hint and error, wired up for screen readers. */
 export function Field({ id, label, error, hint, optional, className, children }: { id: string; label: string; error?: string; hint?: string; optional?: boolean; className?: string; children: React.ReactNode }) {

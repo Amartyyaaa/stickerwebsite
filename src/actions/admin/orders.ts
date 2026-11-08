@@ -1,20 +1,9 @@
 'use server';
 
 import { z } from 'zod';
-import { NotAdminError, requireAdmin } from '@/lib/admin/guard';
+import { asAdmin } from '@/lib/admin/action';
 import { cancelOrder, moveOrder, refundOrder, saveNote, shipOrder, type Result } from '@/lib/admin/orders';
 import { COURIERS, isTrackingNumber, safeHttpUrl, trackingUrlFor } from '@/lib/orders/couriers';
-import type { Viewer } from '@/lib/viewer';
-
-async function asAdmin(fn: (admin: Viewer) => Promise<Result>): Promise<Result> {
-  try {
-    return await fn(await requireAdmin());
-  } catch (err) {
-    if (err instanceof NotAdminError) return { ok: false, error: err.message };
-    console.error('[admin]', err);
-    return { ok: false, error: 'Something went wrong. Please try again.' };
-  }
-}
 
 const Id = z.number().int().positive();
 const Move = z.object({ orderId: Id, to: z.enum(['confirmed', 'printing', 'delivered']), note: z.string().max(200).optional() });

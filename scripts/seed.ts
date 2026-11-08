@@ -14,8 +14,10 @@ import { reindexProducts } from '@/lib/catalog/search-index';
 import { NAME_ADJECTIVES, NAME_SUFFIXES, PRODUCT_TYPES, VIBES, type ProductTypeDef, type VibeDef } from '@/lib/catalog/taxonomy';
 import { db } from '@/lib/db/client';
 import * as s from '@/lib/db/schema';
+import type { PriceProfile } from '@/lib/catalog/types';
 import { priceRange } from '@/lib/pricing/engine';
 import { DEFAULT_SETTINGS } from '@/lib/settings';
+import { slugify } from '@/lib/slug';
 
 function rng(seed: number): () => number {
   let a = seed >>> 0;
@@ -27,17 +29,33 @@ function rng(seed: number): () => number {
   };
 }
 
-const slugify = (s: string) =>
-  s
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 
+/** Prices for option values that are new in code; amounts already in the database (set in admin) win. */
+function fillPrice(saved: PriceProfile, code: PriceProfile): PriceProfile {
+  const deltas: NonNullable<PriceProfile['deltas']> = { ...saved.deltas };
+  for (const [group, table] of Object.entries(code.deltas ?? {})) deltas[group] = { ...table, ...saved.deltas?.[group] };
+  return Object.keys(deltas).length ? { base: saved.base, deltas } : { base: saved.base };
+}
+
+/**
+ * Product types, vibes and settings. New ones are added; ones that already
+ * exist keep what was edited in admin (names, prices, order, visibility), and
+ * only their structure (options, artwork style, group) comes from code.
+ */
 async function seedBase(): Promise<void> {
+  const saved = new Map((await db.select().from(s.productTypes)).map((t) => [t.id, t]));
+  let added = 0;
   for (const [i, t] of PRODUCT_TYPES.entries()) {
-    const row = {
+    const old = saved.get(t.id);
+    if (old) {
+      await db
+        .update(s.productTypes)
+        .set({ options: t.options, art: t.art, groupId: t.groupId, price: fillPrice(old.price, t.price) })
+        .where(eq(s.productTypes.id, t.id));
+      continue;
+    }
+    await db.insert(s.productTypes).values({
+      id: t.id,
       name: t.name,
       singular: t.singular,
       groupId: t.groupId,
@@ -47,23 +65,17 @@ async function seedBase(): Promise<void> {
       art: t.art,
       highlights: t.highlights,
       sortOrder: i,
-    };
-    await db
-      .insert(s.productTypes)
-      .values({ id: t.id, ...row })
-      .onConflictDoUpdate({ target: s.productTypes.id, set: row });
+    });
+    added++;
   }
-  for (const [i, v] of VIBES.entries()) {
-    const row = { name: v.name, blurb: v.blurb, sortOrder: i, featured: Boolean(v.featured) };
-    await db
-      .insert(s.vibes)
-      .values({ id: v.id, ...row })
-      .onConflictDoUpdate({ target: s.vibes.id, set: row });
-  }
+  const vibes = await db
+    .insert(s.vibes)
+    .values(VIBES.map((v, i) => ({ id: v.id, name: v.name, blurb: v.blurb, sortOrder: i, featured: Boolean(v.featured) })))
+    .onConflictDoNothing()
+    .returning({ id: s.vibes.id });
   // Settings are only written once so changes made in admin are never overwritten.
   await db.insert(s.settings).values({ key: 'store', value: DEFAULT_SETTINGS }).onConflictDoNothing();
-  const custom = PRODUCT_TYPES.filter((t) => t.groupId === 'custom').length;
-  console.log(`Base data: ${PRODUCT_TYPES.length - custom} product types, ${custom} custom-studio types, ${VIBES.length} vibes, store settings.`);
+  console.log(`Base data: ${added} new product type(s), ${vibes.length} new vibe(s); ${PRODUCT_TYPES.length - added} existing type(s) kept as edited in admin.`);
 }
 
 async function clearSample(): Promise<number> {
@@ -167,10 +179,12 @@ async function seedSample(): Promise<void> {
   const now = Math.floor(Date.now() / 1000);
   const usedSlugs = new Set((await db.select({ slug: s.products.slug }).from(s.products)).map((r) => r.slug));
 
+  // Prices as they are in the database, which admin may have changed.
+  const prices = new Map((await db.select({ id: s.productTypes.id, price: s.productTypes.price }).from(s.productTypes)).map((t) => [t.id, t.price]));
   let total = 0;
   for (const type of PRODUCT_TYPES) {
     const names = new Set<string>();
-    const { min } = priceRange(type.price, type.options);
+    const { min } = priceRange(prices.get(type.id) ?? type.price, type.options);
     const rows: Array<typeof s.products.$inferInsert & { secondVibe?: string }> = [];
     for (let i = 0; i < type.sample; i++) {
       const vibe = weighted(vibeWeights);

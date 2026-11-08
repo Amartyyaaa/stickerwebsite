@@ -7,6 +7,9 @@ import { cn } from '@/lib/cn';
 export const ADMIN_NAV: Array<{ href: string; label: string }> = [
   { href: '/admin', label: 'Dashboard' },
   { href: '/admin/orders', label: 'Orders' },
+  { href: '/admin/products', label: 'Products' },
+  { href: '/admin/categories', label: 'Categories' },
+  { href: '/admin/vibes', label: 'Vibes' },
 ];
 
 /** Side navigation on wide screens, a scrolling row of links on phones. */

@@ -3,7 +3,7 @@ import { adminOrNull } from './guard';
 
 /** For admin route handlers: a 403 response unless the visitor is a store admin. */
 export async function adminRouteGuard(): Promise<Response | null> {
-  return (await adminOrNull()) ? null : new Response('Only store admins can download customer files.', { status: 403, headers: { 'Cache-Control': 'no-store' } });
+  return (await adminOrNull()) ? null : new Response('Only store admins can do that.', { status: 403, headers: { 'Cache-Control': 'no-store' } });
 }
 
 /** A file download that is never cached and opens as an attachment with a safe name. */

@@ -23,11 +23,25 @@ export function requestLines(lines: CartLine[]) {
  * line's key already changes with its design, so the key is enough to tell
  * when to ask again.
  */
-export function useQuote({ enabled = true, payment, nonce = 0 }: { enabled?: boolean; payment?: 'online' | 'cod'; /** Change to fetch the prices again. */ nonce?: number } = {}) {
+export function useQuote({
+  enabled = true,
+  payment,
+  nonce = 0,
+  coupon,
+  email,
+}: {
+  enabled?: boolean;
+  payment?: 'online' | 'cod';
+  /** Change to fetch the prices again. */
+  nonce?: number;
+  /** A coupon code to try, and the shopper's email for its per-shopper limit. */
+  coupon?: string;
+  email?: string;
+} = {}) {
   const hydrated = useStoresHydrated();
   const lines = useCart((s) => s.lines);
   const removeMany = useCart((s) => s.removeMany);
-  const sig = useMemo(() => JSON.stringify([payment ?? '', nonce, lines.map((l) => [l.key, l.productId, l.options, l.qty])]), [lines, payment, nonce]);
+  const sig = useMemo(() => JSON.stringify([payment ?? '', nonce, coupon ?? '', email ?? '', lines.map((l) => [l.key, l.productId, l.options, l.qty])]), [lines, payment, nonce, coupon, email]);
   const [result, setResult] = useState<{ sig: string; data: QuoteResponse | null; error: boolean } | null>(null);
 
   useEffect(() => {
@@ -38,7 +52,7 @@ export function useQuote({ enabled = true, payment, nonce = 0 }: { enabled?: boo
         const res = await fetch('/api/cart/quote', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ lines: requestLines(lines), payment }),
+          body: JSON.stringify({ lines: requestLines(lines), payment, ...(coupon ? { coupon, email } : {}) }),
           signal: ctrl.signal,
         });
         if (!res.ok) throw new Error(String(res.status));
@@ -53,7 +67,7 @@ export function useQuote({ enabled = true, payment, nonce = 0 }: { enabled?: boo
       clearTimeout(timer);
       ctrl.abort();
     };
-  }, [hydrated, enabled, lines, payment, sig, removeMany]);
+  }, [hydrated, enabled, lines, payment, coupon, email, sig, removeMany]);
 
   const data = lines.length ? (result?.data ?? null) : null;
   const loading = lines.length > 0 && result?.sig !== sig;

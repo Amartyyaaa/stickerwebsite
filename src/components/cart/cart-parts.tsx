@@ -114,7 +114,7 @@ export function QuoteSummary({ data, loading, note = true }: { data: QuoteRespon
       ))}
       <div className="flex justify-between">
         <dt className="text-muted">Shipping</dt>
-        <dd className="tabular-nums">{s ? (s.shipping ? formatINR(s.shipping) : 'Free') : '…'}</dd>
+        <dd className="tabular-nums">{s ? (s.shipping ? formatINR(s.shipping) : s.coupon?.freeShipping ? `Free with ${s.coupon.code}` : 'Free') : '…'}</dd>
       </div>
       {s && s.codFee > 0 && (
         <div className="flex justify-between">

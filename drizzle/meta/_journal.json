@@ -43,6 +43,13 @@
       "when": 1794111142123,
       "tag": "0005_upload_kind",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1794114469940,
+      "tag": "0006_coupons_reviews",
+      "breakpoints": true
     }
   ]
 }

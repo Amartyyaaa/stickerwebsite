@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CheckIcon, PinIcon, ShareIcon } from '@/components/icons';
 import { QtyStepper } from '@/components/cart/cart-parts';
 import { WishButton } from '@/components/product/wish-button';
+import { Stars } from '@/components/reviews/stars';
 import { OptionPicker } from './option-picker';
 import { galleryViews, renderGalleryView, type GalleryView } from '@/lib/art/render';
 import { SHEEN_KINDS, type FrameColor } from '@/lib/art/types';
@@ -61,7 +62,18 @@ function DeliveryCheck({ delivery }: { delivery: StoreSettings['delivery'] }) {
   );
 }
 
-export function ProductExperience({ product, delivery, packs }: { product: ProductDetail; delivery: StoreSettings['delivery']; packs: StoreSettings['packs'] }) {
+export function ProductExperience({
+  product,
+  delivery,
+  packs,
+  rating,
+}: {
+  product: ProductDetail;
+  delivery: StoreSettings['delivery'];
+  packs: StoreSettings['packs'];
+  /** Approved reviews, when there are any. */
+  rating?: { average: number; count: number } | null;
+}) {
   const router = useRouter();
   const hydrated = useStoresHydrated();
   const add = useCart((s) => s.add);
@@ -184,6 +196,14 @@ export function ProductExperience({ product, delivery, packs }: { product: Produ
       <div className="min-w-0">
         <p className="eyebrow">{product.typeName}</p>
         <h1 className="display mt-2 text-[clamp(38px,5vw,62px)]">{product.name}</h1>
+        {rating && (
+          <a href="#reviews" className="mt-2 inline-flex items-center gap-2 text-sm text-muted hover:text-ink">
+            <Stars rating={rating.average} />
+            <span>
+              <b className="text-ink">{rating.average.toFixed(1)}</b> · {rating.count} review{rating.count === 1 ? '' : 's'}
+            </span>
+          </a>
+        )}
         <div className="mt-3 flex flex-wrap gap-2">
           {product.vibes.map((v) => (
             <a key={v.id} href={`/v/${v.id}`} className="chip">

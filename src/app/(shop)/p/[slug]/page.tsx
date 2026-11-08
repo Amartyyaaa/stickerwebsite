@@ -5,10 +5,12 @@ import { Suspense } from 'react';
 import { ProductExperience } from '@/components/pdp/product-experience';
 import { RecentlyViewed } from '@/components/pdp/recently-viewed';
 import { ProductGrid } from '@/components/product/product-card';
+import { ProductReviews } from '@/components/reviews/product-reviews';
 import { SectionHead } from '@/components/section-head';
 import { getPopularSlugs, getProduct, getRelated, getSettings } from '@/lib/catalog/queries';
 import { GROUPS } from '@/lib/catalog/types';
 import { priceRange } from '@/lib/pricing/engine';
+import { getProductReviews } from '@/lib/reviews';
 import { siteUrl } from '@/lib/site';
 
 /** Every page here is built from cached data, so it is served as a complete static page and unknown URLs get a real 404. */
@@ -31,7 +33,7 @@ async function ProductContent({ params }: { params: PageProps<'/p/[slug]'>['para
   const { slug } = await params;
   const product = await getProduct(slug);
   if (!product) notFound();
-  const [settings, related] = await Promise.all([getSettings(), getRelated(product.id, product.vibeId)]);
+  const [settings, related, { summary, reviews }] = await Promise.all([getSettings(), getRelated(product.id, product.vibeId), getProductReviews(product.id)]);
   const group = GROUPS.find((g) => g.id === product.groupId);
   const range = priceRange(product.price, product.options);
   const jsonLd = {
@@ -49,6 +51,19 @@ async function ProductContent({ params }: { params: PageProps<'/p/[slug]'>['para
       highPrice: (range.max / 100).toFixed(2),
       availability: 'https://schema.org/InStock',
     },
+    // Only real, approved reviews from buyers.
+    ...(summary.count
+      ? {
+          aggregateRating: { '@type': 'AggregateRating', ratingValue: summary.average.toFixed(1), reviewCount: summary.count, bestRating: 5, worstRating: 1 },
+          review: reviews.slice(0, 5).map((r) => ({
+            '@type': 'Review',
+            author: { '@type': 'Person', name: r.name },
+            datePublished: new Date(r.createdAt * 1000).toISOString().slice(0, 10),
+            reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5 },
+            ...(r.body ? { reviewBody: r.body } : {}),
+          })),
+        }
+      : {}),
   };
 
   return (
@@ -80,7 +95,7 @@ async function ProductContent({ params }: { params: PageProps<'/p/[slug]'>['para
         </ol>
       </nav>
 
-      <ProductExperience product={product} delivery={settings.delivery} packs={settings.packs} />
+      <ProductExperience product={product} delivery={settings.delivery} packs={settings.packs} rating={summary.count ? { average: summary.average, count: summary.count } : null} />
 
       <section className="mt-14 grid gap-8 border-t border-line pt-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12" aria-labelledby="about-title">
         <div>
@@ -108,6 +123,8 @@ async function ProductContent({ params }: { params: PageProps<'/p/[slug]'>['para
           </div>
         </dl>
       </section>
+
+      <ProductReviews summary={summary} reviews={reviews} />
 
       {related.length > 0 && (
         <section className="pt-14" aria-labelledby="related-title">

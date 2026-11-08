@@ -142,13 +142,13 @@ export async function processUpload(id: string): Promise<UploadInfo> {
   return toUploadInfo(done);
 }
 
-/** Preview or thumbnail bytes for a finished upload, and whether it's a public catalog photo. */
+/** Preview or thumbnail bytes for a finished upload, and whether it's public (a catalog or review photo, not a shopper's design). */
 export async function readPreview(id: string, size: 'preview' | 'thumb'): Promise<{ data: Buffer; isPublic: boolean } | null> {
   const row = await getUpload(id);
   if (!row || row.status !== 'ready') return null;
   const key = size === 'thumb' ? row.thumbKey : row.previewKey;
   const data = key ? await getStorage().get(key) : null;
-  return data ? { data, isPublic: row.kind === 'product' } : null;
+  return data ? { data, isPublic: row.kind !== 'custom' } : null;
 }
 
 /** Which of these upload ids exist and are ready to print. */

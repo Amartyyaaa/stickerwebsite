@@ -5,6 +5,8 @@ import type { AddressSnapshot, OrderStatus, PaymentMethod, PaymentStatus } from 
 export type { AddressSnapshot, OrderStatus, PaymentMethod, PaymentStatus };
 
 export interface OrderItemView {
+  /** The order item's own id (reviews are per item). */
+  id: number;
   productId: number;
   typeId: string;
   slug: string;
@@ -52,6 +54,7 @@ export interface OrderView {
   paidAt: number | null;
   /** Shipping details, once the order ships. */
   shipment: Shipment | null;
+  couponCode: string | null;
 }
 
 export interface Shipment {

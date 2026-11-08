@@ -10,6 +10,11 @@ export const ADMIN_NAV: Array<{ href: string; label: string }> = [
   { href: '/admin/products', label: 'Products' },
   { href: '/admin/categories', label: 'Categories' },
   { href: '/admin/vibes', label: 'Vibes' },
+  { href: '/admin/coupons', label: 'Coupons' },
+  { href: '/admin/reviews', label: 'Reviews' },
+  { href: '/admin/customers', label: 'Customers' },
+  { href: '/admin/content', label: 'Home page' },
+  { href: '/admin/settings', label: 'Settings' },
 ];
 
 /** Side navigation on wide screens, a scrolling row of links on phones. */

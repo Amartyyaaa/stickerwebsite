@@ -8,7 +8,7 @@ import { addresses } from '@/lib/db/schema';
 import { AddressInput, ContactInput, fieldErrors } from '@/lib/india';
 import type { ActionResult, PaymentStart, PlaceOrderResult } from '@/lib/orders/checkout-types';
 import { codCheck } from '@/lib/orders/cod';
-import { createOrder, getOrderWithKey, markPaid, markPaymentFailed, sendOrderEmails, setRazorpayOrder } from '@/lib/orders/service';
+import { CouponUsedUpError, createOrder, getOrderWithKey, markPaid, markPaymentFailed, sendOrderEmails, setRazorpayOrder } from '@/lib/orders/service';
 import { createRazorpayOrder, paymentsMode, razorpayKeyId, verifyRazorpayPayment } from '@/lib/payments/razorpay';
 import { CartLinesInput, priceCart } from '@/lib/pricing/price-cart';
 import { clientIp, rateLimit } from '@/lib/rate-limit';
@@ -22,6 +22,7 @@ const PlaceOrderInput = z.object({
   saveAddress: z.boolean().optional(),
   expectedTotal: z.number().int().nonnegative(),
   idempotencyKey: z.string().regex(/^[A-Za-z0-9_-]{16,64}$/),
+  coupon: z.string().max(40).optional(),
 });
 
 type OrderRow = NonNullable<Awaited<ReturnType<typeof getOrderWithKey>>>;
@@ -53,10 +54,12 @@ export async function placeOrder(raw: unknown): Promise<PlaceOrderResult> {
   if (!limit.ok) return { ok: false, error: 'Too many attempts. Please wait a few minutes and try again.' };
   if (input.payment === 'online' && paymentsMode() === 'off') return { ok: false, error: 'Online payment isn’t available right now. Please choose Cash on Delivery.' };
 
-  const priced = await priceCart(input.lines, { payment: input.payment });
+  const priced = await priceCart(input.lines, { payment: input.payment, coupon: input.coupon, email: input.contact.email });
   if (priced.invalid.length || !priced.lines.length) {
     return { ok: false, error: 'Some items in your cart are no longer available, so we’ve updated it. Please check and try again.', refresh: true };
   }
+  const coupon = priced.summary.coupon;
+  if (coupon && !coupon.applied) return { ok: false, error: coupon.reason ?? 'That coupon can’t be used.', refresh: true };
   if (input.payment === 'cod') {
     const before = priced.summary.total - priced.summary.codFee;
     const cod = codCheck(priced.settings, before, priced.lines.some((l) => l.custom));
@@ -67,14 +70,21 @@ export async function placeOrder(raw: unknown): Promise<PlaceOrderResult> {
   }
 
   const viewer = await getViewer();
-  const { order, existing } = await createOrder({
-    priced,
-    payment: input.payment,
-    contact: input.contact,
-    address: { ...input.address, phone: input.contact.phone },
-    idempotencyKey: input.idempotencyKey,
-    userId: viewer?.id ?? null,
-  });
+  let created: Awaited<ReturnType<typeof createOrder>>;
+  try {
+    created = await createOrder({
+      priced,
+      payment: input.payment,
+      contact: input.contact,
+      address: { ...input.address, phone: input.contact.phone },
+      idempotencyKey: input.idempotencyKey,
+      userId: viewer?.id ?? null,
+    });
+  } catch (err) {
+    if (err instanceof CouponUsedUpError) return { ok: false, error: err.message, refresh: true };
+    throw err;
+  }
+  const { order, existing } = created;
 
   if (viewer && input.saveAddress && !existing) {
     const a = input.address;

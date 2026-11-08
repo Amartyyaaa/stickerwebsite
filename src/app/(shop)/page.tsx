@@ -4,7 +4,7 @@ import { CardIcon, DropIcon, LayersIcon, TruckIcon, UploadIcon } from '@/compone
 import { ProductGrid } from '@/components/product/product-card';
 import { SectionHead } from '@/components/section-head';
 import { getCounts, getHomeRows, getSettings, getTypes, getVibes } from '@/lib/catalog/queries';
-import { CUSTOM_CARDS, HERO, HOME_TILES } from '@/lib/home';
+import { CUSTOM_CARDS, HERO_ART, HOME_TILES } from '@/lib/home';
 import { formatINR } from '@/lib/money';
 
 const FAN: Array<{ left: string; top: string; rot: string; art: Parameters<typeof Art>[0]['spec'] }> = [
@@ -20,22 +20,25 @@ export default async function HomePage() {
   const typeName = new Map(types.map((t) => [t.id, t.name]));
   const featured = vibes.filter((v) => v.featured);
   const tiers = settings.packs.tiers;
+  const hero = settings.home;
 
   return (
     <>
       <section className="relative overflow-hidden border-b border-line">
         <div className="wrap grid items-center gap-8 py-10 md:grid-cols-[1.05fr_1fr] md:py-16">
           <div>
-            <p className="eyebrow">{HERO.eyebrow}</p>
-            <h1 className="display mt-3 text-[clamp(50px,8vw,108px)]">{HERO.title}</h1>
-            <p className="mt-4 max-w-[46ch] text-[17px] text-muted">{HERO.body}</p>
+            {hero.eyebrow && <p className="eyebrow">{hero.eyebrow}</p>}
+            <h1 className="display mt-3 text-[clamp(50px,8vw,108px)]">{hero.title}</h1>
+            {hero.body && <p className="mt-4 max-w-[46ch] text-[17px] text-muted">{hero.body}</p>}
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href={HERO.primary.href} className="btn btn-primary">
-                {HERO.primary.label}
+              <Link href={hero.primary.href} className="btn btn-primary">
+                {hero.primary.label}
               </Link>
-              <Link href={HERO.secondary.href} className="btn btn-ghost">
-                {HERO.secondary.label}
-              </Link>
+              {hero.secondary.label && hero.secondary.href && (
+                <Link href={hero.secondary.href} className="btn btn-ghost">
+                  {hero.secondary.label}
+                </Link>
+              )}
             </div>
             <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[13.5px] font-bold text-muted">
               <li className="inline-flex items-center gap-1.5">
@@ -52,18 +55,26 @@ export default async function HomePage() {
               </li>
             </ul>
           </div>
-          <div className="relative mx-auto aspect-[1/0.92] w-full max-w-[560px]" aria-hidden="true">
-            <div className="racing-stripes absolute inset-[8%_-8%_12%_26%] opacity-60" />
-            <div className="absolute left-[22%] top-0 w-[56%] drop-shadow-[0_0_34px_rgba(198,255,61,0.24)]">
-              <Art spec={HERO.art.poster} idPrefix="hero" />
+          {hero.image ? (
+            <div className="relative mx-auto aspect-[1/0.92] w-full max-w-[560px]">
+              <div className="racing-stripes absolute inset-[8%_-8%_12%_26%] opacity-60" aria-hidden="true" />
+              {/* eslint-disable-next-line @next/next/no-img-element -- the banner photo comes from the store's own uploads */}
+              <img src={hero.image} alt="" className="relative h-full w-full object-contain drop-shadow-[0_0_34px_rgba(198,255,61,0.24)]" fetchPriority="high" />
             </div>
-            <div className="absolute left-0 top-[56%] w-[32%] -rotate-12">
-              <Art spec={HERO.art.stickerA} idPrefix="hero" />
+          ) : (
+            <div className="relative mx-auto aspect-[1/0.92] w-full max-w-[560px]" aria-hidden="true">
+              <div className="racing-stripes absolute inset-[8%_-8%_12%_26%] opacity-60" />
+              <div className="absolute left-[22%] top-0 w-[56%] drop-shadow-[0_0_34px_rgba(198,255,61,0.24)]">
+                <Art spec={HERO_ART.poster} idPrefix="hero" />
+              </div>
+              <div className="absolute left-0 top-[56%] w-[32%] -rotate-12">
+                <Art spec={HERO_ART.stickerA} idPrefix="hero" />
+              </div>
+              <div className="absolute left-[68%] top-[62%] w-[32%] rotate-[10deg]">
+                <Art spec={HERO_ART.stickerB} idPrefix="hero" />
+              </div>
             </div>
-            <div className="absolute left-[68%] top-[62%] w-[32%] rotate-[10deg]">
-              <Art spec={HERO.art.stickerB} idPrefix="hero" />
-            </div>
-          </div>
+          )}
         </div>
       </section>
 

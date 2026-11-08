@@ -18,6 +18,17 @@ export interface BuyXGetY {
   free: number;
 }
 
+/** The big banner at the top of the home page. */
+export interface HomeHero {
+  eyebrow: string;
+  title: string;
+  body: string;
+  primary: { label: string; href: string };
+  secondary: { label: string; href: string };
+  /** A product photo address (/api/uploads/…) shown instead of the generated artwork. */
+  image: string | null;
+}
+
 export interface StoreSettings {
   shipping: { freeAbove: number; fee: number };
   cod: {
@@ -41,6 +52,9 @@ export interface StoreSettings {
   bxgy: BuyXGetY[];
   announcement: string[];
   contact: { email: string; phone: string; whatsapp: string; address: string; hours: string };
+  /** Full links to the store's profiles, shown in the footer when set. */
+  social: { instagram: string; youtube: string; facebook: string; x: string };
+  home: HomeHero;
   /** Shown on receipts and packing slips. */
   business: { name: string; address: string; gstin: string };
   delivery: { metroDays: [number, number]; standardDays: [number, number]; remoteDays: [number, number] };
@@ -72,6 +86,15 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   ],
   announcement: ['Any 10 stickers for ₹199', 'Free shipping above ₹499', 'Cash on Delivery available'],
   contact: { email: '', phone: '', whatsapp: '', address: '', hours: 'Monday to Saturday, 10 am to 7 pm' },
+  social: { instagram: '', youtube: '', facebook: '', x: '' },
+  home: {
+    eyebrow: '//// New drop',
+    title: 'Pit lane poster series',
+    body: 'Racing, anime and gaming posters printed big and sharp. A4 to A2, framed or unframed.',
+    primary: { label: 'Shop F1 posters', href: '/v/f1-motorsport?type=wall-posters' },
+    secondary: { label: 'All new drops', href: '/shop?sort=new' },
+    image: null,
+  },
   business: { name: 'PrintYourVibe', address: '', gstin: '' },
   delivery: { metroDays: [3, 5], standardDays: [4, 7], remoteDays: [6, 10] },
 };
@@ -87,6 +110,13 @@ export function withDefaults(stored: Partial<StoreSettings> | null | undefined):
     prepaidDiscount: { ...DEFAULT_SETTINGS.prepaidDiscount, ...s.prepaidDiscount },
     packs: { ...DEFAULT_SETTINGS.packs, ...s.packs },
     contact: { ...DEFAULT_SETTINGS.contact, ...s.contact },
+    social: { ...DEFAULT_SETTINGS.social, ...s.social },
+    home: {
+      ...DEFAULT_SETTINGS.home,
+      ...s.home,
+      primary: { ...DEFAULT_SETTINGS.home.primary, ...s.home?.primary },
+      secondary: { ...DEFAULT_SETTINGS.home.secondary, ...s.home?.secondary },
+    },
     business: { ...DEFAULT_SETTINGS.business, ...s.business },
     delivery: { ...DEFAULT_SETTINGS.delivery, ...s.delivery },
   };

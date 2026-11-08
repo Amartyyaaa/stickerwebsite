@@ -11,7 +11,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
     <>
       <SiteHeader />
       <main id="main">{children}</main>
-      <SiteFooter />
+      <SiteFooter social={settings.social} />
       <CartDrawer />
       <Dock whatsapp={settings.contact.whatsapp} />
     </>

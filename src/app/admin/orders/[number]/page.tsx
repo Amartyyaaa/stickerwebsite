@@ -163,6 +163,14 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[numbe
           </Panel>
           <Panel title="Payment">
             <OrderTotals order={order} />
+            {order.couponCode && (
+              <p className="mt-3 text-xs text-muted">
+                Coupon{' '}
+                <Link href={`/admin/orders?q=${encodeURIComponent(order.couponCode)}`} className="font-bold tracking-[0.06em] text-lime hover:underline">
+                  {order.couponCode}
+                </Link>
+              </p>
+            )}
             {row.razorpayPaymentId && <p className="mt-3 text-xs text-muted">Payment {row.razorpayPaymentId}</p>}
           </Panel>
           <Panel title="Private note">

@@ -1,6 +1,7 @@
 import 'server-only';
 import { z } from 'zod';
 import { getQuoteProducts, getQuoteTypes, getSettings } from '@/lib/catalog/queries';
+import { resolveCoupon } from '@/lib/coupons';
 import { checkDesign } from '@/lib/custom/rules';
 import { studioForType } from '@/lib/custom/studios';
 import { uploadSrc } from '@/lib/custom/types';
@@ -57,15 +58,17 @@ export interface PricedCart {
   settings: StoreSettings;
 }
 
-export async function priceCart(input: CartLineInput[], opts: { payment?: 'online' | 'cod' } = {}): Promise<PricedCart> {
+/** `coupon` is the code as the shopper typed it; `email` lets the per-shopper limit be checked. */
+export async function priceCart(input: CartLineInput[], opts: { payment?: 'online' | 'cod'; coupon?: string; email?: string } = {}): Promise<PricedCart> {
   const customs = input.flatMap((l) => (l.custom ? [l.custom] : []));
   if (customs.reduce((n, c) => n + c.items.length, 0) > MAX_CUSTOM_ITEMS) throw new Error('That cart has too many images.');
 
-  const [products, types, ready, settings] = await Promise.all([
+  const [products, types, ready, settings, coupon] = await Promise.all([
     getQuoteProducts(input.filter((l) => !l.custom).map((l) => l.productId)),
     getQuoteTypes(customs.map((c) => c.typeId)),
     readyUploadIds(customs.flatMap((c) => c.items.map((i) => i.id))),
     getSettings(),
+    opts.coupon?.trim() ? resolveCoupon(opts.coupon, opts.email) : null,
   ]);
   const byId = new Map(products.map((p) => [p.id, p]));
   const typeById = new Map(types.map((t) => [t.id, t]));
@@ -129,6 +132,7 @@ export async function priceCart(input: CartLineInput[], opts: { payment?: 'onlin
   }
 
   const priced: PricedLine[] = lines.map(({ key, productId, typeId, options, qty, unit }) => ({ key, productId, typeId, options, qty, unit }));
-  const { lines: _priced, ...summary } = quote(priced, settings, { payment: opts.payment });
+  const { lines: _priced, ...summary } = quote(priced, settings, { payment: opts.payment, coupon: coupon?.rule ?? null });
+  if (coupon && !coupon.rule) summary.coupon = { code: coupon.code, applied: false, amount: 0, freeShipping: false, reason: coupon.problem ?? undefined };
   return { lines, invalid, summary, settings };
 }

@@ -72,7 +72,7 @@ export async function listOrders(f: { tab: OrderTab; payment?: PaymentMethod; q?
     const like = `%${q.toLowerCase().replace(/[%_]/g, '')}%`;
     const digits = q.replace(/\D/g, '');
     where.push(
-      sql`(lower(o.number) LIKE ${like} OR lower(o.email) LIKE ${like} OR lower(o.name) LIKE ${like}${digits.length >= 4 ? sql` OR o.phone LIKE ${`%${digits.slice(-10)}%`}` : sql``})`,
+      sql`(lower(o.number) LIKE ${like} OR lower(o.email) LIKE ${like} OR lower(o.name) LIKE ${like} OR o.coupon_code = ${q.trim().toUpperCase()}${digits.length >= 4 ? sql` OR o.phone LIKE ${`%${digits.slice(-10)}%`}` : sql``})`,
     );
   }
   const w = sql.join(where, sql` AND `);
@@ -129,7 +129,7 @@ export const startOfTodayIST = (t = now()) => Math.floor((t + IST) / 86400) * 86
 export interface Dashboard {
   today: { orders: number; revenue: number };
   week: Array<{ day: number; orders: number; revenue: number }>;
-  attention: { toConfirm: number; toPrint: number; custom: number; unpaid: number };
+  attention: { toConfirm: number; toPrint: number; custom: number; unpaid: number; reviews: number };
   recent: AdminOrderRow[];
 }
 
@@ -143,11 +143,12 @@ export async function dashboard(): Promise<Dashboard> {
     db.all<{ day: number; n: number; rev: number }>(sql`
       SELECT ((o.created_at + ${IST}) / 86400) * 86400 - ${IST} AS day, count(*) AS n, sum(o.total) AS rev
       FROM orders o WHERE o.created_at >= ${weekStart} AND ${COUNTED} GROUP BY day`),
-    db.all<{ to_confirm: number | null; to_print: number | null; custom: number | null; unpaid: number | null }>(sql`
+    db.all<{ to_confirm: number | null; to_print: number | null; custom: number | null; unpaid: number | null; reviews: number }>(sql`
       SELECT SUM(CASE WHEN ${TAB_WHERE.to_confirm} THEN 1 ELSE 0 END) AS to_confirm,
         SUM(CASE WHEN ${TAB_WHERE.to_print} THEN 1 ELSE 0 END) AS to_print,
         SUM(CASE WHEN o.status IN ('placed', 'confirmed', 'printing') AND EXISTS (SELECT 1 FROM order_items i WHERE i.order_id = o.id AND i.custom IS NOT NULL) THEN 1 ELSE 0 END) AS custom,
-        SUM(CASE WHEN ${TAB_WHERE.unpaid} THEN 1 ELSE 0 END) AS unpaid
+        SUM(CASE WHEN ${TAB_WHERE.unpaid} THEN 1 ELSE 0 END) AS unpaid,
+        (SELECT count(*) FROM reviews WHERE status = 'pending') AS reviews
       FROM orders o`),
     listOrders({ tab: 'all', page: 1 }),
   ]);
@@ -159,7 +160,7 @@ export async function dashboard(): Promise<Dashboard> {
       const d = byDay.get(day);
       return { day, orders: d?.n ?? 0, revenue: d?.rev ?? 0 };
     }),
-    attention: { toConfirm: a?.to_confirm ?? 0, toPrint: a?.to_print ?? 0, custom: a?.custom ?? 0, unpaid: a?.unpaid ?? 0 },
+    attention: { toConfirm: a?.to_confirm ?? 0, toPrint: a?.to_print ?? 0, custom: a?.custom ?? 0, unpaid: a?.unpaid ?? 0, reviews: a?.reviews ?? 0 },
     recent: recent.rows.slice(0, 8),
   };
 }

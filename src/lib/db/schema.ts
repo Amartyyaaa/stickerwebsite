@@ -276,12 +276,19 @@ export const orders = sqliteTable(
     adminNote: text('admin_note').notNull().default(''),
     refundedAmount: integer('refunded_amount').notNull().default(0),
     razorpayRefundId: text('razorpay_refund_id'),
+    /** The coupon used, if any. Its discount is in `discounts` (or free shipping). */
+    couponCode: text('coupon_code'),
     /** Sent by the checkout page so a double click creates one order. */
     idempotencyKey: text('idempotency_key').notNull().unique(),
     createdAt: integer('created_at').notNull(),
     updatedAt: integer('updated_at').notNull(),
   },
-  (t) => [index('orders_user_idx').on(t.userId), index('orders_email_idx').on(t.email), index('orders_status_idx').on(t.status, t.createdAt)],
+  (t) => [
+    index('orders_user_idx').on(t.userId),
+    index('orders_email_idx').on(t.email),
+    index('orders_status_idx').on(t.status, t.createdAt),
+    index('orders_coupon_idx').on(t.couponCode),
+  ],
 );
 
 export const orderItems = sqliteTable(
@@ -338,3 +345,60 @@ export const requestLimits = sqliteTable('request_limits', {
   windowStart: integer('window_start').notNull(),
   count: integer('count').notNull(),
 });
+
+/* ---------- coupons and reviews ---------- */
+
+export type CouponKind = 'percent' | 'flat' | 'shipping';
+
+/** Discount codes shoppers type at checkout. Money in paise, times in Unix seconds. */
+export const coupons = sqliteTable('coupons', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  /** Always upper case, like WELCOME10. */
+  code: text('code').notNull().unique(),
+  kind: text('kind').$type<CouponKind>().notNull(),
+  /** Percent off (1 to 90) or an amount off in paise. Not used for free shipping. */
+  value: integer('value').notNull().default(0),
+  /** Order value needed, after other offers. */
+  minOrder: integer('min_order').notNull().default(0),
+  /** Most a percent coupon can take off. */
+  maxDiscount: integer('max_discount'),
+  startsAt: integer('starts_at'),
+  endsAt: integer('ends_at'),
+  /** Uses across all shoppers, and per shopper email. Empty means no limit. */
+  usageLimit: integer('usage_limit'),
+  perCustomer: integer('per_customer'),
+  /** Counted when a COD order is placed or an online order is paid. */
+  usedCount: integer('used_count').notNull().default(0),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  note: text('note').notNull().default(''),
+  createdAt: integer('created_at').notNull(),
+});
+
+export type ReviewStatus = 'pending' | 'approved' | 'rejected';
+
+/** Reviews from buyers of delivered orders, one per order item. Shown after an admin approves them. */
+export const reviews = sqliteTable(
+  'reviews',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    productId: integer('product_id')
+      .notNull()
+      .references(() => products.id, { onDelete: 'cascade' }),
+    orderId: integer('order_id')
+      .notNull()
+      .references(() => orders.id, { onDelete: 'cascade' }),
+    orderItemId: integer('order_item_id')
+      .notNull()
+      .unique()
+      .references(() => orderItems.id, { onDelete: 'cascade' }),
+    rating: integer('rating').notNull(),
+    body: text('body').notNull(),
+    /** Shown on the review, like "Meera I.". */
+    name: text('name').notNull(),
+    /** Upload ids of up to 3 photos. */
+    photos: text('photos', { mode: 'json' }).$type<string[]>().notNull(),
+    status: text('status').$type<ReviewStatus>().notNull().default('pending'),
+    createdAt: integer('created_at').notNull(),
+  },
+  (t) => [index('reviews_product_idx').on(t.productId, t.status), index('reviews_status_idx').on(t.status, t.createdAt)],
+);

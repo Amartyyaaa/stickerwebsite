@@ -1,6 +1,7 @@
 import 'server-only';
 import { timingSafeEqual } from 'node:crypto';
 import { and, desc, eq, inArray, isNull, or, sql } from 'drizzle-orm';
+import { countCouponUse, CouponUsedUpError } from '@/lib/coupons';
 import { db } from '@/lib/db/client';
 import * as s from '@/lib/db/schema';
 import { sendMailSafely } from '@/lib/email/send';
@@ -41,7 +42,7 @@ async function loadView(row: OrderRow): Promise<OrderView> {
     phone: row.phone,
     name: row.name,
     address: row.address,
-    items: items.map(({ id: _i, orderId: _o, ...i }): OrderItemView => i),
+    items: items.map(({ orderId: _o, ...i }): OrderItemView => i),
     itemCount: row.itemCount,
     subtotal: row.subtotal,
     discounts: row.discounts,
@@ -54,6 +55,7 @@ async function loadView(row: OrderRow): Promise<OrderView> {
     createdAt: row.createdAt,
     paidAt: row.paidAt,
     shipment: shipmentOf(row),
+    couponCode: row.couponCode,
   };
 }
 
@@ -88,6 +90,8 @@ export interface NewOrder {
   userId: string | null;
 }
 
+export { CouponUsedUpError };
+
 /**
  * Create an order with its items and first timeline event, and link any
  * custom-studio uploads to it. The same idempotency key always returns the
@@ -99,6 +103,7 @@ export async function createOrder(input: NewOrder): Promise<{ order: OrderRow; e
 
   const { priced, payment, contact, address } = input;
   const cod = payment === 'cod';
+  const couponCode = priced.summary.coupon?.applied ? priced.summary.coupon.code : null;
   const status: OrderStatus = cod ? 'placed' : 'pending_payment';
   const t = now();
   const uploadIds = priced.lines.flatMap((l) => l.custom?.items.map((i) => i.id) ?? []);
@@ -142,6 +147,7 @@ export async function createOrder(input: NewOrder): Promise<{ order: OrderRow; e
             codFee: priced.summary.codFee,
             prepaidDiscount: priced.summary.prepaidDiscount,
             total: priced.summary.total,
+            couponCode,
             idempotencyKey: input.idempotencyKey,
             createdAt: t,
             updatedAt: t,
@@ -166,6 +172,8 @@ export async function createOrder(input: NewOrder): Promise<{ order: OrderRow; e
           })),
         );
         await tx.insert(s.orderEvents).values({ orderId: o.id, status, note: cod ? 'Cash on Delivery' : 'Waiting for online payment', createdAt: t });
+        // A COD order uses its coupon now (online orders when they're paid). Refuses if the last use just went.
+        if (couponCode && cod) await countCouponUse(tx, couponCode, true);
         if (uploadIds.length) await tx.update(s.uploads).set({ orderId: o.id }).where(and(inArray(s.uploads.id, uploadIds), isNull(s.uploads.orderId)));
         return o;
       });
@@ -220,8 +228,10 @@ export async function markPaid(orderId: number, opts: { paymentId: string; via: 
     .update(s.orders)
     .set({ status: 'placed', paymentStatus: 'paid', razorpayPaymentId: opts.paymentId, paidAt: t, updatedAt: t })
     .where(and(eq(s.orders.id, orderId), eq(s.orders.paymentMethod, 'online'), inArray(s.orders.paymentStatus, ['unpaid', 'failed']), inArray(s.orders.status, ['pending_payment', 'cancelled'])))
-    .returning({ id: s.orders.id });
+    .returning({ id: s.orders.id, couponCode: s.orders.couponCode });
   if (!changed.length) return false;
+  // The shopper has paid, so the coupon counts even if its limit was reached meanwhile.
+  if (changed[0].couponCode) await countCouponUse(db, changed[0].couponCode, false);
   await db.insert(s.orderEvents).values({ orderId, status: 'placed', note: `Payment received (${opts.via})`, createdAt: t });
   return true;
 }

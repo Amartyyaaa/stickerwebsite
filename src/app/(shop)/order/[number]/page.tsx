@@ -4,12 +4,14 @@ import { Suspense } from 'react';
 import { ChatIcon } from '@/components/icons';
 import { AddressBlock, OrderItems, OrderTotals, ShipmentNote, StatusChip, Timeline } from '@/components/orders/order-parts';
 import { PayNow } from '@/components/orders/pay-now';
+import { ItemReview } from '@/components/orders/review-form';
 import { getSettings } from '@/lib/catalog/queries';
 import { formatDate } from '@/lib/dates';
 import { formatINR } from '@/lib/money';
 import { normalizeOrderNumber } from '@/lib/orders/numbers';
 import { getOrderForViewer } from '@/lib/orders/service';
 import { PAYMENT_LABEL } from '@/lib/orders/status';
+import { reviewStates } from '@/lib/reviews';
 import { getViewer } from '@/lib/viewer';
 
 export const metadata: Metadata = { title: 'Your order', robots: { index: false, follow: false } };
@@ -41,6 +43,9 @@ async function OrderContent({ params, searchParams }: PageProps<'/order/[number]
   if (!order) return <NotFoundOrder />;
 
   const placed = first(sp.placed) === '1' && order.status !== 'pending_payment';
+  // Delivered catalog items can be reviewed (custom-printed ones are one of a kind).
+  const reviewable = order.status === 'delivered' ? order.items.filter((i) => i.productId > 0) : [];
+  const reviewed = reviewable.length ? await reviewStates(order.id) : {};
   const firstName = order.name.split(' ')[0] || order.name;
   const digits = settings.contact.whatsapp.replace(/\D/g, '');
   const help = digits ? `https://wa.me/${digits}?text=${encodeURIComponent(`Hi PrintYourVibe! About my order ${order.number}`)}` : '/pages/contact';
@@ -94,6 +99,19 @@ async function OrderContent({ params, searchParams }: PageProps<'/order/[number]
             </h2>
             <OrderItems items={order.items} />
           </section>
+          {reviewable.length > 0 && (
+            <section id="reviews" aria-labelledby="reviews-title" className="scroll-mt-24 rounded-card border border-line bg-surface p-4 sm:p-5">
+              <h2 id="reviews-title" className="section-title mb-1">
+                Rate your order
+              </h2>
+              <p className="mb-4 text-sm text-muted">Your review helps other shoppers, and helps us print better.</p>
+              <ul>
+                {reviewable.map((i) => (
+                  <ItemReview key={i.id} order={{ number: order.number, key: order.accessKey }} item={{ id: i.id, name: i.name, slug: i.slug, art: i.art, image: i.image }} state={reviewed[i.id] ?? null} />
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
 
         <aside className="grid min-w-0 content-start gap-5">

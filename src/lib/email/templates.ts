@@ -131,15 +131,19 @@ ${button(link, 'View your order')}`,
     };
   }
   if (kind === 'delivered') {
+    // Catalog items can be reviewed from the order page; custom-printed ones can't.
+    const canReview = order.items.some((i) => i.productId > 0);
+    const target = canReview ? `${link}#reviews` : link;
     return {
       subject: `Order ${order.number} was delivered · PrintYourVibe`,
       html: layout(
         'Delivered!',
         `${p(`Hi ${first}, your order ${order.number} has been delivered. We hope you love it.`)}
 ${p('If anything isn’t right, reply to this email within 7 days with a photo and we’ll sort it out.')}
-${button(link, 'Review your order')}`,
+${canReview ? p('Got a minute? A quick review with a photo helps other shoppers, and helps us print better.') : ''}
+${button(target, canReview ? 'Write a review' : 'View your order')}`,
       ),
-      text: `Hi ${order.name}, order ${order.number} has been delivered. We hope you love it! Review your order: ${link}`,
+      text: `Hi ${order.name}, order ${order.number} has been delivered. We hope you love it!${canReview ? ` Write a review: ${target}` : ` Your order: ${target}`}`,
     };
   }
   if (kind === 'cancelled') {

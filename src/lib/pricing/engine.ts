@@ -6,6 +6,7 @@
 import type { Delta, OptionGroup, PriceProfile } from '@/lib/catalog/types';
 import { formatINR } from '@/lib/money';
 import type { PackTier, StoreSettings } from '@/lib/settings';
+import { couponAmount, type CouponRule } from './coupons';
 
 export type Options = Record<string, string>;
 
@@ -125,6 +126,17 @@ export interface QuoteHint {
   done?: boolean;
 }
 
+/** A coupon the quote applied, or why it didn't. */
+export interface QuoteCoupon {
+  code: string;
+  applied: boolean;
+  /** Amount taken off the items (0 for free shipping). */
+  amount: number;
+  freeShipping: boolean;
+  /** Why it wasn't applied (for example the minimum order). */
+  reason?: string;
+}
+
 export interface Quote {
   lines: QuoteLine[];
   itemCount: number;
@@ -136,6 +148,7 @@ export interface Quote {
   prepaidDiscount: number;
   total: number;
   hints: QuoteHint[];
+  coupon: QuoteCoupon | null;
 }
 
 /** Unit prices of every eligible unit, most expensive first. */
@@ -201,7 +214,7 @@ export function packStatus(lines: PricedLine[], s: StoreSettings): PackStatus {
   };
 }
 
-export function quote(input: PricedLine[], s: StoreSettings, opts: { payment?: 'online' | 'cod' } = {}): Quote {
+export function quote(input: PricedLine[], s: StoreSettings, opts: { payment?: 'online' | 'cod'; coupon?: CouponRule | null } = {}): Quote {
   const lines: QuoteLine[] = input.filter((l) => l.qty > 0).map((l) => ({ ...l, total: l.unit * l.qty }));
   const itemCount = lines.reduce((n, l) => n + l.qty, 0);
   const subtotal = lines.reduce((n, l) => n + l.total, 0);
@@ -247,11 +260,27 @@ export function quote(input: PricedLine[], s: StoreSettings, opts: { payment?: '
     }
   }
 
+  // A coupon comes after the other offers and before shipping.
+  let coupon: QuoteCoupon | null = null;
+  if (opts.coupon && itemCount > 0) {
+    const c = opts.coupon;
+    const before = Math.max(0, subtotal - discounts.reduce((n, d) => n + d.amount, 0));
+    if (before < c.minOrder) {
+      coupon = { code: c.code, applied: false, amount: 0, freeShipping: false, reason: `Add ${formatINR(c.minOrder - before)} more to use ${c.code}. It needs an order of ${formatINR(c.minOrder)}.` };
+    } else {
+      const amount = couponAmount(c, before);
+      if (amount > 0) discounts.push({ id: 'coupon', label: `Coupon ${c.code}`, amount });
+      coupon = { code: c.code, applied: true, amount, freeShipping: c.kind === 'shipping' };
+    }
+  }
+
   const discountTotal = discounts.reduce((n, d) => n + d.amount, 0);
   const merchandise = Math.max(0, subtotal - discountTotal);
-  const shipping = itemCount === 0 || merchandise >= s.shipping.freeAbove ? 0 : s.shipping.fee;
+  const shipping = itemCount === 0 || merchandise >= s.shipping.freeAbove || coupon?.freeShipping ? 0 : s.shipping.fee;
   if (itemCount > 0) {
-    if (shipping > 0) {
+    if (coupon?.freeShipping) {
+      hints.push({ id: 'shipping', text: `Free shipping with ${coupon.code}`, progress: 1, done: true });
+    } else if (shipping > 0) {
       hints.push({
         id: 'shipping',
         text: `Add ${formatINR(s.shipping.freeAbove - merchandise)} more for free shipping`,
@@ -268,5 +297,5 @@ export function quote(input: PricedLine[], s: StoreSettings, opts: { payment?: '
     opts.payment === 'online' && itemCount > 0 ? Math.min(s.prepaidDiscount.max, Math.round((merchandise * s.prepaidDiscount.percent) / 100 / 100) * 100) : 0;
   const total = merchandise + shipping + codFee - prepaidDiscount;
 
-  return { lines, itemCount, subtotal, discounts, discountTotal, shipping, codFee, prepaidDiscount, total, hints };
+  return { lines, itemCount, subtotal, discounts, discountTotal, shipping, codFee, prepaidDiscount, total, hints, coupon };
 }

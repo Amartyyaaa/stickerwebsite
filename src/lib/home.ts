@@ -1,20 +1,14 @@
 import type { ArtSpec } from '@/lib/art/types';
 
 /**
- * Home page content. In Step 4 these move into the admin panel; for now they
- * live here so you can change the hero and featured tiles in one place.
+ * Home page artwork and tiles. The banner's words, buttons and photo are
+ * edited in Admin → Home page (stored in settings); this artwork shows when
+ * no photo is set.
  */
-export const HERO = {
-  eyebrow: '//// New drop',
-  title: 'Pit lane poster series',
-  body: 'Racing, anime and gaming posters printed big and sharp. A4 to A2, framed or unframed.',
-  primary: { label: 'Shop F1 posters', href: '/v/f1-motorsport?type=wall-posters' },
-  secondary: { label: 'All new drops', href: '/shop?sort=new' },
-  art: {
-    poster: { kind: 'poster', seed: 15, poster: 'speed', title: 'PIT LANE', dark: 0 } satisfies ArtSpec,
-    stickerA: { kind: 'sticker', seed: 16, shape: 'badge', word: 'P1', c1: 'a', c2: 'd' } satisfies ArtSpec,
-    stickerB: { kind: 'sticker', seed: 17, shape: 'pill', word: 'FULL SEND', c1: 'b', c2: 'f' } satisfies ArtSpec,
-  },
+export const HERO_ART = {
+  poster: { kind: 'poster', seed: 15, poster: 'speed', title: 'PIT LANE', dark: 0 } satisfies ArtSpec,
+  stickerA: { kind: 'sticker', seed: 16, shape: 'badge', word: 'P1', c1: 'a', c2: 'd' } satisfies ArtSpec,
+  stickerB: { kind: 'sticker', seed: 17, shape: 'pill', word: 'FULL SEND', c1: 'b', c2: 'f' } satisfies ArtSpec,
 };
 
 /** Product types shown as tiles on the home page, with their tile artwork. */

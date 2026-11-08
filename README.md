@@ -10,7 +10,7 @@ An online store for custom-printed stickers (2D and 3D), polaroids, wall posters
 | 1 | Storefront: catalog, listings, search, product pages, cart | Done |
 | 2 | Custom studio and build-your-own sticker packs | Done |
 | 3 | Accounts, checkout, Razorpay and Cash on Delivery | Done |
-| 4 | Admin panel, including bulk CSV import | **In progress**: orders and catalog done; offers, settings and reviews next |
+| 4 | Admin panel, including bulk CSV import, coupons and reviews | Done |
 | 5 | Launch readiness and the deployment guide | Planned |
 
 ## Run it on your computer
@@ -33,7 +33,7 @@ In development, emails (sign-in codes, order confirmations) are saved as files i
 | --- | --- |
 | `npm run dev` | Start the development server |
 | `npm run build` then `npm start` | Production build and server |
-| `npm test` | Unit tests (pricing, sticker packs, shipping, COD, crops and print resolution, CSV import, price tables) |
+| `npm test` | Unit tests (pricing, sticker packs, shipping, COD, coupons, crops and print resolution, CSV import, price tables, settings, reviews) |
 | `npm run lint` / `npm run typecheck` | Code checks |
 | `npm run db:migrate` | Apply database migrations |
 | `npm run db:seed` | Write product types, vibes and store settings (`-- sample` adds demo products, `-- clear` removes them) |
@@ -142,6 +142,15 @@ Open `/admin` and sign in with an email listed in `ADMIN_EMAILS`, using the same
   - **Export** gives the same format, so you can bulk-edit in Excel and import the file back. Importing the same file twice changes nothing the second time.
 - **Categories:** each product type's name, description, highlights, visibility and order, and its **price table**: a base price plus the extra for each choice, with a grid where the price depends on another option (like a frame by size). A price check shows what any combination costs. Saving updates every product's starting price. The custom-studio prices are here too.
 - **Vibes:** add, rename, describe, feature on the home page and menu, hide, reorder, and delete (only when no product uses it).
+- **Coupons:** percent off (with an optional cap), an amount off, or free shipping, each with an optional minimum order, first and last day, total uses and uses per shopper (by email).
+  - Shoppers enter the code under **Have a coupon?** at checkout. A code that can't be used says why: expired, not started, used up, already used by this shopper, or how much more to add.
+  - The coupon comes after packs and buy-X-get-Y offers and before shipping, as its own line. The online-payment discount applies to the price after it.
+  - A use counts when a COD order is placed (refused if the last use just went) or when an online order is paid. Orders show their code, and order search finds orders by code.
+  - Used coupons can be switched off but not deleted.
+- **Reviews:** when an order is delivered, its page (and the delivered email) asks the buyer to rate each catalog item: 1 to 5 stars, optional text and up to 3 photos. Reviews wait in **Reviews** until you approve them; then the product page shows them with a “Verified buyer” badge, the average and count next to the title, and the rating in the page's search data. Custom-printed items can't be reviewed. Pending reviews show on the dashboard.
+- **Customers:** everyone who has ordered, grouped by email: name, phone, orders, amount spent, last order and whether they have an account, with search and a link to their orders.
+- **Home page:** the banner's small line, title, text, two buttons and an optional photo, with a preview. Without a photo, the generated artwork shows.
+- **Settings:** the announcement bar; free-shipping amount, shipping fee and delivery days; Cash on Delivery (on or off, fee, smallest and largest order, custom items); the online-payment discount; sticker pack sizes and prices; buy-X-get-Y offers; contact details and WhatsApp number; social links for the footer; and the business name, address and GSTIN for receipts. Changes show in the store straight away.
 
 ## Project layout
 
@@ -176,7 +185,8 @@ design/                  theme showcase from Step 0
 - **Prices:** set your real prices in **Admin → Categories**. The amounts in `src/lib/catalog/taxonomy.ts` are only the starting placeholders.
 - **Products:** add your own (one by one or by CSV), then **Remove demo products**.
 - **Backups:** the local database runs in write-ahead (WAL) mode, so back up `data/printyourvibe.db` together with its `-wal` file, or use `sqlite3 data/printyourvibe.db ".backup backup.db"`.
-- **Store settings:** shipping, COD, offers and contact details are in the database (`src/lib/settings.ts` holds the defaults).
+- **Store settings:** in **Admin → Settings**, add your support email, WhatsApp number, business address and GSTIN (if you have one), and check shipping, COD and offers. `src/lib/settings.ts` only holds the starting defaults.
+- **Home page:** set your own banner in **Admin → Home page**.
 - **Policy pages:** replace every highlighted [placeholder] in `src/content/pages.ts`, and have the policies reviewed. This includes how long you keep customer uploads.
 - **Uploads:** customer photos are personal data. Keep the `uploads/` folder (or `UPLOADS_DIR`) out of public web folders and include it in your backups.
 - **Your designs:** fandom artwork such as F1 team logos, anime characters and movie art is trademarked or copyrighted. Only sell designs you have the rights to.

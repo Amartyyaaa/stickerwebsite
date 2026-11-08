@@ -1,17 +1,37 @@
 import Link from 'next/link';
 import { GROUPS } from '@/lib/catalog/types';
+import type { StoreSettings } from '@/lib/settings';
 import { Logo } from './logo';
 import { NewsletterForm } from './newsletter-form';
 
 const linkCls = 'text-[15px] text-muted hover:text-lime';
 
-export function SiteFooter() {
+const SOCIAL: Array<[keyof StoreSettings['social'], string]> = [
+  ['instagram', 'Instagram'],
+  ['youtube', 'YouTube'],
+  ['facebook', 'Facebook'],
+  ['x', 'X'],
+];
+
+export function SiteFooter({ social }: { social?: StoreSettings['social'] }) {
+  const profiles = SOCIAL.filter(([k]) => social?.[k]);
   return (
     <footer className="mt-20 border-t border-line bg-[#07070c] pb-20 md:pb-0">
       <div className="wrap grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.1fr]">
         <div>
           <Logo />
           <p className="mt-3 max-w-xs text-[15px] text-muted">Stickers, posters and polaroids for every fandom and mood, printed to order in India.</p>
+          {profiles.length > 0 && (
+            <ul className="mt-4 flex flex-wrap gap-2" aria-label="Follow us">
+              {profiles.map(([k, label]) => (
+                <li key={k}>
+                  <a href={social![k]} target="_blank" rel="noopener noreferrer" className="chip min-h-9 px-3 text-[12px]">
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
           <NewsletterForm />
         </div>
         <div>

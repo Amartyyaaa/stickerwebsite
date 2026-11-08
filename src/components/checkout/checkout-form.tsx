@@ -65,9 +65,19 @@ export function CheckoutForm({ viewer, addresses, settings, mode }: { viewer: { 
   const attempt = useRef<{ sig: string; key: string } | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const pay = usePayment();
+  const [couponOpen, setCouponOpen] = useState(false);
+  const [couponText, setCouponText] = useState('');
+  const [coupon, setCoupon] = useState('');
+  const email = contact.email.trim();
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const { data, loading, lines, hydrated } = useQuote({ payment, nonce });
+  const { data, loading, lines, hydrated } = useQuote({ payment, nonce, coupon: coupon || undefined, email: coupon && emailOk ? email : undefined });
   const s = data?.summary;
+  const couponState = coupon && !loading ? s?.coupon : undefined;
+  const applyCoupon = () => {
+    const code = couponText.trim().toUpperCase().replace(/\s+/g, '');
+    if (code) setCoupon(code);
+  };
   // COD depends only on the order value (items after offers, plus shipping), which is the same whichever method is picked.
   const cod = s ? codCheck(settings, s.subtotal - s.discountTotal + s.shipping, lines.some((l) => l.custom)) : ({ ok: true } as const);
   if (payment === 'cod' && !cod.ok && mode !== 'off') setPayment('online');
@@ -121,7 +131,7 @@ export function CheckoutForm({ viewer, addresses, settings, mode }: { viewer: { 
       requestAnimationFrame(() => formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus());
       return;
     }
-    const sig = JSON.stringify([lines.map((l) => [l.key, l.qty]), effective, contact, address]);
+    const sig = JSON.stringify([lines.map((l) => [l.key, l.qty]), effective, contact, address, coupon]);
     if (attempt.current?.sig !== sig) attempt.current = { sig, key: newKey() };
     setBusy(true);
     setErrors({});
@@ -134,6 +144,8 @@ export function CheckoutForm({ viewer, addresses, settings, mode }: { viewer: { 
       saveAddress: Boolean(viewer) && save && chosen === 'new',
       expectedTotal: s.total,
       idempotencyKey: attempt.current.key,
+      // Only a code the price check accepted; one that doesn't apply is simply left out.
+      coupon: s.coupon?.applied ? s.coupon.code : undefined,
     });
     if (!res.ok) {
       setBusy(false);
@@ -337,6 +349,62 @@ export function CheckoutForm({ viewer, addresses, settings, mode }: { viewer: { 
               );
             })}
           </ul>
+          <div className="border-t border-line pt-3">
+            {couponState?.applied ? (
+              <p className="flex flex-wrap items-center justify-between gap-2 text-sm" role="status">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-lime">
+                  <CheckIcon size={16} /> {couponState.code} applied{couponState.freeShipping ? ': free shipping' : `: you save ${formatINR(couponState.amount)}`}
+                </span>
+                <button
+                  type="button"
+                  className="text-[13px] text-muted underline underline-offset-2 hover:text-ink"
+                  onClick={() => {
+                    setCoupon('');
+                    setCouponText('');
+                  }}
+                >
+                  Remove
+                </button>
+              </p>
+            ) : couponOpen || coupon ? (
+              <div className="grid gap-1.5">
+                <label htmlFor="coupon-code" className="text-[12.5px] font-bold uppercase tracking-[0.07em]">
+                  Coupon code
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="coupon-code"
+                    value={couponText}
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    maxLength={24}
+                    onChange={(e) => setCouponText(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyCoupon();
+                      }
+                    }}
+                    className={cn(inputClass(couponState?.reason), 'min-h-10 uppercase tracking-[0.06em]')}
+                    {...described('coupon-code', couponState?.reason)}
+                  />
+                  <button type="button" className="btn btn-ghost btn-sm" disabled={!couponText.trim() || (Boolean(coupon) && loading)} onClick={applyCoupon}>
+                    {coupon && loading ? 'Checking…' : 'Apply'}
+                  </button>
+                </div>
+                {couponState?.reason && (
+                  <p id="coupon-code-error" className="text-[13px] font-semibold text-red" role="alert">
+                    {couponState.reason}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <button type="button" className="text-sm font-semibold text-lime underline underline-offset-2" onClick={() => setCouponOpen(true)}>
+                Have a coupon?
+              </button>
+            )}
+          </div>
           <QuoteSummary data={data} loading={loading} note={false} />
           {message && (
             <p role={message.tone === 'error' ? 'alert' : 'status'} className={cn('rounded-[3px] border px-3 py-2 text-[13.5px] font-semibold', message.tone === 'error' ? 'border-red/50 bg-red/10 text-red' : 'border-cyan/40 bg-cyan/5 text-cyan')}>

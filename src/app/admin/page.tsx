@@ -18,6 +18,7 @@ async function Dashboard() {
     { label: 'Orders to print', n: d.attention.toPrint, href: '/admin/orders?tab=to_print' },
     { label: 'Open orders with custom designs', n: d.attention.custom, href: '/admin/orders?tab=to_print' },
     { label: 'Online orders waiting for payment', n: d.attention.unpaid, href: '/admin/orders?tab=unpaid' },
+    { label: 'Reviews waiting for approval', n: d.attention.reviews, href: '/admin/reviews' },
   ];
   return (
     <>

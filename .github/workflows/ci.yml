@@ -2,7 +2,7 @@ name: CI
 
 # Every push: lint, type check, unit tests and a production build.
 # Pull requests (and "Run workflow" on the Actions tab) also run the browser tests,
-# which take about 20 minutes of the free monthly Actions allowance.
+# which take about 3 minutes of the free monthly Actions allowance.
 on:
   push:
   pull_request:

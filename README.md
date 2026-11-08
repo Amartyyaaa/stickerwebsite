@@ -11,7 +11,7 @@ An online store for custom-printed stickers (2D and 3D), polaroids, wall posters
 | 2 | Custom studio and build-your-own sticker packs | Done |
 | 3 | Accounts, checkout, Razorpay and Cash on Delivery | Done |
 | 4 | Admin panel, including bulk CSV import, coupons and reviews | Done |
-| 5 | Launch readiness and the deployment guide | **In progress**: server kit, backups and go-live checklist ([DEPLOY.md](DEPLOY.md)), then search, speed, accessibility and security are done; tests in the repo and CI next |
+| 5 | Launch readiness: server kit, backups, go-live checklist, search engines, speed, accessibility, security, browser tests and CI | Done. Next: [DEPLOY.md](DEPLOY.md) |
 
 ## Run it on your computer
 
@@ -33,7 +33,8 @@ In development, emails (sign-in codes, order confirmations) are saved as files i
 | --- | --- |
 | `npm run dev` | Start the development server |
 | `npm run build` then `npm start` | Production build and server |
-| `npm test` | Unit tests (pricing, sticker packs, shipping, COD, coupons, crops and print resolution, CSV import, price tables, settings, reviews) |
+| `npm test` | Unit tests (pricing, sticker packs, shipping, COD, coupons, crops and print resolution, CSV import, price tables, settings, reviews, backups, go-live checklist, search-engine rules, admin access) |
+| `npm run e2e` | Browser tests: shopping, checkout, payments, and the whole admin panel ([see below](#tests)) |
 | `npm run lint` / `npm run typecheck` | Code checks |
 | `npm run db:migrate` | Apply database migrations |
 | `npm run db:seed` | Write product types, vibes and store settings (`-- sample` adds demo products, `-- clear` removes them) |
@@ -187,6 +188,25 @@ Open `/admin` and sign in with an email listed in `ADMIN_EMAILS`, using the same
   - A test checks that every admin action, page and API route refuses non-admins (`src/lib/admin/access.test.ts`).
   - Friendly error pages cover the shop, the admin and the whole site.
 
+## Tests
+
+- **Unit tests:** `npm test`, a few seconds.
+- **Browser tests:** `npm run e2e`, about 6 minutes.
+  - It starts its own copy of the store on port 3200, with a fresh database of demo products, its own uploads folder and its own email outbox (in `.e2e/`). Your local data isn't touched.
+  - It does replace the production build in `.next`, so run `npm run build` again before `npm start`.
+  - It runs seven suites in `e2e/`, one after another:
+    1. browsing, the cart, menus, search, filters and product options
+    2. checkout with Cash on Delivery and online payment, custom stickers, tracking and accounts
+    3. the Razorpay webhook, the nightly clean-up, and prices that change mid-checkout
+    4. admin orders, from placed to delivered, with files and refunds
+    5. products, photos, CSV import, price tables, categories and vibes
+    6. coupons, settings, the home banner, reviews and customers
+    7. the go-live checklist and policy pages
+  - Online payments use the built-in test screen, and sign-in codes are read from the test outbox.
+- **On GitHub** (`.github/workflows/ci.yml`):
+  - Every push runs lint, the type check, the unit tests and a production build.
+  - Pull requests also run the browser tests. You can run them any time from the Actions tab (Run workflow).
+
 ## Project layout
 
 ```
@@ -214,6 +234,7 @@ scripts/                 migrate, seed, maintenance, backup and restore commands
 deploy/                  server setup, the deploy script, systemd units and the Caddy config
 src/lib/backup/          backups to Cloudflare R2, and restoring them
 src/lib/seo.ts           robots rules and structured data; src/lib/og.tsx draws the share cards
+e2e/                     browser tests (Playwright) and the test server they start
 drizzle/                 database migrations
 design/                  theme showcase from Step 0
 ```

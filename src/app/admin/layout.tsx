@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { SignInPanel, SignOutButton } from '@/components/account/sign-in-panel';
 import { AdminNav } from '@/components/admin/admin-nav';
 import { Logo } from '@/components/layout/logo';
+import { ReadyMarker } from '@/components/ready-marker';
 import { googleEnabled } from '@/lib/auth';
 import { getViewer } from '@/lib/viewer';
 
@@ -79,6 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <Suspense fallback={<div className="min-h-dvh" aria-busy="true" />}>
       <AdminGate>{children}</AdminGate>
+      <ReadyMarker />
     </Suspense>
   );
 }

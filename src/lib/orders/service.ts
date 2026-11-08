@@ -53,7 +53,17 @@ async function loadView(row: OrderRow): Promise<OrderView> {
     events: events.map((e) => ({ status: e.status, note: e.note, at: e.createdAt })),
     createdAt: row.createdAt,
     paidAt: row.paidAt,
+    shipment: shipmentOf(row),
   };
+}
+
+export const shipmentOf = (row: Pick<OrderRow, 'courier' | 'trackingNumber' | 'trackingUrl'>): OrderView['shipment'] =>
+  row.courier && row.trackingNumber ? { courier: row.courier, trackingNumber: row.trackingNumber, trackingUrl: row.trackingUrl } : null;
+
+/** The full order, for the admin panel (no access check: callers must check). */
+export async function getOrderViewForAdmin(number: string): Promise<{ order: OrderView; row: OrderRow } | null> {
+  const row = await getOrderRow(number);
+  return row ? { order: await loadView(row), row } : null;
 }
 
 export const orderLink = (o: Pick<OrderView, 'number' | 'accessKey'>) => `${siteUrl()}/order/${o.number}?key=${o.accessKey}`;
@@ -238,6 +248,7 @@ export interface TrackedOrder {
   items: Array<Pick<OrderItemView, 'name' | 'typeName' | 'qty' | 'art' | 'image' | 'optionLabels'>>;
   events: OrderView['events'];
   city: string;
+  shipment: OrderView['shipment'];
 }
 
 export async function findForTracking(number: string, phone: string): Promise<TrackedOrder | null> {
@@ -255,6 +266,7 @@ export async function findForTracking(number: string, phone: string): Promise<Tr
     items: view.items.map(({ name, typeName, qty, art, image, optionLabels }) => ({ name, typeName, qty, art, image, optionLabels })),
     events: view.events,
     city: view.address.city,
+    shipment: view.shipment,
   };
 }
 

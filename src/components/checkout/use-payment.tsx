@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { confirmPayment, mockPayment } from '@/app/checkout/actions';
+import { confirmPayment, mockPayment } from '@/actions/checkout';
 import { CloseIcon } from '@/components/icons';
 import type { PaymentStart } from '@/lib/orders/checkout-types';
 import { formatINR } from '@/lib/money';

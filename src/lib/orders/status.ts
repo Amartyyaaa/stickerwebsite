@@ -24,7 +24,8 @@ export const FLOW: OrderStatus[] = ['placed', 'confirmed', 'printing', 'shipped'
 
 const NEXT: Record<OrderStatus, OrderStatus[]> = {
   pending_payment: ['placed', 'cancelled'],
-  placed: ['confirmed', 'cancelled'],
+  // Paid orders can go straight to printing; COD orders are confirmed with the shopper first.
+  placed: ['confirmed', 'printing', 'cancelled'],
   confirmed: ['printing', 'cancelled'],
   printing: ['shipped', 'cancelled'],
   shipped: ['delivered'],

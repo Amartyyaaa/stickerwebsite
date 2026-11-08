@@ -41,6 +41,7 @@ describe('order status', () => {
   it('only allows the normal moves', () => {
     expect(canMove('pending_payment', 'placed')).toBe(true);
     expect(canMove('placed', 'shipped')).toBe(false);
+    expect(canMove('placed', 'printing')).toBe(true);
     expect(canMove('shipped', 'cancelled')).toBe(false);
     expect(canMove('cancelled', 'refunded')).toBe(true);
   });

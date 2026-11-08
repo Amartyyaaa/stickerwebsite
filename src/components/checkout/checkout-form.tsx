@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { placeOrder } from '@/app/checkout/actions';
+import { placeOrder } from '@/actions/checkout';
 import { Art } from '@/components/art';
 import { QuoteSummary } from '@/components/cart/cart-parts';
 import { requestLines, useQuote } from '@/components/cart/use-quote';

@@ -343,3 +343,16 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Printing packing slips and receipts: plain black on white. */
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  @page {
+    margin: 12mm;
+  }
+}
+

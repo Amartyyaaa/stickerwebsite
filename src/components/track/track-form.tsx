@@ -1,9 +1,9 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { trackOrder, type TrackState } from '@/app/track/actions';
+import { trackOrder, type TrackState } from '@/actions/track';
 import { Field, inputClass } from '@/components/checkout/fields';
-import { OrderItems, StatusChip, Timeline } from '@/components/orders/order-parts';
+import { OrderItems, ShipmentNote, StatusChip, Timeline } from '@/components/orders/order-parts';
 import { formatDate } from '@/lib/dates';
 import { formatINR } from '@/lib/money';
 import { PAYMENT_LABEL } from '@/lib/orders/status';
@@ -46,6 +46,7 @@ export function TrackForm({ defaultNumber }: { defaultNumber?: string }) {
               </p>
             </div>
             <Timeline status={order.status} events={order.events} />
+            {order.status === 'shipped' && <ShipmentNote shipment={order.shipment} />}
             <OrderItems items={order.items} />
             <p className="text-[13px] text-muted">For the full order with the address, open the link in your confirmation email or sign in with the email you ordered with.</p>
           </div>

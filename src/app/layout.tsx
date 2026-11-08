@@ -1,10 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Anton, Barlow, Caveat } from 'next/font/google';
-import { CartDrawer } from '@/components/cart/cart-drawer';
-import { Dock } from '@/components/layout/dock';
-import { SiteFooter } from '@/components/layout/site-footer';
-import { SiteHeader } from '@/components/layout/site-header';
-import { getSettings } from '@/lib/catalog/queries';
 import './globals.css';
 
 const anton = Anton({ weight: '400', subsets: ['latin'], variable: '--font-anton', display: 'swap' });
@@ -25,19 +20,15 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export default async function RootLayout({ children }: LayoutProps<'/'>) {
-  const settings = await getSettings();
+/** Fonts and the page frame. The shop and the admin panel each add their own header and layout. */
+export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en-IN" className={`${anton.variable} ${barlow.variable} ${caveat.variable}`}>
       <body className="min-h-dvh">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:bg-lime focus:px-4 focus:py-2 focus:font-bold focus:text-bg">
           Skip to content
         </a>
-        <SiteHeader />
-        <main id="main">{children}</main>
-        <SiteFooter />
-        <CartDrawer />
-        <Dock whatsapp={settings.contact.whatsapp} />
+        {children}
       </body>
     </html>
   );

@@ -136,3 +136,20 @@ export function AddressBlock({ address }: { address: AddressSnapshot }) {
     </address>
   );
 }
+
+/** "Shipped with …" with the tracking number and link, once the order is on its way. */
+export function ShipmentNote({ shipment }: { shipment: OrderView['shipment'] }) {
+  if (!shipment) return null;
+  return (
+    <p className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-card border border-lime/40 bg-lime/5 p-4 text-sm">
+      <span>
+        Shipped with <b>{shipment.courier}</b> · tracking number <b className="tabular-nums">{shipment.trackingNumber}</b>
+      </span>
+      {shipment.trackingUrl && (
+        <a href={shipment.trackingUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm">
+          Track parcel
+        </a>
+      )}
+    </p>
+  );
+}

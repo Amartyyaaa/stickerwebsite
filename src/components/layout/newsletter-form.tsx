@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { subscribe, type SubscribeState } from '@/app/actions';
+import { subscribe, type SubscribeState } from '@/actions/newsletter';
 
 export function NewsletterForm() {
   const [state, action, pending] = useActionState<SubscribeState | null, FormData>(subscribe, null);

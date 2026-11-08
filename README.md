@@ -9,8 +9,8 @@ An online store for custom-printed stickers (2D and 3D), polaroids, wall posters
 | 0 | Pick a theme (`design/theme-showcase.html`) | Done: Midnight Neon |
 | 1 | Storefront: catalog, listings, search, product pages, cart | Done |
 | 2 | Custom studio and build-your-own sticker packs | Done |
-| 3 | Accounts, checkout, Razorpay and Cash on Delivery | **Done** |
-| 4 | Admin panel, including bulk CSV import | Next |
+| 3 | Accounts, checkout, Razorpay and Cash on Delivery | Done |
+| 4 | Admin panel, including bulk CSV import | **In progress**: orders done; catalog, offers and settings next |
 | 5 | Launch readiness and the deployment guide | Planned |
 
 ## Run it on your computer
@@ -118,10 +118,27 @@ In development, emails (sign-in codes, order confirmations) are saved as files i
 4. Place a test order with Razorpay's test UPI ID or a test card, and check it shows as Paid on the order page. Then try closing the tab right after paying, and check the webhook still marks it paid.
 5. Switch to live keys.
 
+## Admin panel (Step 4)
+
+Open `/admin` and sign in with an email listed in `ADMIN_EMAILS`, using the same 6-digit email code as shoppers. On your own computer, put `ADMIN_EMAILS=you@example.com` in `.env.local`.
+
+- **Dashboard:** today's orders and sales, the last 7 days, and what needs doing.
+- **Orders:** tabs for To confirm (COD), To print, Printing, Shipped, Delivered, Unpaid and Cancelled, with search by number, email, phone or name. Each order has:
+  - **Confirm on WhatsApp** for COD orders (opens a chat with a pre-written message), then **Mark confirmed**
+  - **Start printing**, **Mark shipped** (courier and tracking number; Delhivery and Shiprocket links are filled in automatically), **Mark delivered**. Delivering a COD order marks the cash as collected
+  - **Cancel** with a reason, and **Refund** (through Razorpay when keys are set, otherwise recorded with your reference)
+  - **Customer files** for custom items: the untouched originals, print-ready files with the shopper's crop at full resolution, or everything as one zip with a `design.txt`
+  - a printable **packing slip** (shows the COD amount to collect) and **receipt**, and a private note
+- Customers are emailed automatically when their order ships (with tracking), is delivered, cancelled or refunded. The order and track pages show a **Track parcel** link once it ships.
+
 ## Project layout
 
 ```
-src/app/                 pages and API routes (Next.js App Router)
+src/app/(shop)/          storefront pages (Next.js App Router; the folder name doesn't appear in URLs)
+src/app/admin/           admin panel pages
+src/app/api/             API routes
+src/actions/             server actions (checkout, account, tracking, admin)
+src/lib/admin/           admin access checks, order operations, customer file downloads
 src/components/          UI: layout, product cards, listing filters, product page, cart
 src/lib/catalog/         catalog definitions (taxonomy.ts), cached queries, search, filters
 src/lib/pricing/         the pricing engine shared by product pages and the cart API

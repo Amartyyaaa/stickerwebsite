@@ -109,3 +109,62 @@ ${button(link, 'Open the order')}`,
     text: `New order ${order.number} (${method})\n\n${lines.text}\n\nCustomer:\n${order.name}\n${order.email}\n${order.phone}\n\n${addressText(order)}\n\n${link}`,
   };
 }
+
+export type StatusEmail = 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+
+/** Emails sent when the store moves an order along. */
+export function orderStatusEmail(kind: StatusEmail, order: OrderView, link: string, extra: { reason?: string; amount?: number } = {}): Omit<Mail, 'to'> {
+  const first = esc(order.name.split(' ')[0] || order.name);
+  const s = order.shipment;
+  if (kind === 'shipped') {
+    const track = s ? `${esc(s.courier)}, tracking number <b>${esc(s.trackingNumber)}</b>` : 'our courier partner';
+    return {
+      subject: `Order ${order.number} has shipped · PrintYourVibe`,
+      html: layout(
+        'Your order is on its way',
+        `${p(`Hi ${first}, good news: order ${order.number} has left our studio with ${track}.`)}
+${order.paymentMethod === 'cod' && order.paymentStatus !== 'paid' ? p(`Please keep ${formatINR(order.total)} ready in cash for the delivery partner.`) : ''}
+${s?.trackingUrl ? button(s.trackingUrl, 'Track your parcel') : ''}
+${button(link, 'View your order')}`,
+      ),
+      text: `Hi ${order.name}, order ${order.number} has shipped${s ? ` with ${s.courier}, tracking number ${s.trackingNumber}` : ''}.${s?.trackingUrl ? `\nTrack it: ${s.trackingUrl}` : ''}\nYour order: ${link}`,
+    };
+  }
+  if (kind === 'delivered') {
+    return {
+      subject: `Order ${order.number} was delivered · PrintYourVibe`,
+      html: layout(
+        'Delivered!',
+        `${p(`Hi ${first}, your order ${order.number} has been delivered. We hope you love it.`)}
+${p('If anything isn’t right, reply to this email within 7 days with a photo and we’ll sort it out.')}
+${button(link, 'Review your order')}`,
+      ),
+      text: `Hi ${order.name}, order ${order.number} has been delivered. We hope you love it! Review your order: ${link}`,
+    };
+  }
+  if (kind === 'cancelled') {
+    const why = extra.reason ? ` Reason: ${extra.reason}.` : '';
+    const paid = order.paymentStatus === 'paid';
+    return {
+      subject: `Order ${order.number} was cancelled · PrintYourVibe`,
+      html: layout(
+        'Your order was cancelled',
+        `${p(`Hi ${first}, order ${order.number} has been cancelled.${esc(why)}`)}
+${paid ? p('Your payment will be refunded to the original payment method. We’ll email you when the refund is on its way.') : ''}
+${p('Questions? Just reply to this email.')}`,
+      ),
+      text: `Hi ${order.name}, order ${order.number} has been cancelled.${why}${paid ? ' Your payment will be refunded to the original payment method.' : ''}`,
+    };
+  }
+  const amount = formatINR(extra.amount ?? order.total);
+  return {
+    subject: `Refund of ${amount} for order ${order.number} · PrintYourVibe`,
+    html: layout(
+      'Your refund is on its way',
+      `${p(`Hi ${first}, we’ve refunded ${amount} for order ${order.number}.`)}
+${p('Refunds usually reach your bank or UPI account within 5 to 7 working days.')}
+${button(link, 'View your order')}`,
+    ),
+    text: `Hi ${order.name}, we've refunded ${amount} for order ${order.number}. It usually takes 5 to 7 working days to reach your account. ${link}`,
+  };
+}

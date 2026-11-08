@@ -41,6 +41,8 @@ export interface StoreSettings {
   bxgy: BuyXGetY[];
   announcement: string[];
   contact: { email: string; phone: string; whatsapp: string; address: string; hours: string };
+  /** Shown on receipts and packing slips. */
+  business: { name: string; address: string; gstin: string };
   delivery: { metroDays: [number, number]; standardDays: [number, number]; remoteDays: [number, number] };
 }
 
@@ -70,6 +72,7 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   ],
   announcement: ['Any 10 stickers for ₹199', 'Free shipping above ₹499', 'Cash on Delivery available'],
   contact: { email: '', phone: '', whatsapp: '', address: '', hours: 'Monday to Saturday, 10 am to 7 pm' },
+  business: { name: 'PrintYourVibe', address: '', gstin: '' },
   delivery: { metroDays: [3, 5], standardDays: [4, 7], remoteDays: [6, 10] },
 };
 
@@ -84,6 +87,7 @@ export function withDefaults(stored: Partial<StoreSettings> | null | undefined):
     prepaidDiscount: { ...DEFAULT_SETTINGS.prepaidDiscount, ...s.prepaidDiscount },
     packs: { ...DEFAULT_SETTINGS.packs, ...s.packs },
     contact: { ...DEFAULT_SETTINGS.contact, ...s.contact },
+    business: { ...DEFAULT_SETTINGS.business, ...s.business },
     delivery: { ...DEFAULT_SETTINGS.delivery, ...s.delivery },
   };
 }

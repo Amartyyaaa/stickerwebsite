@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { ChatIcon } from '@/components/icons';
-import { AddressBlock, OrderItems, OrderTotals, StatusChip, Timeline } from '@/components/orders/order-parts';
+import { AddressBlock, OrderItems, OrderTotals, ShipmentNote, StatusChip, Timeline } from '@/components/orders/order-parts';
 import { PayNow } from '@/components/orders/pay-now';
 import { getSettings } from '@/lib/catalog/queries';
 import { formatDate } from '@/lib/dates';
@@ -82,6 +82,11 @@ async function OrderContent({ params, searchParams }: PageProps<'/order/[number]
               Progress
             </h2>
             <Timeline status={order.status} events={order.events} />
+            {order.status === 'shipped' && (
+              <div className="mt-5">
+                <ShipmentNote shipment={order.shipment} />
+              </div>
+            )}
           </section>
           <section aria-labelledby="items-title">
             <h2 id="items-title" className="section-title mb-2">

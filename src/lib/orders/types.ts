@@ -50,4 +50,12 @@ export interface OrderView {
   events: OrderEventView[];
   createdAt: number;
   paidAt: number | null;
+  /** Shipping details, once the order ships. */
+  shipment: Shipment | null;
+}
+
+export interface Shipment {
+  courier: string;
+  trackingNumber: string;
+  trackingUrl: string | null;
 }

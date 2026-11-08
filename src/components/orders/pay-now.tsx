@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { resumePayment } from '@/app/checkout/actions';
+import { resumePayment } from '@/actions/checkout';
 import { usePayment } from '@/components/checkout/use-payment';
 import { formatINR } from '@/lib/money';
 

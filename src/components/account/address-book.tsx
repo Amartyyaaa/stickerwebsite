@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { deleteAddressAction, saveAddressAction, setDefaultAddressAction } from '@/app/account/actions';
+import { deleteAddressAction, saveAddressAction, setDefaultAddressAction } from '@/actions/account';
 import { AddressFields, EMPTY_ADDRESS, type AddressDraft } from '@/components/checkout/address-fields';
 import { described, Field, inputClass } from '@/components/checkout/fields';
 import { PlusIcon } from '@/components/icons';

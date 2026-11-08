@@ -266,6 +266,14 @@ export const orders = sqliteTable(
     razorpayOrderId: text('razorpay_order_id').unique(),
     razorpayPaymentId: text('razorpay_payment_id'),
     paidAt: integer('paid_at'),
+    /** Shipping details, filled in when the order ships. */
+    courier: text('courier'),
+    trackingNumber: text('tracking_number'),
+    trackingUrl: text('tracking_url'),
+    /** Private note for the store team; never shown to the shopper. */
+    adminNote: text('admin_note').notNull().default(''),
+    refundedAmount: integer('refunded_amount').notNull().default(0),
+    razorpayRefundId: text('razorpay_refund_id'),
     /** Sent by the checkout page so a double click creates one order. */
     idempotencyKey: text('idempotency_key').notNull().unique(),
     createdAt: integer('created_at').notNull(),

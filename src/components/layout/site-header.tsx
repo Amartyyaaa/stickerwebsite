@@ -1,12 +1,13 @@
 import Link from 'next/link';
-import { Art } from '@/components/art';
 import { CartButton } from '@/components/cart/cart-drawer';
-import { ChevronIcon, HeartIcon, UserIcon } from '@/components/icons';
+import { HeartIcon, UserIcon } from '@/components/icons';
 import { getCounts, getSettings, getTypes, getVibes } from '@/lib/catalog/queries';
 import { GROUPS, type ProductType, type Vibe } from '@/lib/catalog/types';
 import { formatINR } from '@/lib/money';
 import { Logo } from './logo';
+import { MenuArt } from './menu-art';
 import { MobileMenu, type MenuGroup } from './mobile-menu';
+import { NavItem } from './nav-item';
 import { SearchBox } from './search-box';
 
 const iconBtn = 'relative grid size-10 place-items-center rounded-[2px] text-ink hover:bg-surface-2';
@@ -18,22 +19,6 @@ function MegaLink({ href, children }: { href: string; children: React.ReactNode 
         {children}
       </Link>
     </li>
-  );
-}
-
-function NavItem({ label, children, wide }: { label: string; children: React.ReactNode; wide?: boolean }) {
-  return (
-    <div className="nav-item">
-      <button type="button" className="inline-flex items-center gap-1 whitespace-nowrap rounded-[2px] px-2.5 py-2 text-[13.5px] font-semibold uppercase tracking-[0.07em] hover:bg-surface-2" aria-haspopup="true">
-        {label}
-        <ChevronIcon size={15} className="chev transition" />
-      </button>
-      <div
-        className={`mega absolute left-7 right-7 top-[calc(100%-2px)] z-50 gap-7 rounded-card border border-line-2 bg-surface p-6 shadow-[0_30px_60px_rgba(0,0,0,0.55)] ${wide ? 'grid-cols-4' : 'grid-cols-[1fr_1fr_1.15fr]'}`}
-      >
-        {children}
-      </div>
-    </div>
   );
 }
 
@@ -50,7 +35,7 @@ export function menuGroups(types: ProductType[], vibes: Vibe[]): MenuGroup[] {
   const groups: MenuGroup[] = GROUPS.map((g) => ({
     id: g.id,
     name: g.name,
-    links: [{ href: `/shop?group=${g.id}`, label: `All ${g.name.toLowerCase()}` }, ...types.filter((t) => t.groupId === g.id).map((t) => ({ href: `/c/${t.id}`, label: t.name }))],
+    links: [{ href: `/shop?group=${g.id}`, label: g.browse }, ...types.filter((t) => t.groupId === g.id).map((t) => ({ href: `/c/${t.id}`, label: t.name }))],
   }));
   groups.push({
     id: 'fandoms',
@@ -69,7 +54,7 @@ export async function SiteHeader() {
   return (
     <>
       {settings.announcement.length > 0 && (
-        <div className="bg-lime text-bg">
+        <aside className="bg-lime text-bg" aria-label="Current offers">
           <div className="wrap flex justify-center gap-4 overflow-hidden whitespace-nowrap py-2 text-[12px] font-bold uppercase tracking-[0.1em]">
             {settings.announcement.map((m, i) => (
               <span key={m} className={i > 0 ? 'hidden md:inline' : undefined}>
@@ -78,7 +63,7 @@ export async function SiteHeader() {
               </span>
             ))}
           </div>
-        </div>
+        </aside>
       )}
       <header className="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur-md">
         <div className="wrap relative grid grid-cols-[auto_1fr_auto] items-center gap-x-1.5 gap-y-2.5 py-2.5 md:grid-cols-[auto_auto_1fr_auto] md:gap-x-4 xl:grid-cols-[auto_1fr_minmax(220px,300px)_auto] xl:py-3">
@@ -102,7 +87,7 @@ export async function SiteHeader() {
               </Column>
               <Link href="/build-your-pack" className="grid content-start gap-2 rounded-card border border-line bg-bg p-5 hover:border-lime">
                 <span className="mx-auto h-32 w-32">
-                  <Art spec={{ kind: 'sticker', seed: 61, shape: 'badge', word: String(tier?.qty ?? 10), c1: 'f', c2: 'c' }} idPrefix="mega" />
+                  <MenuArt spec={{ kind: 'sticker', seed: 61, shape: 'badge', word: String(tier?.qty ?? 10), c1: 'f', c2: 'c' }} idPrefix="mega" />
                 </span>
                 <span className="font-display text-xl uppercase">Build your own pack</span>
                 <span className="text-sm text-muted">
@@ -130,7 +115,7 @@ export async function SiteHeader() {
               </Column>
               <Link href="/v/f1-motorsport?type=wall-posters" className="grid content-start gap-2 rounded-card border border-line bg-bg p-5 hover:border-lime">
                 <span className="mx-auto h-40 w-32">
-                  <Art spec={{ kind: 'poster', seed: 62, poster: 'speed', title: 'PIT LANE', dark: 0 }} idPrefix="mega" />
+                  <MenuArt spec={{ kind: 'poster', seed: 62, poster: 'speed', title: 'PIT LANE', dark: 0 }} idPrefix="mega" />
                 </span>
                 <span className="font-display text-xl uppercase">Pit lane series</span>
                 <span className="text-sm text-muted">Racing posters from {formatINR(9900)}. Buy 3, get 1 free.</span>
@@ -154,7 +139,7 @@ export async function SiteHeader() {
               </Column>
               <Link href="/c/polaroid-sets" className="grid content-start gap-2 rounded-card border border-line bg-bg p-5 hover:border-lime">
                 <span className="mx-auto h-32 w-36">
-                  <Art spec={{ kind: 'polaroids', seed: 63, caption: 'best night', dark: 1 }} idPrefix="mega" />
+                  <MenuArt spec={{ kind: 'polaroids', seed: 63, caption: 'best night', dark: 1 }} idPrefix="mega" />
                 </span>
                 <span className="font-display text-xl uppercase">Polaroid sets</span>
                 <span className="text-sm text-muted">Sets of 10 to 50 prints, or upload your own photos.</span>

@@ -26,7 +26,7 @@ export function ProductCard({
           <Art spec={product.art} image={product.image} idPrefix={idPrefix} />
         </div>
         {product.isNew && (
-          <span className="absolute left-2.5 top-2.5 rounded-[2px] bg-red px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-white">New</span>
+          <span className="absolute left-2.5 top-2.5 rounded-[2px] bg-red px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-bg">New</span>
         )}
       </Link>
       <WishButton id={product.id} name={product.name} className="absolute right-2 top-2 z-10" />

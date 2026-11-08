@@ -39,5 +39,10 @@ export function WishlistView() {
       </div>
     );
   }
-  return <ProductGrid products={visible} idPrefix="wl" />;
+  return (
+    <>
+      <h2 className="sr-only">Saved designs</h2>
+      <ProductGrid products={visible} idPrefix="wl" />
+    </>
+  );
 }

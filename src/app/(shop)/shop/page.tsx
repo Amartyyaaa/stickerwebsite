@@ -6,6 +6,8 @@ import { GROUPS } from '@/lib/catalog/types';
 export const metadata: Metadata = {
   title: 'Shop all designs',
   description: 'Browse thousands of stickers, posters, polaroids and more. Filter by product, fandom and price.',
+  // Filters, sort and page numbers make variations of one page; search engines should treat them as /shop.
+  alternates: { canonical: '/shop' },
 };
 
 async function ShopListing({ searchParams }: { searchParams: PageProps<'/shop'>['searchParams'] }) {

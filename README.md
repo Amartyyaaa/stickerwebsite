@@ -11,7 +11,7 @@ An online store for custom-printed stickers (2D and 3D), polaroids, wall posters
 | 2 | Custom studio and build-your-own sticker packs | Done |
 | 3 | Accounts, checkout, Razorpay and Cash on Delivery | Done |
 | 4 | Admin panel, including bulk CSV import, coupons and reviews | Done |
-| 5 | Launch readiness and the deployment guide | **In progress**: server kit, backups and go-live checklist done ([DEPLOY.md](DEPLOY.md)); SEO, speed and tests next |
+| 5 | Launch readiness and the deployment guide | **In progress**: server kit, backups and go-live checklist ([DEPLOY.md](DEPLOY.md)), then search, speed, accessibility and security are done; tests in the repo and CI next |
 
 ## Run it on your computer
 
@@ -162,6 +162,31 @@ Open `/admin` and sign in with an email listed in `ADMIN_EMAILS`, using the same
 - Backups go to Cloudflare R2 every night.
 - **Admin → Dashboard** lists anything still missing before launch.
 
+## Search engines, sharing, speed and accessibility
+
+- **Search engines:**
+  - `/robots.txt` keeps admin, checkout, account and search pages out of search results. A copy running on localhost blocks everything.
+  - `/sitemap.xml` lists every shown product, category, vibe and info page.
+  - A missing or hidden category, vibe or product returns a real 404 (`src/proxy.ts` checks category and vibe addresses before the page streams).
+  - Pages carry canonical links, and structured data: the store and its search on the home page, products, and breadcrumbs.
+- **Sharing:** links shared on WhatsApp, Instagram or X show a 1200 × 630 card. A product's card has its photo, name, type and starting price (`src/app/(shop)/p/[slug]/opengraph-image.tsx`). The fonts for these cards are in `src/assets/fonts` (open licence).
+- **Phone home screen:** `src/app/manifest.ts` and the icons in `public/` make "Add to home screen" look right.
+- **Speed and accessibility (Lighthouse on a phone, on the local production build; Performance varies by a few points from run to run):**
+
+  | Page | Performance | Accessibility | Best practices |
+  | --- | --- | --- | --- |
+  | Home | 93 | 100 | 100 |
+  | Category | 90 | 100 | 100 |
+  | Product with photos | 86 to 91 | 100 | 100 |
+  | Sticker studio | 95 | 100 | 100 |
+  | Checkout | 98 | 100 | 100 |
+
+  The pages were also scanned with axe on desktop and phone, admin pages included, and checked by keyboard: menus, cart drawer, crop dialog and payment window.
+- **Security:**
+  - Every page is sent with HTTPS-only (HSTS), no-framing, no-sniffing and referrer headers (`next.config.ts`).
+  - A test checks that every admin action, page and API route refuses non-admins (`src/lib/admin/access.test.ts`).
+  - Friendly error pages cover the shop, the admin and the whole site.
+
 ## Project layout
 
 ```
@@ -175,7 +200,7 @@ src/lib/catalog/         catalog definitions (taxonomy.ts), cached queries, sear
 src/lib/pricing/         the pricing engine shared by product pages and the cart API
 src/lib/art/             generator for the demo products' placeholder artwork
 src/lib/custom/          custom studio rules: print sizes, crops, resolution checks, design checks
-src/lib/storage/         file storage for uploads (local folder now, Cloudflare R2 in Step 5)
+src/lib/storage/         file storage for uploads (a folder on the server, backed up to Cloudflare R2)
 src/components/custom/   the three studios, crop editor, upload queue and wall preview
 src/components/pack/     build-your-own pack grid and progress bar
 src/components/checkout/ checkout form, address fields, payment window (Razorpay or test)
@@ -188,6 +213,7 @@ src/content/pages.ts     text of the info and policy pages
 scripts/                 migrate, seed, maintenance, backup and restore commands
 deploy/                  server setup, the deploy script, systemd units and the Caddy config
 src/lib/backup/          backups to Cloudflare R2, and restoring them
+src/lib/seo.ts           robots rules and structured data; src/lib/og.tsx draws the share cards
 drizzle/                 database migrations
 design/                  theme showcase from Step 0
 ```

@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import { Art } from '@/components/art';
+import { JsonLd } from '@/components/json-ld';
 import { CardIcon, DropIcon, LayersIcon, TruckIcon, UploadIcon } from '@/components/icons';
 import { ProductGrid } from '@/components/product/product-card';
 import { SectionHead } from '@/components/section-head';
 import { getCounts, getHomeRows, getSettings, getTypes, getVibes } from '@/lib/catalog/queries';
 import { CUSTOM_CARDS, HERO_ART, HOME_TILES } from '@/lib/home';
 import { formatINR } from '@/lib/money';
+import { storeLd } from '@/lib/seo';
+import { siteUrl } from '@/lib/site';
 
 const FAN: Array<{ left: string; top: string; rot: string; art: Parameters<typeof Art>[0]['spec'] }> = [
   { left: '0%', top: '30%', rot: '-14deg', art: { kind: 'sticker', seed: 41, shape: 'badge', word: 'HOLA', c1: 'd', c2: 'c' } },
@@ -14,6 +17,8 @@ const FAN: Array<{ left: string; top: string; rot: string; art: Parameters<typeo
   { left: '56%', top: '4%', rot: '12deg', art: { kind: 'sticker', seed: 44, shape: 'pill', word: 'NO DRAMA', c1: 'c', c2: 'd' } },
   { left: '70%', top: '44%', rot: '-10deg', art: { kind: 'sticker', seed: 45, shape: 'blob', word: '404', c1: 'e', c2: 'b' } },
 ];
+
+export const metadata = { alternates: { canonical: '/' } };
 
 export default async function HomePage() {
   const [rows, counts, vibes, types, settings] = await Promise.all([getHomeRows(), getCounts(), getVibes(), getTypes(), getSettings()]);
@@ -24,6 +29,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={storeLd(siteUrl(), settings)} />
       <section className="relative overflow-hidden border-b border-line">
         <div className="wrap grid items-center gap-8 py-10 md:grid-cols-[1.05fr_1fr] md:py-16">
           <div>

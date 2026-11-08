@@ -5,12 +5,14 @@ import { Suspense } from 'react';
 import { ProductExperience } from '@/components/pdp/product-experience';
 import { RecentlyViewed } from '@/components/pdp/recently-viewed';
 import { ProductGrid } from '@/components/product/product-card';
+import { JsonLd } from '@/components/json-ld';
 import { ProductReviews } from '@/components/reviews/product-reviews';
 import { SectionHead } from '@/components/section-head';
 import { getPopularSlugs, getProduct, getRelated, getSettings } from '@/lib/catalog/queries';
 import { GROUPS } from '@/lib/catalog/types';
 import { priceRange } from '@/lib/pricing/engine';
 import { getProductReviews } from '@/lib/reviews';
+import { breadcrumbList } from '@/lib/seo';
 import { siteUrl } from '@/lib/site';
 
 /** Every page here is built from cached data, so it is served as a complete static page and unknown URLs get a real 404. */
@@ -27,7 +29,12 @@ export async function generateMetadata({ params }: PageProps<'/p/[slug]'>): Prom
   const { slug } = await params;
   const p = await getProduct(slug);
   if (!p) return { title: 'Product not found' };
-  return { title: `${p.name} ${p.typeName}`, description: p.description, alternates: { canonical: `/p/${p.slug}` } };
+  return {
+    title: `${p.name} ${p.typeName}`,
+    description: p.description,
+    alternates: { canonical: `/p/${p.slug}` },
+    openGraph: { title: `${p.name} ${p.typeName} | PrintYourVibe`, description: p.description, url: `/p/${p.slug}` },
+  };
 }
 
 async function ProductContent({ params }: { params: PageProps<'/p/[slug]'>['params'] }) {
@@ -69,7 +76,15 @@ async function ProductContent({ params }: { params: PageProps<'/p/[slug]'>['para
 
   return (
     <div className="wrap py-6 md:py-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <JsonLd data={jsonLd} />
+      <JsonLd
+        data={breadcrumbList(siteUrl(), [
+          { name: 'Home', path: '/' },
+          ...(group ? [{ name: group.name, path: `/shop?group=${group.id}` }] : []),
+          { name: product.typeSlugName, path: `/c/${product.typeId}` },
+          { name: product.name, path: `/p/${product.slug}` },
+        ])}
+      />
       <nav aria-label="Breadcrumb" className="mb-5 text-[13px] text-muted">
         <ol className="flex flex-wrap items-center gap-1.5">
           <li>

@@ -303,6 +303,13 @@
   .nav-item:focus-within > button .chev {
     transform: rotate(180deg);
   }
+  /* Escape closes an open menu until the pointer or focus leaves it (nav-item.tsx). */
+  .nav-item[data-closed] > .mega {
+    display: none;
+  }
+  .nav-item[data-closed] > button .chev {
+    transform: none;
+  }
 
   .prose-pyv h2 {
     font-family: var(--font-display);

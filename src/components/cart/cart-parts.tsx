@@ -101,38 +101,40 @@ export function QuoteHints({ data, onNavigate }: { data: QuoteResponse | null; o
 export function QuoteSummary({ data, loading, note = true }: { data: QuoteResponse | null; loading: boolean; note?: boolean }) {
   const s = data?.summary;
   return (
-    <dl className={cn('grid gap-2 text-sm transition-opacity', loading && 'opacity-60')} aria-busy={loading}>
-      <div className="flex justify-between">
-        <dt className="text-muted">Subtotal</dt>
-        <dd className="tabular-nums">{s ? formatINR(s.subtotal) : '…'}</dd>
-      </div>
-      {s?.discounts.map((d) => (
-        <div key={d.id} className="flex justify-between text-lime">
-          <dt>{d.label}</dt>
-          <dd className="tabular-nums">−{formatINR(d.amount)}</dd>
-        </div>
-      ))}
-      <div className="flex justify-between">
-        <dt className="text-muted">Shipping</dt>
-        <dd className="tabular-nums">{s ? (s.shipping ? formatINR(s.shipping) : s.coupon?.freeShipping ? `Free with ${s.coupon.code}` : 'Free') : '…'}</dd>
-      </div>
-      {s && s.codFee > 0 && (
+    <div className="grid gap-2">
+      <dl className={cn('grid gap-2 text-sm transition-opacity', loading && 'opacity-60')} aria-busy={loading}>
         <div className="flex justify-between">
-          <dt className="text-muted">Cash on Delivery fee</dt>
-          <dd className="tabular-nums">{formatINR(s.codFee)}</dd>
+          <dt className="text-muted">Subtotal</dt>
+          <dd className="tabular-nums">{s ? formatINR(s.subtotal) : '…'}</dd>
         </div>
-      )}
-      {s && s.prepaidDiscount > 0 && (
-        <div className="flex justify-between text-lime">
-          <dt>Online payment discount</dt>
-          <dd className="tabular-nums">−{formatINR(s.prepaidDiscount)}</dd>
+        {s?.discounts.map((d) => (
+          <div key={d.id} className="flex justify-between text-lime">
+            <dt>{d.label}</dt>
+            <dd className="tabular-nums">−{formatINR(d.amount)}</dd>
+          </div>
+        ))}
+        <div className="flex justify-between">
+          <dt className="text-muted">Shipping</dt>
+          <dd className="tabular-nums">{s ? (s.shipping ? formatINR(s.shipping) : s.coupon?.freeShipping ? `Free with ${s.coupon.code}` : 'Free') : '…'}</dd>
         </div>
-      )}
-      <div className="mt-1 flex items-baseline justify-between border-t border-line pt-3">
-        <dt className="font-display text-xl uppercase">Total</dt>
-        <dd className="font-display text-2xl tabular-nums text-lime">{s ? formatINR(s.total) : '…'}</dd>
-      </div>
+        {s && s.codFee > 0 && (
+          <div className="flex justify-between">
+            <dt className="text-muted">Cash on Delivery fee</dt>
+            <dd className="tabular-nums">{formatINR(s.codFee)}</dd>
+          </div>
+        )}
+        {s && s.prepaidDiscount > 0 && (
+          <div className="flex justify-between text-lime">
+            <dt>Online payment discount</dt>
+            <dd className="tabular-nums">−{formatINR(s.prepaidDiscount)}</dd>
+          </div>
+        )}
+        <div className="mt-1 flex items-baseline justify-between border-t border-line pt-3">
+          <dt className="font-display text-xl uppercase">Total</dt>
+          <dd className="font-display text-2xl tabular-nums text-lime">{s ? formatINR(s.total) : '…'}</dd>
+        </div>
+      </dl>
       {note && <p className="text-xs text-muted">Pay online for an extra 5% off, or pay Cash on Delivery. Both options are at checkout.</p>}
-    </dl>
+    </div>
   );
 }

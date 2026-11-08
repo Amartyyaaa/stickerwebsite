@@ -42,7 +42,9 @@ async function Customers({ searchParams }: { searchParams: PageProps<'/admin/cus
                 <th className="text-right">Orders</th>
                 <th className="text-right">Spent</th>
                 <th>Last order</th>
-                <th />
+                <th>
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody>

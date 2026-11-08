@@ -3,8 +3,9 @@ import { Anton, Barlow, Caveat } from 'next/font/google';
 import './globals.css';
 
 const anton = Anton({ weight: '400', subsets: ['latin'], variable: '--font-anton', display: 'swap' });
-const barlow = Barlow({ weight: ['400', '500', '600', '700'], subsets: ['latin'], variable: '--font-barlow', display: 'swap' });
-const caveat = Caveat({ weight: '700', subsets: ['latin'], variable: '--font-caveat', display: 'swap' });
+const barlow = Barlow({ weight: ['400', '600', '700'], subsets: ['latin'], variable: '--font-barlow', display: 'swap' });
+// The handwriting font only appears on polaroid captions, so it loads when used instead of on every page.
+const caveat = Caveat({ weight: '700', subsets: ['latin'], variable: '--font-caveat', display: 'swap', preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
   description: 'Laptop stickers, 3D stickers, wall posters, framed posters and polaroids for every fandom and mood. Printed in India, with UPI and Cash on Delivery.',
   applicationName: 'PrintYourVibe',
   openGraph: { siteName: 'PrintYourVibe', type: 'website', locale: 'en_IN' },
+  twitter: { card: 'summary_large_image' },
 };
 
 export const viewport: Viewport = {

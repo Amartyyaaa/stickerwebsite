@@ -402,3 +402,20 @@ export async function getVibeCovers(): Promise<Record<string, ArtSpec | null>> {
     ) WHERE rk = 1`);
   return Object.fromEntries(rows.map((r) => [r.vibe_id, parseJson<ArtSpec>(r.art)]));
 }
+
+export interface SitemapProduct {
+  slug: string;
+  createdAt: number;
+  images: string[];
+}
+
+/** Every product in the store, for the sitemap. */
+export async function getSitemapProducts(): Promise<SitemapProduct[]> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('catalog');
+  const rows = await db.all<{ slug: string; created_at: number; images: string | null }>(sql`
+    SELECT p.slug, p.created_at, p.images FROM products p JOIN product_types t ON t.id = p.type_id
+    WHERE p.is_active = 1 AND t.is_active = 1 ORDER BY p.popularity DESC, p.id`);
+  return rows.map((r) => ({ slug: r.slug, createdAt: r.created_at, images: (parseJson<string[]>(r.images) ?? []).map(fullImage) }));
+}

@@ -3,11 +3,12 @@ import type { ArtKind, ArtSpec } from '@/lib/art/types';
 /** `custom` holds the custom-studio types. They are priced like any other type but never listed in menus or listings. */
 export type GroupId = 'stickers' | 'posters' | 'polaroids' | 'more' | 'custom';
 
-export const GROUPS: ReadonlyArray<{ id: Exclude<GroupId, 'custom'>; name: string; blurb: string }> = [
-  { id: 'stickers', name: 'Stickers', blurb: 'Laptop, 3D, holographic, diary and more' },
-  { id: 'posters', name: 'Posters', blurb: 'Wall, framed, split and collage kits' },
-  { id: 'polaroids', name: 'Polaroids', blurb: 'Printed sets and wall kits' },
-  { id: 'more', name: 'More', blurb: 'Bookmarks, keychains, badges and skins' },
+/** `browse` is the text for a link to the whole group, which has to make sense on its own (so not just "More"). */
+export const GROUPS: ReadonlyArray<{ id: Exclude<GroupId, 'custom'>; name: string; blurb: string; browse: string }> = [
+  { id: 'stickers', name: 'Stickers', blurb: 'Laptop, 3D, holographic, diary and more', browse: 'All stickers' },
+  { id: 'posters', name: 'Posters', blurb: 'Wall, framed, split and collage kits', browse: 'All posters' },
+  { id: 'polaroids', name: 'Polaroids', blurb: 'Printed sets and wall kits', browse: 'All polaroids' },
+  { id: 'more', name: 'More', blurb: 'Bookmarks, keychains, badges and skins', browse: 'Bookmarks, keychains and more' },
 ];
 
 export interface OptionValue {

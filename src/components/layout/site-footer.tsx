@@ -40,7 +40,7 @@ export function SiteFooter({ social }: { social?: StoreSettings['social'] }) {
             {GROUPS.map((g) => (
               <li key={g.id}>
                 <Link href={`/shop?group=${g.id}`} className={linkCls}>
-                  {g.name}
+                  {g.browse}
                 </Link>
               </li>
             ))}

@@ -149,14 +149,14 @@ export function ProductExperience({
         <div className={cn('relative grid aspect-square place-items-center overflow-hidden rounded-card border border-line bg-surface', sheen && 'sheen')}>
           {photos.length ? (
             // eslint-disable-next-line @next/next/no-img-element -- product photos come from the store's own uploads
-            <img src={photos[photo] ?? photos[0]} alt={photos.length > 1 ? `${product.name}, photo ${photo + 1} of ${photos.length}` : product.name} className="h-full w-full object-contain p-6" />
+            <img src={photos[photo] ?? photos[0]} alt={photos.length > 1 ? `${product.name}, photo ${photo + 1} of ${photos.length}` : product.name} className="h-full w-full object-contain p-6" fetchPriority="high" />
           ) : (
             <div
               className={cn('art absolute inset-0', view === 'art' || view === 'closeup' ? 'p-[9%]' : view === 'sizes' ? 'p-[6%]' : '')}
               dangerouslySetInnerHTML={{ __html: svgs[view] ?? '' }}
             />
           )}
-          {product.isNew && <span className="absolute left-3 top-3 rounded-[2px] bg-red px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] text-white">New</span>}
+          {product.isNew && <span className="absolute left-3 top-3 rounded-[2px] bg-red px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] text-bg">New</span>}
         </div>
         {photos.length > 1 && (
           <div className="mt-3 grid grid-cols-4 gap-2.5 sm:grid-cols-5" role="group" aria-label="Product photos">
@@ -183,10 +183,10 @@ export function ProductExperience({
                 type="button"
                 onClick={() => setView(v)}
                 aria-pressed={view === v}
-                aria-label={VIEW_LABEL[v]}
                 className={cn('relative aspect-square overflow-hidden rounded-[4px] border bg-surface transition', view === v ? 'border-lime shadow-[0_0_18px_rgb(198_255_61/0.2)]' : 'border-line hover:border-line-2')}
               >
-                <span className={cn('art absolute inset-0', v === 'art' || v === 'closeup' || v === 'sizes' ? 'p-2' : '')} dangerouslySetInnerHTML={{ __html: svgs[v] ?? '' }} />
+                <span aria-hidden="true" className={cn('art absolute inset-0', v === 'art' || v === 'closeup' || v === 'sizes' ? 'p-2' : '')} dangerouslySetInnerHTML={{ __html: svgs[v] ?? '' }} />
+                <span className="sr-only">{VIEW_LABEL[v]}</span>
               </button>
             ))}
           </div>

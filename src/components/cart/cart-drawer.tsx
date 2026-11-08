@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { BagIcon, CloseIcon } from '@/components/icons';
+import { trapTab } from '@/lib/focus-trap';
 import { cartCount, useCart } from '@/lib/store/cart';
 import { CartLineRow, QuoteHints, QuoteSummary } from './cart-parts';
 import { useQuote } from './use-quote';
@@ -12,13 +13,14 @@ export function CartDrawer() {
   const setOpen = useCart((s) => s.setOpen);
   const { data, loading, lines } = useQuote({ enabled: open });
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const count = cartCount(lines);
 
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
     closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    const onKey = (e: KeyboardEvent) => (e.key === 'Escape' ? setOpen(false) : trapTab(e, panelRef.current));
     document.addEventListener('keydown', onKey);
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -36,7 +38,7 @@ export function CartDrawer() {
   return (
     <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-labelledby="cart-title">
       <button type="button" className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" onClick={close} aria-label="Close cart" tabIndex={-1} />
-      <div className="absolute inset-y-0 right-0 flex w-full max-w-[440px] flex-col border-l border-line bg-bg shadow-2xl">
+      <div ref={panelRef} className="absolute inset-y-0 right-0 flex w-full max-w-[440px] flex-col border-l border-line bg-bg shadow-2xl">
         <div className="flex items-center justify-between border-b border-line px-5 pb-4 pt-[calc(16px+env(safe-area-inset-top,0px))]">
           <h2 id="cart-title" className="font-display text-2xl uppercase">
             Your cart <span className="text-lime">({count})</span>
@@ -93,7 +95,7 @@ export function CartButton({ className }: { className?: string }) {
     <button type="button" onClick={() => setOpen(true)} className={className} aria-label={`Open cart, ${count} item${count === 1 ? '' : 's'}`}>
       <BagIcon />
       {count > 0 && (
-        <span className="absolute -right-0.5 top-0.5 grid min-w-[18px] place-items-center rounded-full bg-red px-1 text-[11px] font-bold leading-[18px] text-white tabular-nums">
+        <span className="absolute -right-0.5 top-0.5 grid min-w-[18px] place-items-center rounded-full bg-red px-1 text-[11px] font-bold leading-[18px] text-bg tabular-nums">
           {count > 99 ? '99+' : count}
         </span>
       )}

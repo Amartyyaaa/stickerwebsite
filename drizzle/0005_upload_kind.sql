@@ -1,0 +1,1 @@
+ALTER TABLE `uploads` ADD `kind` text DEFAULT 'custom' NOT NULL;

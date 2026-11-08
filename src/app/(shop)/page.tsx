@@ -93,7 +93,7 @@ export default async function HomePage() {
                 </span>
               </span>
               <span className="text-[11px] font-bold uppercase leading-tight tracking-[0.05em] sm:text-sm">{typeName.get(t.typeId)}</span>
-              <span className="hidden text-xs text-muted sm:block">{(counts.types[t.typeId] ?? 0).toLocaleString('en-IN')} designs</span>
+              <span className="hidden text-xs text-muted sm:block">{counts.types[t.typeId] ? `${counts.types[t.typeId].toLocaleString('en-IN')} designs` : 'Coming soon'}</span>
             </Link>
           ))}
         </div>
@@ -110,10 +110,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="wrap pt-14" aria-labelledby="trending-title">
-        <SectionHead id="trending-title" title="Trending now" href="/shop" />
-        <ProductGrid products={rows.trending} />
-      </section>
+      {rows.trending.length > 0 && (
+        <section className="wrap pt-14" aria-labelledby="trending-title">
+          <SectionHead id="trending-title" title="Trending now" href="/shop" />
+          <ProductGrid products={rows.trending} />
+        </section>
+      )}
 
       {settings.packs.enabled && tiers.length > 0 && (
         <section className="mt-16 border-y border-line bg-[linear-gradient(115deg,#121220_0_60%,transparent_60%),repeating-linear-gradient(115deg,#121220_0_18px,#1c1c30_18px_36px)]">
@@ -146,10 +148,12 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section className="wrap pt-14" aria-labelledby="new-title">
-        <SectionHead id="new-title" title="New drops" href="/shop?sort=new" />
-        <ProductGrid products={rows.fresh} />
-      </section>
+      {rows.fresh.length > 0 && (
+        <section className="wrap pt-14" aria-labelledby="new-title">
+          <SectionHead id="new-title" title="New drops" href="/shop?sort=new" />
+          <ProductGrid products={rows.fresh} />
+        </section>
+      )}
 
       <section className="wrap pt-14" aria-labelledby="custom-title">
         <SectionHead id="custom-title" title="Make it yours" />

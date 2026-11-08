@@ -3,13 +3,9 @@ import { dirname } from 'node:path';
 import { createClient, type Client } from '@libsql/client';
 import { drizzle, type LibSQLDatabase } from 'drizzle-orm/libsql';
 import * as schema from './schema';
+import { DATABASE_URL, isLocalFile } from './url';
 
-/**
- * In development the database is a single local SQLite file. In production
- * set DATABASE_URL (and DATABASE_AUTH_TOKEN) to a Turso / libSQL database.
- */
-export const DATABASE_URL = process.env.DATABASE_URL || 'file:./data/printyourvibe.db';
-export const isLocalFile = DATABASE_URL.startsWith('file:');
+export { DATABASE_URL, isLocalFile };
 
 type DB = LibSQLDatabase<typeof schema> & { $client: Client };
 

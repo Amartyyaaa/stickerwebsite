@@ -55,8 +55,13 @@ export interface StoreSettings {
   /** Full links to the store's profiles, shown in the footer when set. */
   social: { instagram: string; youtube: string; facebook: string; x: string };
   home: HomeHero;
-  /** Shown on receipts and packing slips. */
-  business: { name: string; address: string; gstin: string };
+  /**
+   * Shown on receipts, packing slips and the policy pages. Indian e-commerce rules ask online sellers to
+   * name a grievance officer; `city` decides which courts the terms refer to.
+   */
+  business: { name: string; address: string; gstin: string; city: string; grievanceName: string; grievanceDesignation: string; policiesUpdated: string };
+  /** The store's story on the About page. */
+  aboutStory: string;
   delivery: { metroDays: [number, number]; standardDays: [number, number]; remoteDays: [number, number] };
 }
 
@@ -95,7 +100,8 @@ export const DEFAULT_SETTINGS: StoreSettings = {
     secondary: { label: 'All new drops', href: '/shop?sort=new' },
     image: null,
   },
-  business: { name: 'PrintYourVibe', address: '', gstin: '' },
+  business: { name: 'PrintYourVibe', address: '', gstin: '', city: '', grievanceName: '', grievanceDesignation: '', policiesUpdated: '' },
+  aboutStory: '',
   delivery: { metroDays: [3, 5], standardDays: [4, 7], remoteDays: [6, 10] },
 };
 

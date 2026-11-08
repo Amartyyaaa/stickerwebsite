@@ -6,7 +6,7 @@ import { getTypes } from '@/lib/catalog/queries';
 
 export async function generateStaticParams() {
   const types = await getTypes();
-  return types.map((t) => ({ type: t.id }));
+  return types.length ? types.map((t) => ({ type: t.id })) : [{ type: 'coming-soon' }];
 }
 
 export async function generateMetadata({ params }: PageProps<'/c/[type]'>): Promise<Metadata> {

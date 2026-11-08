@@ -112,8 +112,10 @@ class DiskStorage implements Storage {
 
 let storage: Storage | undefined;
 
+/** The uploads folder (runtime data, not source: the comment keeps the bundler from tracing it into the build). */
+export const uploadsRoot = () => resolve(/*turbopackIgnore: true*/ process.env.UPLOADS_DIR || 'uploads');
+
 export function getStorage(): Storage {
-  // The uploads folder is runtime data, not source: keep the bundler from tracing it into the build.
-  storage ??= new DiskStorage(resolve(/*turbopackIgnore: true*/ process.env.UPLOADS_DIR || 'uploads'));
+  storage ??= new DiskStorage(uploadsRoot());
   return storage;
 }

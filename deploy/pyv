@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Everyday commands for the PrintYourVibe server. Installed as /usr/local/bin/pyv.
+set -euo pipefail
+
+APP_DIR=/srv/printyourvibe
+APP_USER=pyv
+SERVICE=printyourvibe
+
+if [[ $EUID -ne 0 ]]; then exec sudo "$0" "$@"; fi
+
+# Run an npm script in the live release, as the app user.
+app_run() {
+  cd "$APP_DIR/current"
+  sudo -u "$APP_USER" -H env NODE_ENV=production npm run --silent "$@"
+}
+
+cmd=${1:-help}
+[[ $# -gt 0 ]] && shift
+case $cmd in
+  deploy) sudo -u "$APP_USER" -H "$APP_DIR/bin/deploy.sh" ;;
+  rollback) sudo -u "$APP_USER" -H "$APP_DIR/bin/deploy.sh" --rollback ;;
+  status)
+    systemctl status "$SERVICE" --no-pager -l | head -n 12 || true
+    echo
+    curl -fsS http://127.0.0.1:3000/api/health && echo || echo "The store isn't answering."
+    echo
+    systemctl list-timers 'pyv-*' --no-pager
+    ;;
+  logs) journalctl -u "$SERVICE" -n 100 -f ;;
+  restart) systemctl restart "$SERVICE" && echo "Restarted." ;;
+  settings)
+    ${EDITOR:-nano} "$APP_DIR/shared/.env.production"
+    echo "Restart the store to use the new settings: sudo pyv restart"
+    ;;
+  backup) app_run backup ;;
+  maintenance) app_run maintenance ;;
+  restore)
+    echo "Stopping the store while the backup is restored..."
+    systemctl stop "$SERVICE"
+    trap 'echo "Starting the store again..."; systemctl start "$SERVICE"' EXIT
+    app_run restore -- "$@"
+    ;;
+  *)
+    cat <<'EOF'
+PrintYourVibe server commands (run with sudo):
+
+  pyv deploy        put the latest code online (builds first; the store keeps running if anything fails)
+  pyv rollback      go back to the previous version
+  pyv status        is the store up? when do the nightly jobs run?
+  pyv logs          follow the store's log (Ctrl+C to stop)
+  pyv settings      edit .env.production (then: pyv restart)
+  pyv restart       restart the store
+  pyv backup        back up the database and photos to R2 now
+  pyv restore       bring back the latest backup (add --force to replace the current database,
+                    --from 2026-11-01 for an older one, --photos-only for just the photos)
+  pyv maintenance   run the nightly clean-up now
+EOF
+    ;;
+esac

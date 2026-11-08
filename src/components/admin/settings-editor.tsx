@@ -251,12 +251,24 @@ export function SettingsEditor({ initial, types }: { initial: SettingsForm; type
         </div>
       </Section>
 
-      <Section title="Business details" hint="Printed on receipts and packing slips.">
+      <Section title="Business details" hint="Printed on receipts, packing slips and your policy pages.">
         <div className="grid gap-4 sm:grid-cols-2">
-          {text('business.name', 'Business name', f.business.name, (d, v) => (d.business.name = v))}
+          {text('business.name', 'Registered business name', f.business.name, (d, v) => (d.business.name = v))}
           {text('business.gstin', 'GSTIN', f.business.gstin, (d, v) => (d.business.gstin = v.toUpperCase()), { optional: true })}
         </div>
         {text('business.address', 'Business address', f.business.address, (d, v) => (d.business.address = v), { optional: true })}
+        <div className="grid gap-4 sm:grid-cols-2">
+          {text('business.city', 'City for legal matters', f.business.city, (d, v) => (d.business.city = v), { hint: 'The terms say courts in this city decide any dispute.' })}
+          {text('business.policiesUpdated', 'Policies last reviewed', f.business.policiesUpdated, (d, v) => (d.business.policiesUpdated = v), { type: 'date', optional: true, hint: 'Shown as “Last updated” on the privacy policy and terms.' })}
+          {text('business.grievanceName', 'Grievance officer', f.business.grievanceName, (d, v) => (d.business.grievanceName = v), { hint: 'Indian e-commerce rules ask online sellers to name one. Often the owner.' })}
+          {text('business.grievanceDesignation', 'Their role', f.business.grievanceDesignation, (d, v) => (d.business.grievanceDesignation = v), { placeholder: 'Founder' })}
+        </div>
+      </Section>
+
+      <Section title="About us" hint="Your story, shown on the About page: who you are, where you’re based and what makes your prints special.">
+        <Field id={idOf('aboutStory')} label="Story" error={err('aboutStory')}>
+          <textarea id={idOf('aboutStory')} rows={5} maxLength={1500} value={f.aboutStory} onChange={(e) => up((d) => (d.aboutStory = e.target.value))} className={cn(inputClass(err('aboutStory')), 'py-2.5')} />
+        </Field>
       </Section>
 
       <div className="sticky bottom-0 z-10 -mx-4 flex flex-wrap items-center gap-3 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-card sm:border">

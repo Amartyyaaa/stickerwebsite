@@ -1,4 +1,5 @@
 import 'server-only';
+import { siteUrl } from '@/lib/site';
 import { verifyPaymentSignature } from './signature';
 
 /**
@@ -12,9 +13,14 @@ export type PaymentsMode = 'razorpay' | 'mock' | 'off';
 
 export function paymentsMode(): PaymentsMode {
   if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) return 'razorpay';
-  if (process.env.NODE_ENV !== 'production' || process.env.PAYMENTS_MOCK === '1') return 'mock';
+  if (process.env.NODE_ENV !== 'production') return 'mock';
+  // The test payment screen in a production build is only for trying the store on your own computer.
+  // On a real address it's ignored, so a leftover PAYMENTS_MOCK can never mark orders paid.
+  if (process.env.PAYMENTS_MOCK === '1' && isLocalSite()) return 'mock';
   return 'off';
 }
+
+export const isLocalSite = () => /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(siteUrl());
 
 export const razorpayKeyId = () => process.env.RAZORPAY_KEY_ID ?? '';
 

@@ -20,7 +20,8 @@ export interface SettingsForm {
   bxgy: Array<{ id: string; label: string; enabled: boolean; types: string[]; buy: string; free: string }>;
   /** One message per line. */
   announcement: string;
-  business: { name: string; address: string; gstin: string };
+  business: { name: string; address: string; gstin: string; city: string; grievanceName: string; grievanceDesignation: string; policiesUpdated: string };
+  aboutStory: string;
 }
 
 export type SettingsResult = { ok: true; settings: StoreSettings } | { ok: false; error: string; field: string };
@@ -42,6 +43,7 @@ export function toSettingsForm(s: StoreSettings): SettingsForm {
     bxgy: s.bxgy.map((b) => ({ id: b.id, label: b.label, enabled: b.enabled, types: [...b.types], buy: String(b.buy), free: String(b.free) })),
     announcement: s.announcement.join('\n'),
     business: { ...s.business },
+    aboutStory: s.aboutStory,
   };
 }
 
@@ -154,6 +156,16 @@ export function readSettingsForm(f: SettingsForm, current: StoreSettings, typeId
   if (f.business.address.trim().length > 300) return fail('business.address', 'Keep the address under 300 characters.');
   const gstin = f.business.gstin.trim().toUpperCase();
   if (gstin && !GSTIN_RE.test(gstin)) return fail('business.gstin', 'A GSTIN has 15 characters, like 29ABCDE1234F1Z5. Leave it empty if you don’t have one.');
+  const city = f.business.city.replace(/\s+/g, ' ').trim();
+  if (city.length > 60) return fail('business.city', 'Enter just the city, like Bengaluru.');
+  const grievanceName = f.business.grievanceName.replace(/\s+/g, ' ').trim();
+  const grievanceDesignation = f.business.grievanceDesignation.replace(/\s+/g, ' ').trim();
+  if (grievanceName.length > 80) return fail('business.grievanceName', 'Keep the name under 80 characters.');
+  if (grievanceDesignation.length > 80) return fail('business.grievanceDesignation', 'Keep the role under 80 characters, like Founder.');
+  const policiesUpdated = f.business.policiesUpdated.trim();
+  if (policiesUpdated && !/^\d{4}-\d{2}-\d{2}$/.test(policiesUpdated)) return fail('business.policiesUpdated', 'Choose the date you last reviewed the policies.');
+  const aboutStory = f.aboutStory.trim();
+  if (aboutStory.length > 1500) return fail('aboutStory', 'Keep the story under 1,500 characters.');
 
   return {
     ok: true,
@@ -168,7 +180,8 @@ export function readSettingsForm(f: SettingsForm, current: StoreSettings, typeId
       packs: { ...current.packs, enabled: f.packs.enabled, tiers },
       bxgy,
       announcement,
-      business: { name, address: f.business.address.trim(), gstin },
+      business: { name, address: f.business.address.trim(), gstin, city, grievanceName, grievanceDesignation, policiesUpdated },
+      aboutStory,
     },
   };
 }

@@ -1,4 +1,5 @@
 /** Apply database migrations (creates ./data/printyourvibe.db on first run). */
+import './load-env';
 import { migrate } from 'drizzle-orm/libsql/migrator';
 import { DATABASE_URL, db, isLocalFile } from '@/lib/db/client';
 

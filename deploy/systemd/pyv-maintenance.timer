@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the PrintYourVibe clean-up every night
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 Asia/Kolkata
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

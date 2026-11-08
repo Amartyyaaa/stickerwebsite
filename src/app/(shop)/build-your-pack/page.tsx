@@ -66,7 +66,11 @@ async function PackGrid({ searchParams }: { searchParams: PageProps<'/build-your
       <PackBuilder products={result.items} types={packTypes} settings={settings} />
       <div className="mt-8 grid justify-items-center gap-3">
         <p className="text-sm text-muted">
-          Showing {result.items.length.toLocaleString('en-IN')} of {result.total.toLocaleString('en-IN')} stickers
+          {result.total === 0
+            ? vibe
+              ? `No ${vibe.name} stickers in packs yet. Try another vibe.`
+              : 'No stickers in packs yet. New designs are on the way.'
+            : `Showing ${result.items.length.toLocaleString('en-IN')} of ${result.total.toLocaleString('en-IN')} stickers`}
         </p>
         {result.items.length < result.total && result.items.length < result.perPage * 20 && (
           <Link href={href({ vibe: vibe?.id, sort, page: result.page + 1 })} scroll={false} className="btn btn-ghost">

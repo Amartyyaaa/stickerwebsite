@@ -8,6 +8,7 @@
  * Demo products use original, generated names and artwork. Nothing is copied
  * from other stores.
  */
+import './load-env';
 import { eq, inArray, sql } from 'drizzle-orm';
 import type { ArtSpec, PaletteKey, PosterKind, StickerShape } from '@/lib/art/types';
 import { reindexProducts } from '@/lib/catalog/search-index';

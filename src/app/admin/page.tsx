@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { GoLivePanel } from '@/components/admin/go-live';
 import { OrderTable } from '@/components/admin/order-table';
 import { AdminHeader, Panel, StatTile } from '@/components/admin/ui';
 import { adminOrNull } from '@/lib/admin/guard';
+import { goLiveStatus } from '@/lib/admin/go-live-status';
 import { dashboard } from '@/lib/admin/orders';
 import { formatINR } from '@/lib/money';
 
@@ -10,7 +12,7 @@ export const metadata = { title: 'Dashboard' };
 
 async function Dashboard() {
   if (!(await adminOrNull())) return null;
-  const d = await dashboard();
+  const [d, golive] = await Promise.all([dashboard(), goLiveStatus()]);
   const max = Math.max(1, ...d.week.map((w) => w.revenue));
   const day = (t: number) => new Date(t * 1000).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'short' });
   const todo = [
@@ -22,6 +24,7 @@ async function Dashboard() {
   ];
   return (
     <>
+      <GoLivePanel items={golive} />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Orders today" value={d.today.orders} />
         <StatTile label="Sales today" value={formatINR(d.today.revenue)} hint="Paid and Cash on Delivery orders" />

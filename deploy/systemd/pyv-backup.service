@@ -1,0 +1,9 @@
+[Unit]
+Description=PrintYourVibe nightly backup to Cloudflare R2
+
+[Service]
+Type=oneshot
+User=@APP_USER@
+WorkingDirectory=@APP_DIR@/current
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npm run --silent backup

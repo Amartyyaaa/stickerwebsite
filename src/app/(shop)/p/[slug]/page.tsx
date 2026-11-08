@@ -19,7 +19,8 @@ export const ensureStatic = 'navigation';
 /** The most popular products are prerendered at build time; the rest render on first visit and are cached. */
 export async function generateStaticParams() {
   const slugs = await getPopularSlugs(24);
-  return slugs.map((slug) => ({ slug }));
+  // The list can't be empty, so a new store with no products yet prerenders one placeholder that 404s.
+  return slugs.length ? slugs.map((slug) => ({ slug })) : [{ slug: 'coming-soon' }];
 }
 
 export async function generateMetadata({ params }: PageProps<'/p/[slug]'>): Promise<Metadata> {

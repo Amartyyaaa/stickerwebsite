@@ -93,7 +93,20 @@ export async function Listing({ title, kicker, description, basePath, searchPara
           {shown === 0 ? (
             <div className="rounded-card border border-dashed border-line-2 px-6 py-16 text-center">
               <p className="font-display text-3xl uppercase">Nothing here yet</p>
-              <div className="mt-2 text-muted">{empty ?? 'Try removing a filter, or search for something else.'}</div>
+              <div className="mt-2 text-muted">
+                {empty ??
+                  (chips.length > 0 ? (
+                    'Try removing a filter, or search for something else.'
+                  ) : (
+                    <>
+                      New designs are on the way. Meanwhile, make your own in the{' '}
+                      <Link href="/custom/stickers" className="font-semibold text-lime underline underline-offset-2">
+                        custom studio
+                      </Link>
+                      .
+                    </>
+                  ))}
+              </div>
             </div>
           ) : (
             <ProductGrid products={result.items} />

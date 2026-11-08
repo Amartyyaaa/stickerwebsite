@@ -6,7 +6,7 @@ import { getVibes } from '@/lib/catalog/queries';
 
 export async function generateStaticParams() {
   const vibes = await getVibes();
-  return vibes.map((v) => ({ vibe: v.id }));
+  return vibes.length ? vibes.map((v) => ({ vibe: v.id })) : [{ vibe: 'coming-soon' }];
 }
 
 export async function generateMetadata({ params }: PageProps<'/v/[vibe]'>): Promise<Metadata> {

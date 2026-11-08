@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/dates';
 import { formatINR } from '@/lib/money';
 import type { StoreSettings } from '@/lib/settings';
 
@@ -5,8 +6,9 @@ import type { StoreSettings } from '@/lib/settings';
  * Info and policy pages. Razorpay asks for About, Contact, Shipping,
  * Returns/Refunds, Privacy and Terms pages before it activates live payments.
  *
- * Anything in [square brackets] is a placeholder for your own details. It is
- * highlighted on the page until you replace it. Have a lawyer review the
+ * Your business details come from Admin → Settings. Anything still in
+ * [square brackets] is a placeholder: it's highlighted on the page and listed
+ * on the admin dashboard until you fill it in. Have a lawyer review the
  * policies before you launch.
  */
 export interface PageBlock {
@@ -34,6 +36,10 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
   const days = (d: [number, number]) => `${d[0]} to ${d[1]} working days`;
   const email = s.contact.email || '[your support email]';
   const phone = s.contact.phone || '[your support phone number]';
+  const b = s.business;
+  const business = b.name || '[Registered business name]';
+  const updated = b.policiesUpdated ? formatDate(Date.parse(`${b.policiesUpdated}T00:00:00+05:30`) / 1000) : '[date]';
+  const grievance = `${b.grievanceName || '[name of grievance officer]'}, ${b.grievanceDesignation || '[designation]'}, ${email}, ${s.contact.phone || s.contact.whatsapp || phone}`;
 
   const pages: Record<PageSlug, InfoPage> = {
     about: {
@@ -43,7 +49,9 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
         {
           paragraphs: [
             'PrintYourVibe makes stickers, posters and polaroids for every fandom and mood: anime, F1, cricket, K-pop, desi vibes, quotes and more. Everything is printed to order.',
-            '[Tell your story here: who you are, where you are based, why you started PrintYourVibe and what makes your prints special.]',
+            ...(s.aboutStory
+              ? s.aboutStory.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean)
+              : ['[Tell your story here: who you are, where you are based, why you started PrintYourVibe and what makes your prints special. Add it in Admin → Settings → About us.]']),
           ],
         },
         {
@@ -54,7 +62,7 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
             'Every order is checked before it’s packed.',
           ],
         },
-        { heading: 'Business details', paragraphs: ['[Registered business name] · [Registered address] · GSTIN: [your GSTIN, if registered]'] },
+        { heading: 'Business details', paragraphs: [[business, b.address || '[Registered address]', b.gstin ? `GSTIN ${b.gstin}` : ''].filter(Boolean).join(' · ')] },
       ],
     },
     contact: {
@@ -66,7 +74,7 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
             `Email: ${email}`,
             `Phone and WhatsApp: ${s.contact.whatsapp || phone}`,
             `Hours: ${s.contact.hours}`,
-            `Address: ${s.contact.address || '[your business address]'}`,
+            `Address: ${s.contact.address || b.address || '[your business address]'}`,
           ],
         },
         {
@@ -75,7 +83,7 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
         },
         {
           heading: 'Grievance officer',
-          paragraphs: ['As required by the Consumer Protection (E-Commerce) Rules, 2020: [name of grievance officer], [designation], [email], [phone]. Complaints are acknowledged within 48 hours and resolved within one month.'],
+          paragraphs: [`As required by the Consumer Protection (E-Commerce) Rules, 2020: ${grievance}. Complaints are acknowledged within 48 hours and resolved within one month.`],
         },
       ],
     },
@@ -117,7 +125,7 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
         { heading: 'Charges', paragraphs: [`Shipping is free on orders above ${free}. Orders below that have a flat ${fee} shipping charge. Cash on Delivery orders have an extra ${codFee} fee.`] },
         { heading: 'Tracking', paragraphs: ['We email and message you a tracking link as soon as your order ships.'] },
         { heading: 'Damaged parcels', paragraphs: ['If your parcel arrives damaged, please record an unboxing video and contact us within 48 hours. We’ll reprint and resend it at no cost.'] },
-        { heading: 'Shipping partners', paragraphs: ['[Name your courier partners, for example via Shiprocket.] We currently ship within India only.'] },
+        { heading: 'Shipping partners', paragraphs: ['We ship with trusted courier partners across India, and you get the tracking link as soon as your parcel leaves us. We currently ship within India only.'] },
       ],
     },
     returns: {
@@ -153,7 +161,7 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
       title: 'Privacy policy',
       description: 'What we collect and how we use it.',
       blocks: [
-        { paragraphs: ['[Registered business name] (“PrintYourVibe”, “we”) runs this website. This policy explains how we handle your personal information. Last updated: [date].'] },
+        { paragraphs: [`${business} (“PrintYourVibe”, “we”) runs this website. This policy explains how we handle your personal information. Last updated: ${updated}.`] },
         {
           heading: 'What we collect',
           list: [
@@ -167,7 +175,7 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
           heading: 'Images you upload',
           paragraphs: [
             'Images you upload in the custom studio are used only to show you a preview and to print your order. Only our print team can see them.',
-            'Uploads that aren’t ordered are deleted after [7] days. Images in orders are deleted [30] days after delivery, unless you ask us to keep them for a reorder.',
+            'Uploads that aren’t ordered are deleted after 7 days. Images in orders are kept so we can reprint them if anything goes wrong; ask us any time and we’ll delete them.',
           ],
         },
         {
@@ -177,14 +185,14 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
         { heading: 'Who we share it with', paragraphs: ['Only with the partners needed to fulfil your order: our payment gateway, courier partners and email provider. We never sell your data.'] },
         { heading: 'Cookies and local storage', paragraphs: ['Your cart, wishlist, recently viewed items and unfinished custom designs are saved in your browser so they’re there when you come back.'] },
         { heading: 'Your choices', paragraphs: [`You can ask us to correct or delete your data at any time by emailing ${email}.`] },
-        { heading: 'Grievance officer', paragraphs: ['[Name], [email], [phone].'] },
+        { heading: 'Grievance officer', paragraphs: [`${grievance}.`] },
       ],
     },
     terms: {
       title: 'Terms & conditions',
       description: 'The terms for using this website and placing orders.',
       blocks: [
-        { paragraphs: ['By using this website and placing an order, you agree to these terms. Last updated: [date].'] },
+        { paragraphs: [`By using this website and placing an order, you agree to these terms. Last updated: ${updated}.`] },
         {
           heading: 'Products and prices',
           list: [
@@ -203,10 +211,25 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
           ],
         },
         { heading: 'Liability', paragraphs: ['Our liability for any order is limited to the amount you paid for it.'] },
-        { heading: 'Governing law', paragraphs: ['These terms are governed by the laws of India. Courts in [your city] have jurisdiction.'] },
+        { heading: 'Governing law', paragraphs: [`These terms are governed by the laws of India. Courts in ${b.city || '[your city]'} have jurisdiction.`] },
       ],
     },
   };
 
   return (pages as Record<string, InfoPage>)[slug] ?? null;
+}
+
+const PLACEHOLDER = /\[[^\]]+\]/g;
+
+/** Placeholders still left on each info page, for the admin go-live checklist. */
+export function policyPlaceholders(s: StoreSettings): Array<{ slug: PageSlug; title: string; placeholders: string[] }> {
+  const out: Array<{ slug: PageSlug; title: string; placeholders: string[] }> = [];
+  for (const slug of PAGE_SLUGS) {
+    const page = getInfoPage(slug, s);
+    if (!page) continue;
+    const text = page.blocks.flatMap((b) => [...(b.paragraphs ?? []), ...(b.list ?? []), ...(b.qa ?? []).flatMap((x) => [x.q, x.a])]).join('\n');
+    const found = [...new Set(text.match(PLACEHOLDER) ?? [])];
+    if (found.length) out.push({ slug, title: page.title, placeholders: found });
+  }
+  return out;
 }

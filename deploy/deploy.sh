@@ -21,21 +21,23 @@ cd "$APP_DIR"
 
 say() { printf '\n==> %s\n' "$*"; }
 
-# Restart the website and wait for its health check. Tests can swap in their own command.
+# Restart the website and wait until the release we expect answers its health check.
+# (Tests can swap in their own restart command.)
 restart() {
+  local want=$1
   if [[ -n ${PYV_RESTART_CMD:-} ]]; then
     bash -c "$PYV_RESTART_CMD"
   else
     sudo /usr/bin/systemctl restart "$SERVICE"
   fi
   for _ in $(seq 1 90); do
-    if curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1; then
+    if curl -fsS "http://127.0.0.1:$PORT/api/health" 2>/dev/null | grep -q "\"release\":\"$want\""; then
       say "The store is up"
       return 0
     fi
     sleep 1
   done
-  echo "The store didn't answer within 90 seconds. See what happened with: sudo pyv logs" >&2
+  echo "The store didn't answer with $want within 90 seconds. See what happened with: sudo pyv logs" >&2
   return 1
 }
 
@@ -53,7 +55,7 @@ if [[ ${1:-} == --rollback ]]; then
   [[ -n $previous ]] || { echo "There's no earlier release to go back to." >&2; exit 1; }
   say "Going back from ${current#releases/} to ${previous#releases/}"
   switch_to "$previous"
-  restart
+  restart "${previous#releases/}"
   say "Done: ${previous#releases/} is live. (Database changes from newer releases stay; they only ever add things.)"
   exit 0
 fi
@@ -90,7 +92,15 @@ say "Switching to ${release#releases/}"
 switch_to "$release"
 # Keep this script up to date for next time (a rename, so the copy that's running now isn't disturbed).
 install -m 755 "$release/deploy/deploy.sh" bin/deploy.sh.new && mv -f bin/deploy.sh.new bin/deploy.sh
-restart || exit 1
+if ! restart "${release#releases/}"; then
+  if [[ -n $current ]]; then
+    say "The new release didn't start, so going back to ${current#releases/}"
+    switch_to "$current"
+    restart "${current#releases/}" || true
+  fi
+  echo "Deploy failed: ${release#releases/} didn't start. Its log: sudo pyv logs" >&2
+  exit 1
+fi
 
 old=$(releases | head -n "-$KEEP")
 for r in $old; do

@@ -11,7 +11,7 @@ An online store for custom-printed stickers (2D and 3D), polaroids, wall posters
 | 2 | Custom studio and build-your-own sticker packs | Done |
 | 3 | Accounts, checkout, Razorpay and Cash on Delivery | Done |
 | 4 | Admin panel, including bulk CSV import, coupons and reviews | Done |
-| 5 | Launch readiness and the deployment guide | Planned |
+| 5 | Launch readiness and the deployment guide | **In progress**: server kit, backups and go-live checklist done ([DEPLOY.md](DEPLOY.md)); SEO, speed and tests next |
 
 ## Run it on your computer
 
@@ -37,7 +37,9 @@ In development, emails (sign-in codes, order confirmations) are saved as files i
 | `npm run lint` / `npm run typecheck` | Code checks |
 | `npm run db:migrate` | Apply database migrations |
 | `npm run db:seed` | Write product types, vibes and store settings (`-- sample` adds demo products, `-- clear` removes them) |
-| `npm run maintenance` | Daily housekeeping: cancels unpaid online orders after 24 hours, and deletes unused customer uploads and product photos after 7 days. Run it once a day on the server |
+| `npm run maintenance` | Daily housekeeping: cancels unpaid online orders after 24 hours, and deletes unused customer uploads and product photos after 7 days. The server runs it every night |
+| `npm run backup` | Back up the database and new photos to Cloudflare R2 (keeps 30 daily and 12 monthly snapshots). The server runs it every night |
+| `npm run restore` | Bring back the latest backup (`-- --force` to replace an existing database, `-- --from 2026-11-01` for an older one, `-- --photos-only`) |
 
 ## What's in Step 1
 
@@ -152,6 +154,14 @@ Open `/admin` and sign in with an email listed in `ADMIN_EMAILS`, using the same
 - **Home page:** the banner's small line, title, text, two buttons and an optional photo, with a preview. Without a photo, the generated artwork shows.
 - **Settings:** the announcement bar; free-shipping amount, shipping fee and delivery days; Cash on Delivery (on or off, fee, smallest and largest order, custom items); the online-payment discount; sticker pack sizes and prices; buy-X-get-Y offers; contact details and WhatsApp number; social links for the footer; and the business name, address and GSTIN for receipts. Changes show in the store straight away.
 
+## Going live
+
+[DEPLOY.md](DEPLOY.md) walks through everything, from buying a server in India to the first real order. In short:
+- `deploy/setup.sh` prepares an Ubuntu 24.04 server: Node.js, Caddy for HTTPS, the firewall, the service and nightly timers.
+- `sudo pyv deploy` builds and switches to new code. The store keeps running the old version if anything fails, and `sudo pyv rollback` goes back.
+- Backups go to Cloudflare R2 every night.
+- **Admin → Dashboard** lists anything still missing before launch.
+
 ## Project layout
 
 ```
@@ -175,7 +185,9 @@ src/lib/email/           email sending (Resend or the local outbox) and template
 src/lib/auth.ts          sign-in (Better Auth: email codes and Google)
 src/lib/db/              database schema and client (Drizzle ORM + libSQL / SQLite)
 src/content/pages.ts     text of the info and policy pages
-scripts/                 migrate and seed scripts
+scripts/                 migrate, seed, maintenance, backup and restore commands
+deploy/                  server setup, the deploy script, systemd units and the Caddy config
+src/lib/backup/          backups to Cloudflare R2, and restoring them
 drizzle/                 database migrations
 design/                  theme showcase from Step 0
 ```
@@ -185,8 +197,9 @@ design/                  theme showcase from Step 0
 - **Prices:** set your real prices in **Admin → Categories**. The amounts in `src/lib/catalog/taxonomy.ts` are only the starting placeholders.
 - **Products:** add your own (one by one or by CSV), then **Remove demo products**.
 - **Backups:** the local database runs in write-ahead (WAL) mode, so back up `data/printyourvibe.db` together with its `-wal` file, or use `sqlite3 data/printyourvibe.db ".backup backup.db"`.
-- **Store settings:** in **Admin → Settings**, add your support email, WhatsApp number, business address and GSTIN (if you have one), and check shipping, COD and offers. `src/lib/settings.ts` only holds the starting defaults.
+- **Go-live checklist:** **Admin → Dashboard** lists what's still missing, with links to fix each one.
+- **Store settings:** in **Admin → Settings**, add your support email, WhatsApp number, business address, GSTIN (if you have one), grievance officer, the city for your terms, and your About story, and check shipping, COD and offers. These also fill in the policy pages. `src/lib/settings.ts` only holds the starting defaults.
 - **Home page:** set your own banner in **Admin → Home page**.
-- **Policy pages:** replace every highlighted [placeholder] in `src/content/pages.ts`, and have the policies reviewed. This includes how long you keep customer uploads.
+- **Policy pages:** most placeholders are filled from Settings; anything still highlighted as a [placeholder] is listed on the dashboard. Have the policies reviewed before launch.
 - **Uploads:** customer photos are personal data. Keep the `uploads/` folder (or `UPLOADS_DIR`) out of public web folders and include it in your backups.
 - **Your designs:** fandom artwork such as F1 team logos, anime characters and movie art is trademarked or copyrighted. Only sell designs you have the rights to.

@@ -28,7 +28,14 @@ export function ProductTable({ rows, vibes }: { rows: AdminProductRow[]; vibes: 
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
-  if (!rows.length) return <p className="rounded-card border border-dashed border-line-2 p-8 text-center text-muted">No products match. Try another search or filter.</p>;
+  // Keep the last result visible when it emptied the list (deleting every product in a search, say).
+  if (!rows.length)
+    return (
+      <div>
+        {message && <p className={`mb-3 text-sm font-semibold ${message.ok ? 'text-lime' : 'text-red'}`}>{message.text}</p>}
+        <p className="rounded-card border border-dashed border-line-2 p-8 text-center text-muted">No products match. Try another search or filter.</p>
+      </div>
+    );
 
   const allOn = rows.every((r) => selected.has(r.id));
   const toggle = (id: number) =>

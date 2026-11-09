@@ -6,7 +6,7 @@ import { db } from '@/lib/db/client';
 import * as s from '@/lib/db/schema';
 import { defaultOptions, mergeProfile, optionLabels, unitPrice } from '@/lib/pricing/engine';
 import { withDefaults, type StoreSettings } from '@/lib/settings';
-import { toFtsQuery } from './fts';
+import { searchTokens, toFtsQuery } from './fts';
 import { cardImage, fullImage } from './images';
 import type { ListingFilters, ListingResult, OptionGroup, PriceProfile, ProductCard, ProductDetail, ProductType, QuickAdd, Vibe } from './types';
 
@@ -151,14 +151,27 @@ export async function getCounts(): Promise<{ types: Record<string, number>; vibe
 
 const list = (values: string[]) => sql.join(values.map((v) => sql`${v}`), sql`, `);
 
+/**
+ * Whether products_fts is a real FTS5 index. A hosted database without FTS5 gets a plain
+ * table with the same columns instead (scripts/db-migrate.ts), searched with a simple
+ * word match: fine for a few thousand products.
+ */
+let ftsIndex: Promise<boolean> | undefined;
+const hasFtsIndex = () =>
+  (ftsIndex ??= db
+    .all<{ sql: string | null }>(sql`SELECT sql FROM sqlite_master WHERE name = 'products_fts'`)
+    .then((rows) => /fts5/i.test(rows[0]?.sql ?? ''))
+    .catch(() => true));
+
 export async function listProducts(f: ListingFilters): Promise<ListingResult> {
   'use cache';
   cacheLife('hours');
   cacheTag('catalog');
   const page = Math.min(Math.max(1, Math.floor(f.page ?? 1)), MAX_PAGES);
   const limit = page * PER_PAGE;
-  const fts = f.q ? toFtsQuery(f.q) : null;
-  if (f.q && !fts) return { items: [], total: 0, page, perPage: PER_PAGE };
+  const words = f.q ? searchTokens(f.q) : [];
+  if (f.q && !words.length) return { items: [], total: 0, page, perPage: PER_PAGE };
+  const fts = words.length && (await hasFtsIndex()) ? toFtsQuery(f.q!) : null;
 
   const where: SQL[] = [sql`p.is_active = 1 AND t.is_active = 1`];
   if (f.types?.length) where.push(sql`p.type_id IN (${list(f.types)})`);
@@ -166,11 +179,15 @@ export async function listProducts(f: ListingFilters): Promise<ListingResult> {
   if (f.min !== undefined) where.push(sql`p.price_from >= ${f.min}`);
   if (f.max !== undefined) where.push(sql`p.price_from <= ${f.max}`);
   if (fts) where.push(sql`products_fts MATCH ${fts}`);
+  else
+    for (const w of words) {
+      where.push(sql`lower(coalesce(products_fts.name, '') || ' ' || coalesce(products_fts.tags, '') || ' ' || coalesce(products_fts.type_name, '') || ' ' || coalesce(products_fts.vibe_names, '')) LIKE ${`%${w}%`}`);
+    }
 
-  const from = fts
+  const from = words.length
     ? sql`products p JOIN product_types t ON t.id = p.type_id JOIN products_fts ON products_fts.rowid = p.id`
     : sql`products p JOIN product_types t ON t.id = p.type_id`;
-  const sort = f.sort ?? (fts ? 'relevance' : 'popular');
+  const sort = f.sort ?? (words.length ? 'relevance' : 'popular');
   const order =
     sort === 'new'
       ? sql`p.created_at DESC, p.id DESC`
@@ -336,8 +353,7 @@ export async function getSuggestions(q: string): Promise<Suggestions> {
   'use cache';
   cacheLife('hours');
   cacheTag('catalog');
-  const fts = toFtsQuery(q);
-  if (!fts) return { products: [], types: [], vibes: [] };
+  if (!searchTokens(q).length) return { products: [], types: [], vibes: [] };
   const like = `%${q.trim().toLowerCase().replace(/[%_]/g, '')}%`;
   const [products, types, vibes] = await Promise.all([
     listProducts({ q, sort: 'relevance', page: 1 }).then((r) => r.items.slice(0, 6)),

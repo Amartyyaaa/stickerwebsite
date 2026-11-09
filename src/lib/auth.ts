@@ -5,8 +5,9 @@ import { emailOTP } from 'better-auth/plugins/email-otp';
 import { after } from 'next/server';
 import { db } from '@/lib/db/client';
 import * as s from '@/lib/db/schema';
-import { sendMailSafely } from '@/lib/email/send';
+import { mailToLogs, sendMailSafely } from '@/lib/email/send';
 import { otpEmail } from '@/lib/email/templates';
+import { adminEmails } from '@/lib/site';
 
 /**
  * Sign-in for shoppers: a 6-digit code by email, or Google when its keys are
@@ -51,6 +52,8 @@ export const auth = betterAuth({
       allowedAttempts: 3,
       storeOTP: 'hashed',
       async sendVerificationOTP({ email, otp }) {
+        // Without an email service on Vercel, an admin's code goes to the log instead (only admins sign in then).
+        if (mailToLogs() && adminEmails().includes(email.trim().toLowerCase())) console.log(`[sign-in] Code for ${email}: ${otp} (works for 5 minutes)`);
         // Sent after the response so how long sending takes can't hint whether an account exists.
         after(() => sendMailSafely({ to: email, ...otpEmail(otp) }));
       },

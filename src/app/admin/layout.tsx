@@ -6,6 +6,7 @@ import { AdminNav } from '@/components/admin/admin-nav';
 import { Logo } from '@/components/layout/logo';
 import { ReadyMarker } from '@/components/ready-marker';
 import { googleEnabled } from '@/lib/auth';
+import { emailReady, mailToLogs } from '@/lib/email/send';
 import { getViewer } from '@/lib/viewer';
 
 export const metadata: Metadata = {
@@ -22,6 +23,14 @@ function Frame({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Where an admin finds the sign-in code while the store can't send email yet. */
+function codeNote(): string | undefined {
+  if (emailReady()) return undefined;
+  return mailToLogs()
+    ? 'Email isn’t set up yet: after you ask for a code, find it in your Vercel project under Logs (search for “sign-in”).'
+    : 'Email isn’t set up yet: after you ask for a code, get it on the server with: sudo pyv code';
+}
+
 /** Only emails on the ADMIN_EMAILS list get past this. */
 async function AdminGate({ children }: { children: React.ReactNode }) {
   const viewer = await getViewer();
@@ -29,7 +38,7 @@ async function AdminGate({ children }: { children: React.ReactNode }) {
     return (
       <Frame>
         <p className="text-center text-muted">Store admin. Sign in with your admin email.</p>
-        <SignInPanel googleEnabled={googleEnabled} />
+        <SignInPanel googleEnabled={googleEnabled} codeNote={codeNote()} />
       </Frame>
     );
   }

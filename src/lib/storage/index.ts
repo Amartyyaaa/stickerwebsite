@@ -4,18 +4,16 @@ import { once } from 'node:events';
 import { createWriteStream } from 'node:fs';
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, resolve, sep } from 'node:path';
+import { BlobStorage } from './blob';
 
 /**
- * File storage for customer uploads. Development (and a single-server host)
- * uses a folder on disk. Step 5 adds a Cloudflare R2 driver with presigned
- * uploads; it implements the same interface, so nothing else changes.
+ * File storage for uploads. A server (and development) uses a folder on disk; on Vercel,
+ * whose disk is wiped between requests, Vercel Blob (./blob.ts). Both implement the same
+ * interface, so nothing else changes.
  */
 
-export interface UploadTarget {
-  url: string;
-  method: 'PUT';
-  headers: Record<string, string>;
-}
+/** Where the browser sends a new upload: a plain PUT, or straight to Vercel Blob with a token for that one file. */
+export type UploadTarget = { url: string; method: 'PUT'; headers: Record<string, string> } | { blob: { pathname: string; token: string; contentType: string } };
 
 export interface Storage {
   /** Uploads arrive through our own PUT route (true) or go straight to the bucket (false). */
@@ -115,7 +113,10 @@ let storage: Storage | undefined;
 /** The uploads folder (runtime data, not source: the comment keeps the bundler from tracing it into the build). */
 export const uploadsRoot = () => resolve(/*turbopackIgnore: true*/ process.env.UPLOADS_DIR || 'uploads');
 
+/** Vercel Blob when its token is set (on Vercel), otherwise the uploads folder. */
+export const usesBlobStorage = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+
 export function getStorage(): Storage {
-  storage ??= new DiskStorage(uploadsRoot());
+  storage ??= usesBlobStorage() ? new BlobStorage() : new DiskStorage(uploadsRoot());
   return storage;
 }

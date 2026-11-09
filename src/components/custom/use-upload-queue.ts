@@ -25,9 +25,25 @@ export interface PendingUpload {
   canRetry: boolean;
 }
 
-interface Target {
-  url: string;
-  headers: Record<string, string>;
+/** Where to send the file: a plain PUT, or straight to Vercel Blob with a token for this one file (see src/lib/storage). */
+type Target = { url: string; headers: Record<string, string> } | { blob: { pathname: string; token: string; contentType: string } };
+
+/** Send a file straight to Vercel Blob. The SDK only loads when the store uses Blob. */
+async function putBlob(target: { pathname: string; token: string; contentType: string }, file: File, onProgress: (p: number) => void, signal: AbortSignal): Promise<void> {
+  const { put: blobPut } = await import('@vercel/blob/client');
+  try {
+    await blobPut(target.pathname, file, {
+      access: 'private',
+      token: target.token,
+      contentType: target.contentType,
+      multipart: file.size > 8 * 1024 * 1024,
+      abortSignal: signal,
+      onUploadProgress: (e) => onProgress(e.percentage / 100),
+    });
+  } catch (err) {
+    if (signal.aborted) throw new DOMException('Upload cancelled', 'AbortError');
+    throw new Error('The upload didn’t finish. Check your connection and try again.', { cause: err });
+  }
 }
 
 const messageOf = async (res: Response, fallback: string) => {
@@ -36,6 +52,7 @@ const messageOf = async (res: Response, fallback: string) => {
 };
 
 function put(target: Target, file: File, onProgress: (p: number) => void, signal: AbortSignal): Promise<void> {
+  if ('blob' in target) return putBlob(target.blob, file, onProgress, signal);
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('PUT', target.url);

@@ -334,4 +334,6 @@ Links to the old address keep working: they redirect to the new domain. Keep the
 
 ## Other hosts
 
-The store is a standard Node.js app, so it can run on any host with Node.js 22 and a disk that keeps its files (Railway, Render or Fly.io). There, the nightly jobs need the host's own scheduler to run `npm run maintenance` and `npm run backup`. This guide and the `deploy/` scripts cover an Ubuntu server only.
+For a free preview on Vercel (a hosted database and Vercel Blob instead of a disk), follow [VERCEL.md](VERCEL.md).
+
+The store is a standard Node.js app, so it can also run on any host with Node.js 22 and a disk that keeps its files (Railway, Render or Fly.io). There, the nightly jobs need the host's own scheduler to run `npm run maintenance` and `npm run backup`. This guide and the `deploy/` scripts cover an Ubuntu server only.

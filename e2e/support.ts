@@ -49,10 +49,17 @@ export interface Mail {
 /** Emails the test store "sent" (saved to its outbox), to one address, oldest first. */
 export function mails(to: string): Mail[] {
   if (!existsSync(E2E.outbox)) return [];
+  const read = (f: string): Mail | null => {
+    try {
+      return JSON.parse(readFileSync(`${E2E.outbox}/${f}`, 'utf8')) as Mail;
+    } catch {
+      return null; // still being written; the next look will find it
+    }
+  };
   return readdirSync(E2E.outbox)
     .filter((f) => f.endsWith('.json'))
-    .map((f) => JSON.parse(readFileSync(`${E2E.outbox}/${f}`, 'utf8')) as Mail)
-    .filter((m) => m.to === to)
+    .map(read)
+    .filter((m): m is Mail => m !== null && m.to === to)
     .sort((a, b) => a.at.localeCompare(b.at));
 }
 

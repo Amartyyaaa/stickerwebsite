@@ -7,6 +7,7 @@ import { AdminHeader, Panel, StatTile } from '@/components/admin/ui';
 import { adminOrNull } from '@/lib/admin/guard';
 import { goLiveStatus } from '@/lib/admin/go-live-status';
 import { dashboard } from '@/lib/admin/orders';
+import { databaseFile } from '@/lib/db/url';
 import { formatINR } from '@/lib/money';
 
 export const metadata = { title: 'Dashboard' };
@@ -83,9 +84,12 @@ export default function AdminHome() {
         subtitle="Today’s orders and what needs doing."
         actions={
           // A plain link: the browser downloads the file. Keep a copy on your computer now and then.
-          <a href="/api/admin/backup" className="btn btn-ghost btn-sm" download>
-            <DownloadIcon size={16} /> Download a backup
-          </a>
+          // A hosted database (Turso) keeps its own backups, so there's nothing to download then.
+          databaseFile() ? (
+            <a href="/api/admin/backup" className="btn btn-ghost btn-sm" download>
+              <DownloadIcon size={16} /> Download a backup
+            </a>
+          ) : undefined
         }
       />
       <Suspense fallback={<div className="h-96" aria-busy="true" />}>

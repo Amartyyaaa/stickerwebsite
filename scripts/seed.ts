@@ -247,8 +247,16 @@ async function seedSample(): Promise<void> {
 
 async function main() {
   const mode = process.argv[2] ?? 'base';
-  if (mode === 'base') await seedBase();
-  else if (mode === 'sample') await seedSample();
+  if (mode === 'base') {
+    await seedBase();
+    // Hosts that build from scratch (Vercel) can ask for the demo products with SEED_SAMPLE=1. They're only
+    // added to an empty store, so later builds never replace them or touch your own products.
+    if (process.env.SEED_SAMPLE === '1') {
+      const [{ n }] = await db.select({ n: sql<number>`count(*)` }).from(s.products);
+      if (Number(n) === 0) await seedSample();
+      else console.log('SEED_SAMPLE is set, but the store already has products, so no demo products were added.');
+    }
+  } else if (mode === 'sample') await seedSample();
   else if (mode === 'clear') {
     const removed = await clearSample();
     await reindexProducts();

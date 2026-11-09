@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm';
 import { policyPlaceholders } from '@/content/pages';
 import { bucketConfig } from '@/lib/backup/s3';
 import { db } from '@/lib/db/client';
+import { databaseFile } from '@/lib/db/url';
 import { getOps } from '@/lib/ops';
 import { siteUrl } from '@/lib/site';
 import { currentSettings } from './settings';
@@ -27,6 +28,7 @@ export async function goLiveStatus(): Promise<GoLiveItem[]> {
       resendKey: Boolean(e.RESEND_API_KEY),
       mailFrom: e.MAIL_FROM ?? '',
       backups: Boolean(bucketConfig()),
+      hostedDatabase: !databaseFile(),
     },
     settings,
     placeholders: policyPlaceholders(settings),

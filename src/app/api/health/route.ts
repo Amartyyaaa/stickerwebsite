@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { sql } from 'drizzle-orm';
 import { connection } from 'next/server';
 import { db } from '@/lib/db/client';
-import { uploadsRoot } from '@/lib/storage';
+import { uploadsRoot, usesBlobStorage } from '@/lib/storage';
 
 let release: string | undefined;
 
@@ -20,7 +20,7 @@ function currentRelease(): string {
   return release;
 }
 
-/** For uptime monitors and the deploy script: is the database reachable and the uploads folder writable? */
+/** For uptime monitors and the deploy script: is the database reachable, and can photos be stored? */
 export async function GET() {
   await connection();
   const checks = { database: false, uploads: false };
@@ -30,13 +30,18 @@ export async function GET() {
   } catch (err) {
     console.error('[health] database', err);
   }
-  try {
-    const root = uploadsRoot();
-    await mkdir(root, { recursive: true });
-    await access(root, constants.W_OK);
+  if (usesBlobStorage()) {
+    // Photos live on Vercel Blob, which looks after itself; its token being set is what matters here.
     checks.uploads = true;
-  } catch (err) {
-    console.error('[health] uploads', err);
+  } else {
+    try {
+      const root = uploadsRoot();
+      await mkdir(root, { recursive: true });
+      await access(root, constants.W_OK);
+      checks.uploads = true;
+    } catch (err) {
+      console.error('[health] uploads', err);
+    }
   }
   const ok = checks.database && checks.uploads;
   return Response.json({ ok, ...checks, release: currentRelease() }, { status: ok ? 200 : 503, headers: { 'Cache-Control': 'no-store' } });

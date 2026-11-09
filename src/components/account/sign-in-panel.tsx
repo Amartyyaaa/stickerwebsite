@@ -20,8 +20,11 @@ function friendly(err: AuthError, fallback: string): string {
 }
 
 /** Sign in with a 6-digit code sent by email, or with Google when it's set up. Without `next`, the shopper stays on the page they're on. */
-/** `emailCodes: false` hides sign-in by email code (for shoppers while the store can't send email yet), leaving Google. */
-export function SignInPanel({ googleEnabled, next, emailCodes = true }: { googleEnabled: boolean; next?: string; emailCodes?: boolean }) {
+/**
+ * `emailCodes: false` hides sign-in by email code (for shoppers while the store can't send email yet), leaving Google.
+ * `codeNote` tells an admin where to find the code while nothing is emailed.
+ */
+export function SignInPanel({ googleEnabled, next, emailCodes = true, codeNote }: { googleEnabled: boolean; next?: string; emailCodes?: boolean; codeNote?: string }) {
   const router = useRouter();
   const target = () => next ?? `${window.location.pathname}${window.location.search}`;
   const [step, setStep] = useState<'email' | 'code'>('email');
@@ -71,6 +74,7 @@ export function SignInPanel({ googleEnabled, next, emailCodes = true }: { google
         <p className="mt-1 text-sm text-muted">
           {emailCodes ? 'No password needed. We’ll email you a 6-digit code. New here? The same code creates your account.' : 'Use your Google account. New here? It creates your account.'}
         </p>
+        {emailCodes && codeNote && <p className="mt-2 rounded-[3px] border border-orange/50 bg-orange/10 px-3 py-2 text-[13px] font-semibold text-orange">{codeNote}</p>}
       </div>
       {!emailCodes ? null : step === 'email' ? (
         <form

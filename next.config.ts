@@ -12,6 +12,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // The share cards read their fonts at run time; ship them with those routes on hosts that
+  // bundle each route separately (Vercel).
+  outputFileTracingIncludes: {
+    '/opengraph-image*': ['./src/assets/fonts/*.woff'],
+    '/p/*/opengraph-image*': ['./src/assets/fonts/*.woff'],
+  },
   cacheComponents: true,
   partialPrefetching: true,
   async headers() {

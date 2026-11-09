@@ -1,5 +1,5 @@
 import 'server-only';
-import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { isLocalSite } from '@/lib/site';
 
@@ -24,6 +24,13 @@ export interface Mail {
  */
 export const emailReady = () => Boolean(process.env.RESEND_API_KEY) || isLocalSite();
 
+/**
+ * On Vercel without an email service there's no lasting disk to save emails to, so they're only
+ * noted in the log (Vercel dashboard → Logs). Admin sign-in codes are written there in full
+ * (src/lib/auth.ts), the way `sudo pyv code` reads them on a server.
+ */
+export const mailToLogs = () => !process.env.RESEND_API_KEY && Boolean(process.env.VERCEL);
+
 const outboxDir = () => resolve(/*turbopackIgnore: true*/ process.env.MAIL_OUTBOX_DIR || 'data/outbox');
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
 let warned = false;
@@ -40,6 +47,11 @@ export async function sendMail(mail: Mail): Promise<void> {
     if (!res.ok) throw new Error(`Email to ${mail.to} failed (${res.status}): ${(await res.text()).slice(0, 300)}`);
     return;
   }
+  if (mailToLogs()) {
+    // No addresses here: the log only says that an email would have gone out.
+    console.log(`[mail] Not sent (no email service set up yet): "${mail.subject}"`);
+    return;
+  }
   if (process.env.NODE_ENV === 'production' && !warned) {
     warned = true;
     console.warn('[mail] RESEND_API_KEY is not set, so emails are saved to the outbox folder instead of being sent.');
@@ -47,7 +59,9 @@ export async function sendMail(mail: Mail): Promise<void> {
   const dir = outboxDir();
   await mkdir(dir, { recursive: true });
   const file = join(dir, `${Date.now()}-${slug(mail.to)}-${slug(mail.subject)}.json`);
-  await writeFile(file, JSON.stringify({ from, at: new Date().toISOString(), ...mail }, null, 2));
+  // Written under another name, then renamed, so nothing (sudo pyv code, the tests) reads a half-written file.
+  await writeFile(`${file}.part`, JSON.stringify({ from, at: new Date().toISOString(), ...mail }, null, 2));
+  await rename(`${file}.part`, file);
   console.log(`[mail] "${mail.subject}" to ${mail.to} saved to the outbox`);
 }
 

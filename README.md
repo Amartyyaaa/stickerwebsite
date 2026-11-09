@@ -162,6 +162,7 @@ Open `/admin` and sign in with an email listed in `ADMIN_EMAILS`, using the same
 - `sudo pyv deploy` builds and switches to new code. The store keeps running the old version if anything fails, and `sudo pyv rollback` goes back.
 - Backups run every night: to Cloudflare R2, or a copy on the server until R2 is set up. **Download a backup** on the dashboard saves one to your computer.
 - **Admin → Dashboard** lists anything still missing before launch.
+- **Just want a free preview?** [VERCEL.md](VERCEL.md) puts the store on Vercel for free (with a Turso database and Vercel Blob for photos), to show people and try it out. Vercel's free plan isn't for real sales.
 - **No domain yet?** Start on a free Oracle Cloud server with a free DuckDNS address. `sudo pyv domain yourdomain.in` moves the store to your domain later, and old links redirect (DEPLOY.md, "Starting free").
 - **You can open before setting up Razorpay, Resend and R2.**
   - Shoppers pay Cash on Delivery (no smallest order, custom prints included).

@@ -17,6 +17,8 @@ export interface GoLiveInput {
     resendKey: boolean;
     mailFrom: string;
     backups: boolean;
+    /** The database is hosted (Turso, on Vercel), which keeps its own backups. */
+    hostedDatabase?: boolean;
   };
   settings: Pick<StoreSettings, 'contact' | 'business'>;
   /** Info pages that still have [placeholders]. */
@@ -112,11 +114,13 @@ export function goLiveChecklist(i: GoLiveInput): GoLiveItem[] {
   add('demo', 'Demo products removed', i.demoProducts === 0, i.demoProducts === 0 ? 'Only your products are in the store.' : `${i.demoProducts.toLocaleString('en-IN')} demo products are still in the store. Remove them on the Products page.`, '/admin/products');
 
   // Nightly backups run either way: to Cloudflare R2, or (until it's set up) as a copy on this server.
+  // A hosted database keeps its own backups, and hosted photo storage (Vercel Blob) keeps the photos.
   const b = ops.backup;
-  if (!b) add('backups', 'Nightly backups are running', false, 'No backup has run yet. The server runs one every night at 4 am, or run sudo pyv backup now.');
+  if (env.hostedDatabase) add('backups', 'Backups', true, 'Your hosted database (Turso) keeps its own backups, and photos are kept by Vercel Blob.');
+  else if (!b) add('backups', 'Nightly backups are running', false, 'No backup has run yet. The server runs one every night at 4 am, or run sudo pyv backup now.');
   else if (!b.ok) add('backups', 'Nightly backups are running', false, `The last backup failed ${ago(now - b.at)}: ${b.message}`);
   else add('backups', 'Nightly backups are running', now - b.at < 1.5 * DAY, `Last backup ${ago(now - b.at)}: ${b.message}.`);
-  if (!env.backups) {
+  if (!env.backups && !env.hostedDatabase) {
     later(
       'offsite',
       'Backups off the server (Cloudflare R2)',

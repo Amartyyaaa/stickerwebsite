@@ -104,8 +104,11 @@ test('admin: orders from placed to delivered, files and refunds', async ({ brows
     check('track page shows the courier link', ((await p.locator('a:has-text("Track parcel")').getAttribute('href')) ?? '').includes(`DLV${tag}99`));
     await p.close();
     await a.click('button:has-text("Mark delivered")');
-    await a.waitForSelector('text=Delivered', { timeout: 10000 });
-    const row = (await one('select status, payment_status from orders where number = ?', [codNumber]))!;
+    // "Delivered" is on the page as a timeline step before the change saves, so wait for the saved status.
+    const row = (await waitFor(async () => {
+      const r = await one('select status, payment_status from orders where number = ?', [codNumber]);
+      return r?.status === 'delivered' ? r : null;
+    }))!;
     check('delivered COD order is marked paid (cash collected)', row.status === 'delivered' && row.payment_status === 'paid');
     check('customer gets the delivered email', Boolean(await waitFor(() => mails(shopperEmail).find((m) => m.subject.includes(`${codNumber} was delivered`)))));
   });

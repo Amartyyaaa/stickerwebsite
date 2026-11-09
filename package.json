@@ -10,6 +10,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test",
+    "vercel-build": "npm run db:migrate && npm run db:seed && next build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/db-migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
@@ -21,6 +22,7 @@
   "dependencies": {
     "@libsql/client": "^0.18.0",
     "@next/env": "16.4.5",
+    "@vercel/blob": "2.8.2",
     "aws4fetch": "^1.0.20",
     "better-auth": "^1.7.18",
     "drizzle-orm": "^0.45.4",

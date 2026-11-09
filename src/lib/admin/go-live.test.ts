@@ -46,6 +46,11 @@ describe('go-live checklist', () => {
     expect(items.find((i) => i.id === 'webhook')).toBeUndefined();
     expect(items.find((i) => i.id === 'email')!.detail).toMatch(/sudo pyv code/);
   });
+  it('trusts a hosted database to keep its own backups', () => {
+    const items = goLiveChecklist({ ...ready, env: { ...ready.env, backups: false, hostedDatabase: true }, ops: { maintenance: ready.ops.maintenance } });
+    expect(items.find((i) => i.id === 'backups')).toMatchObject({ ok: true, detail: expect.stringMatching(/Turso/) });
+    expect(items.find((i) => i.id === 'offsite')).toBeUndefined();
+  });
   it('still asks for a proper from-address once email is set up', () => {
     const email = goLiveChecklist({ ...ready, env: { ...ready.env, mailFrom: 'PrintYourVibe <orders@yourdomain.in>' } }).find((x) => x.id === 'email')!;
     expect(email).toMatchObject({ ok: false, detail: expect.stringMatching(/MAIL_FROM/) });

@@ -11,7 +11,7 @@ Put the store online for free, to show people and try everything out. It takes a
 
 ## 1. Get the code into `main`
 
-Merge the pull request on GitHub ([pull request #1](https://github.com/Amartyyaaa/stickerwebsite/pull/1)): **Merge pull request**, then **Confirm merge**. Vercel publishes the `main` branch.
+Vercel publishes the `main` branch, so this guide's changes need to be there first. On GitHub, open the pull request for the Vercel preview, click **Merge pull request**, then **Confirm merge**.
 
 ## 2. Create the database (Turso)
 

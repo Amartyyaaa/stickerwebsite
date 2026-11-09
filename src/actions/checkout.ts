@@ -61,7 +61,8 @@ export async function placeOrder(raw: unknown): Promise<PlaceOrderResult> {
   const coupon = priced.summary.coupon;
   if (coupon && !coupon.applied) return { ok: false, error: coupon.reason ?? 'That coupon can’t be used.', refresh: true };
   if (input.payment === 'cod') {
-    const before = priced.summary.total - priced.summary.codFee;
+    // COD limits are on the order value before fees, as the checkout page shows them.
+    const before = priced.summary.total - priced.summary.codFee - priced.summary.platformFee;
     const cod = codCheck(priced.settings, before, priced.lines.some((l) => l.custom), { online: paymentsMode() !== 'off' });
     if (!cod.ok) return { ok: false, error: cod.reason, refresh: true };
   }

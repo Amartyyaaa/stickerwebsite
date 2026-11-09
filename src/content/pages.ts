@@ -48,7 +48,7 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
       blocks: [
         {
           paragraphs: [
-            'PrintYourVibe makes stickers, posters and polaroids for every fandom and mood: anime, F1, cricket, K-pop, desi vibes, quotes and more. Everything is printed to order.',
+            'PrintYourVibe makes stickers, posters and polaroids for every fandom and mood: humor, hustle, anime, pop culture, desi, JDM, quotes and more. Everything is printed to order.',
             ...(s.aboutStory
               ? s.aboutStory.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean)
               : ['[Tell your story here: who you are, where you are based, why you started PrintYourVibe and what makes your prints special. Add it in Admin → Settings → About us.]']),
@@ -72,7 +72,8 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
         {
           paragraphs: [
             `Email: ${email}`,
-            `Phone and WhatsApp: ${s.contact.whatsapp || phone}`,
+            `WhatsApp: ${[s.contact.whatsapp, s.contact.whatsappAlt].filter(Boolean).join(' or ') || phone}`,
+            ...(s.contact.phone ? [`Phone: ${s.contact.phone}`] : []),
             `Hours: ${s.contact.hours}`,
             `Address: ${s.contact.address || b.address || '[your business address]'}`,
           ],
@@ -122,7 +123,7 @@ export function getInfoPage(slug: string, s: StoreSettings): InfoPage | null {
             `North-East, Jammu & Kashmir, Ladakh, Andaman & Nicobar and Lakshadweep: ${days(s.delivery.remoteDays)}.`,
           ],
         },
-        { heading: 'Charges', paragraphs: [`Shipping is free on orders above ${free}. Orders below that have a flat ${fee} shipping charge. Cash on Delivery orders have an extra ${codFee} fee.`] },
+        { heading: 'Charges', paragraphs: [`Shipping is free on orders above ${free}. Orders below that have a flat ${fee} shipping charge. Cash on Delivery orders have an extra ${codFee} fee.${s.platformFee ? ` Every order has a ${formatINR(s.platformFee)} platform fee, shown in your cart before you check out.` : ''}`] },
         { heading: 'Tracking', paragraphs: ['We email and message you a tracking link as soon as your order ships.'] },
         { heading: 'Damaged parcels', paragraphs: ['If your parcel arrives damaged, please record an unboxing video and contact us within 48 hours. We’ll reprint and resend it at no cost.'] },
         { heading: 'Shipping partners', paragraphs: ['We ship with trusted courier partners across India, and you get the tracking link as soon as your parcel leaves us. We currently ship within India only.'] },

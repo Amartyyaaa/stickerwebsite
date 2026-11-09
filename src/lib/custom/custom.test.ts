@@ -134,7 +134,7 @@ describe('custom prices', () => {
     const p = type('custom-stickers').price;
     expect(unitPrice(p, { pack: '10', shape: 'die-cut', size: 'S', finish: 'matte' })).toBe(29900);
     expect(unitPrice(p, { pack: '25', shape: 'circle', size: 'S', finish: 'matte' })).toBe(59900);
-    expect(unitPrice(p, { pack: '100', shape: 'square', size: 'L', finish: 'holographic' })).toBe(269900);
+    expect(unitPrice(p, { pack: '100', shape: 'square', size: 'L', finish: 'glossy' })).toBe(209900);
   });
 
   it('prices custom polaroids and posters', () => {

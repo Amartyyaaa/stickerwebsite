@@ -17,7 +17,7 @@ export interface VibeInput {
 }
 
 function check(v: VibeInput): string | null {
-  if (!SLUG_RE.test(v.id) || v.id.length > 40) return 'The web address should use lowercase letters, numbers and dashes, like k-pop.';
+  if (!SLUG_RE.test(v.id) || v.id.length > 40) return 'The web address should use lowercase letters, numbers and dashes, like pop-culture.';
   const name = v.name.trim();
   if (name.length < 2 || name.length > 40) return 'Give the vibe a name of up to 40 characters.';
   if (v.blurb.trim().length > 200) return 'Keep the description under 200 characters.';

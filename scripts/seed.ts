@@ -18,6 +18,7 @@ import * as s from '@/lib/db/schema';
 import type { PriceProfile } from '@/lib/catalog/types';
 import { priceRange } from '@/lib/pricing/engine';
 import { DEFAULT_SETTINGS } from '@/lib/settings';
+import { applyStoreUpdates } from '@/lib/store-update';
 import { slugify } from '@/lib/slug';
 
 function rng(seed: number): () => number {
@@ -245,18 +246,34 @@ async function seedSample(): Promise<void> {
   console.log(`Demo catalog: ${total} products created (${n} products in the store).`);
 }
 
+/** One-time changes to a running store (src/lib/store-update.ts). Returns whether the demo products need making again. */
+async function storeUpdates(): Promise<boolean> {
+  const r = await applyStoreUpdates(db);
+  if (!r.applied) return false;
+  console.log(`Store update ${r.from} → applied.${r.notes.length ? ` ${r.notes.join('; ')}.` : ''}`);
+  if (!r.hadDemo) await reindexProducts();
+  return r.hadDemo;
+}
+
 async function main() {
   const mode = process.argv[2] ?? 'base';
   if (mode === 'base') {
     await seedBase();
-    // Hosts that build from scratch (Vercel) can ask for the demo products with SEED_SAMPLE=1. They're only
-    // added to an empty store, so later builds never replace them or touch your own products.
-    if (process.env.SEED_SAMPLE === '1') {
+    if (await storeUpdates()) {
+      // The demo products were made for the earlier themes, so they're made again for the new ones.
+      await seedSample();
+    } else if (process.env.SEED_SAMPLE === '1') {
+      // Hosts that build from scratch (Vercel) can ask for the demo products with SEED_SAMPLE=1. They're only
+      // added to an empty store, so later builds never replace them or touch your own products.
       const [{ n }] = await db.select({ n: sql<number>`count(*)` }).from(s.products);
       if (Number(n) === 0) await seedSample();
       else console.log('SEED_SAMPLE is set, but the store already has products, so no demo products were added.');
     }
-  } else if (mode === 'sample') await seedSample();
+  } else if (mode === 'sample') {
+    await seedBase();
+    await storeUpdates();
+    await seedSample();
+  }
   else if (mode === 'clear') {
     const removed = await clearSample();
     await reindexProducts();

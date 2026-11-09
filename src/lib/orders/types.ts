@@ -47,6 +47,7 @@ export interface OrderView {
   discountTotal: number;
   shipping: number;
   codFee: number;
+  platformFee: number;
   prepaidDiscount: number;
   total: number;
   events: OrderEventView[];

@@ -114,6 +114,7 @@ test('admin: coupons, settings, home banner, reviews and customers', async ({ br
     await nav(a, '/admin/settings');
     const freeBefore = await a.inputValue('#st-shipping-freeAbove');
     const annBefore = await a.inputValue('#st-announcement');
+    const waBefore = await a.inputValue('#st-contact-whatsapp');
     await a.fill('#st-shipping-freeAbove', '599');
     await a.fill('#st-announcement', `Diwali sale ${tag}\nFree shipping above ₹599`);
     await a.fill('#st-contact-whatsapp', '12345');
@@ -130,11 +131,20 @@ test('admin: coupons, settings, home banner, reviews and customers', async ({ br
     const hints = ((await q.json()).summary.hints as { text: string }[]).map((h) => h.text).join(' | ');
     const short = (59900 - 3 * Number(product.price_from)) / 100;
     check('the cart uses the new free-shipping amount', hints.includes(`₹${short} more for free shipping`), hints);
+    check('every order has the ₹5 platform fee', (await q.json()).summary.platformFee === 500);
+    await s.click('aside[aria-label="Chat"] button');
+    const chats = await s.locator('aside[aria-label="Chat"] a').evaluateAll((els) => els.map((e) => e.getAttribute('href') ?? ''));
+    check(
+      'the chat button offers both WhatsApp numbers',
+      chats.length === 2 && chats[0].startsWith('https://wa.me/919876543210?') && chats[1].startsWith('https://wa.me/919801644598?'),
+      chats.join(' '),
+    );
+    await s.keyboard.press('Escape');
     check('the WhatsApp number is stored in full', (await one("select json_extract(value, '$.contact.whatsapp') as w from settings where key = 'store'"))!.w === '+91 98765 43210');
     await nav(a, '/admin/settings');
     await a.fill('#st-shipping-freeAbove', freeBefore);
     await a.fill('#st-announcement', annBefore);
-    await a.fill('#st-contact-whatsapp', '');
+    await a.fill('#st-contact-whatsapp', waBefore);
     await a.click('button:has-text("Save settings")');
     await a.waitForSelector('text=Saved. The store uses the new settings now.');
   });

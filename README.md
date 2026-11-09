@@ -19,7 +19,7 @@ You need Node.js 22 or newer.
 
 ```bash
 npm install
-npm run db:setup   # creates data/printyourvibe.db with 24 product types, 3 custom-studio types, 30 vibes and 5,910 demo products
+npm run db:setup   # creates data/printyourvibe.db with 17 product types, 3 custom-studio types, 21 themes and 4,410 demo products
 npm run dev        # open http://localhost:3000
 ```
 
@@ -45,9 +45,9 @@ In development, emails (sign-in codes, order confirmations) are saved as files i
 ## What's in Step 1
 
 - **Catalog:**
-  - 24 product types, each with its own options and price table: laptop, holographic, transparent, 3D motion, 3D dome, diary, fridge, phone and car stickers, sticker packs, wall, framed and split posters, poster sets, collage kits, mini posters, polaroid sets and wall kits, bookmarks, postcards, keychains, badges, and phone and laptop skins.
-  - 30 fandoms and vibes.
-- **Demo products:** 5,910, with original generated artwork and names. Nothing is copied from other stores. Remove them with `npm run db:seed -- clear` once your real designs are in.
+  - 17 product types, each with its own options and price table: laptop, diary, phone and bottle, and car and bike stickers, sticker packs, wall, framed and split posters, poster sets, collage kits, mini posters, polaroid sets and wall kits, bookmarks, postcards, and phone and laptop skins.
+  - 21 themes: Humor, Hustle, Anime, Pop Culture, Cars & Bikes, Travel, Spiritual, Desi, Dark & Edgy, Gaming, Sports, Tech & Code, Space, Love, Animals, Food, Music, Warning Signs, JDM, Abstract and Quotes.
+- **Demo products:** 4,410, with original generated artwork and names. Nothing is copied from other stores. Remove them with `npm run db:seed -- clear` once your real designs are in.
 - **Pages:**
   - home page
   - listings by product type (`/c/…`), by vibe (`/v/…`) and everything (`/shop`), with filters, sorting and "Load more"
@@ -67,7 +67,7 @@ In development, emails (sign-in codes, order confirmations) are saved as files i
   - lets the shopper add a note for the printer
 - **Sticker studio:**
   - die-cut, circle, square or rounded shapes; die-cut follows the transparent edge of a PNG with a white border
-  - matte, glossy, holographic or transparent finishes, each with its own preview
+  - matte or glossy finish, each with its own preview
   - 10 to 100 stickers per design, with a per-sticker price
   - an "on a laptop" view drawn to scale
 - **Polaroid studio:**
@@ -137,7 +137,7 @@ Open `/admin` and sign in with an email listed in `ADMIN_EMAILS`, using the same
   - **Add or edit a product:** name, type, main vibe and up to four more, description, search words, web address, popularity, and up to 8 photos (drag to upload; the first is the cover). A card preview shows how it will look.
   - **Price:** leave it empty to use the type's price table, or set the product's own starting price; every option then moves by the same amount.
   - Products with photos show them on their page as a gallery (1600 px), and cards use a 480 px version. Product photos are public and cached for a year; customer uploads stay private.
-  - **Remove demo products** deletes the 5,910 demo products in one go once your own are in. A demo product you edited counts as yours and stays.
+  - **Remove demo products** deletes the 4,410 demo products in one go once your own are in. A demo product you edited counts as yours and stays.
 - **CSV import and export** (`/admin/products/import`):
   1. Upload the photos the file mentions. Rows are matched to photos by file name.
   2. Paste the CSV (or text copied from Excel or Google Sheets), or choose the file, and press **Check file**. Each row shows as new, update, unchanged or error, with the reason. Nothing changes until you press **Import**.

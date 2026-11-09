@@ -10,6 +10,7 @@ import { formatPhone } from '@/lib/india';
 import { formatINR } from '@/lib/money';
 import { refundable } from '@/lib/orders/refunds';
 import { getOrderViewForAdmin, orderLink } from '@/lib/orders/service';
+import { feedbackFor } from '@/lib/orders/shopper';
 import { PAYMENT_LABEL } from '@/lib/orders/status';
 import { paymentsMode } from '@/lib/payments/razorpay';
 
@@ -30,6 +31,7 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[numbe
     );
   }
   const { order, row } = found;
+  const feedback = await feedbackFor(order.id);
   const custom = order.items.map((it, i) => ({ it, i })).filter((x) => x.it.custom);
   return (
     <>
@@ -127,6 +129,16 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[numbe
               ))}
             </ul>
           </Panel>
+          {feedback && (
+            <Panel title="Shopping experience">
+              <p className="text-lg text-lime" aria-label={`${feedback.rating} out of 5 stars`}>
+                {'★'.repeat(feedback.rating)}
+                <span className="text-line-2">{'★'.repeat(5 - feedback.rating)}</span>
+              </p>
+              {feedback.comment && <p className="mt-2 whitespace-pre-line text-sm">{feedback.comment}</p>}
+              <p className="mt-2 text-[13px] text-muted">Given {formatDateTime(feedback.createdAt)}, right after ordering. Only you see this.</p>
+            </Panel>
+          )}
           <Panel title="Items">
             <OrderItems items={order.items} />
           </Panel>

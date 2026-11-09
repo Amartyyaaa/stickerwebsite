@@ -36,7 +36,7 @@ Vercel publishes the `main` branch, so this guide's changes need to be there fir
 | `BETTER_AUTH_SECRET` | a random 40-character password (use your password manager's generator) |
 | `ADMIN_EMAILS` | your email address |
 | `CRON_SECRET` | another random 40-character password |
-| `SEED_SAMPLE` | `1` if you'd like the 5,910 demo designs to start with (added once; remove them later in **Admin → Products**) |
+| `SEED_SAMPLE` | `1` if you'd like the 4,410 demo designs to start with (added once; remove them later in **Admin → Products**) |
 
 4. Click **Deploy**.
    - It builds for 3–5 minutes.

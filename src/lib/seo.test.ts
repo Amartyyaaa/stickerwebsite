@@ -22,7 +22,8 @@ describe('seo helpers', () => {
     expect(b.itemListElement[1]).toEqual({ '@type': 'ListItem', position: 2, name: 'Wall Posters', item: 'https://printyourvibe.in/c/wall-posters' });
   });
   it('describes the store, with social links and contact only when set', () => {
-    const [org, site] = storeLd('https://printyourvibe.in', { ...DEFAULT_SETTINGS, social: { ...DEFAULT_SETTINGS.social, instagram: 'https://instagram.com/pyv' } });
+    const noContact = { ...DEFAULT_SETTINGS, contact: { ...DEFAULT_SETTINGS.contact, email: '', whatsapp: '', whatsappAlt: '' } };
+    const [org, site] = storeLd('https://printyourvibe.in', { ...noContact, social: { ...DEFAULT_SETTINGS.social, instagram: 'https://instagram.com/pyv' } });
     expect(org).toMatchObject({ '@type': 'Organization', sameAs: ['https://instagram.com/pyv'] });
     expect(org).not.toHaveProperty('contactPoint');
     expect(site).toMatchObject({ potentialAction: { target: { urlTemplate: 'https://printyourvibe.in/search?q={search_term_string}' } } });

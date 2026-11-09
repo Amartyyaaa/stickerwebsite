@@ -50,8 +50,8 @@ test('storefront: browse, filter, choose options and save', async ({ browser }) 
     // Listing filters.
     await p.goto(`${B}/c/wall-posters`, { waitUntil: 'networkidle' });
     const before = await p.locator('main p[aria-live="polite"] b').first().textContent();
-    await p.locator('aside label', { hasText: 'F1 & Motorsport' }).click();
-    await p.waitForURL(/vibe=f1-motorsport/);
+    await p.locator('aside label', { hasText: 'Sports' }).click();
+    await p.waitForURL(/vibe=sports/);
     await p.waitForFunction((b0) => document.querySelector('main p[aria-live="polite"] b')?.textContent !== b0, before);
     const after = await p.locator('main p[aria-live="polite"] b').first().textContent();
     check('vibe filter narrows results', after !== before, `${before} -> ${after}`);

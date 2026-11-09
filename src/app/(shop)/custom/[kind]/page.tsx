@@ -14,7 +14,7 @@ import { customPayNote } from '@/lib/payments/methods';
 const STEPS: Record<StudioKind, [string, string][]> = {
   stickers: [
     ['Upload your design', 'A logo, drawing, photo or meme. PNG, JPG or WebP, up to 25 MB.'],
-    ['Pick the shape and finish', 'Die-cut, circle, square or rounded, in matte, glossy, holographic or transparent vinyl.'],
+    ['Pick the shape and finish', 'Die-cut, circle, square or rounded, in matte or glossy vinyl.'],
     ['We print and ship', 'We check your design, print it on waterproof vinyl and ship it anywhere in India.'],
   ],
   polaroids: [

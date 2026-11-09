@@ -106,7 +106,7 @@ export async function SiteHeader() {
                 ))}
               </Column>
               <Column title="Poster fandoms">
-                {['f1-motorsport', 'movies', 'anime', 'space', 'cars-bikes', 'music', 'quotes', 'aesthetic']
+                {['anime', 'pop-culture', 'jdm', 'cars-bikes', 'sports', 'space', 'quotes', 'abstract']
                   .map((id) => vibes.find((v) => v.id === id))
                   .filter((v): v is Vibe => Boolean(v))
                   .map((v) => (
@@ -115,12 +115,12 @@ export async function SiteHeader() {
                     </MegaLink>
                   ))}
               </Column>
-              <Link href="/v/f1-motorsport?type=wall-posters" className="grid content-start gap-2 rounded-card border border-line bg-bg p-5 hover:border-lime">
+              <Link href="/v/jdm?type=wall-posters" className="grid content-start gap-2 rounded-card border border-line bg-bg p-5 hover:border-lime">
                 <span className="mx-auto h-40 w-32">
-                  <MenuArt spec={{ kind: 'poster', seed: 62, poster: 'speed', title: 'PIT LANE', dark: 0 }} idPrefix="mega" />
+                  <MenuArt spec={{ kind: 'poster', seed: 62, poster: 'speed', title: 'TOUGE RUN', dark: 0 }} idPrefix="mega" />
                 </span>
-                <span className="font-display text-xl uppercase">Pit lane series</span>
-                <span className="text-sm text-muted">Racing posters from {formatINR(9900)}. Buy 3, get 1 free.</span>
+                <span className="font-display text-xl uppercase">JDM night runs</span>
+                <span className="text-sm text-muted">Car posters from {formatINR(9900)}. Buy 3, get 1 free.</span>
               </Link>
             </NavItem>
             <NavItem label="Polaroids & more">

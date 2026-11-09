@@ -53,6 +53,7 @@ function itemLines(order: OrderView): { html: string; text: string } {
   for (const d of order.discounts) totals.push([d.label, `−${formatINR(d.amount)}`]);
   totals.push(['Shipping', order.shipping ? formatINR(order.shipping) : 'Free']);
   if (order.codFee) totals.push(['Cash on Delivery fee', formatINR(order.codFee)]);
+  if (order.platformFee) totals.push(['Platform fee', formatINR(order.platformFee)]);
   if (order.prepaidDiscount) totals.push(['Online payment discount', `−${formatINR(order.prepaidDiscount)}`]);
   totals.push(['Total', formatINR(order.total)]);
   const totalsHtml = totals
@@ -107,6 +108,22 @@ ${lines.html}
 ${button(link, 'Open the order')}`,
     ),
     text: `New order ${order.number} (${method})\n\n${lines.text}\n\nCustomer:\n${order.name}\n${order.email}\n${order.phone}\n\n${addressText(order)}\n\n${link}`,
+  };
+}
+
+/** Tells the store a shopper cancelled their order, and why. */
+export function ownerCancelledEmail(order: OrderView, reason: string, link: string): Omit<Mail, 'to'> {
+  const paid = order.paymentStatus === 'paid';
+  return {
+    subject: `Order ${order.number} cancelled by the customer`,
+    html: layout(
+      `Order ${order.number} was cancelled`,
+      `${p(`${esc(order.name)} cancelled order ${order.number} (${formatINR(order.total)}).`)}
+${p(`<b>Reason:</b> ${esc(reason)}`)}
+${paid ? p('<b>This order was paid online, so it needs a refund.</b>') : ''}
+${button(link, 'Open the order')}`,
+    ),
+    text: `${order.name} cancelled order ${order.number} (${formatINR(order.total)}).\nReason: ${reason}${paid ? '\nThis order was paid online, so it needs a refund.' : ''}\n\n${link}`,
   };
 }
 

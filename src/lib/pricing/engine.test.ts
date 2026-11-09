@@ -105,7 +105,7 @@ describe('cart quote', () => {
   it('charges shipping below the free-shipping threshold and not above it', () => {
     const small = quote([sticker(1, 2)], settings);
     expect(small.shipping).toBe(settings.shipping.fee);
-    expect(small.total).toBe(5800 + settings.shipping.fee);
+    expect(small.total).toBe(5800 + settings.shipping.fee + settings.platformFee);
     const big = quote([poster(1, 1, 49900)], settings);
     expect(big.shipping).toBe(0);
   });
@@ -116,7 +116,18 @@ describe('cart quote', () => {
     const online = quote(lines, settings, { payment: 'online' });
     expect(online.prepaidDiscount).toBe(Math.min(settings.prepaidDiscount.max, Math.round((49900 * 0.05) / 100) * 100));
     expect(online.prepaidDiscount % 100).toBe(0);
-    expect(online.total).toBe(49900 - online.prepaidDiscount);
+    expect(online.total).toBe(49900 + settings.platformFee - online.prepaidDiscount);
+  });
+
+  it('adds the platform fee to every order with items, and none when it is 0', () => {
+    const lines = [poster(1, 1, 49900)];
+    expect(settings.platformFee).toBe(500);
+    const q = quote(lines, settings, { payment: 'cod' });
+    expect(q.platformFee).toBe(500);
+    expect(q.total).toBe(49900 + q.codFee + 500);
+    const none = quote(lines, { ...settings, platformFee: 0 }, { payment: 'cod' });
+    expect(none).toMatchObject({ platformFee: 0, total: 49900 + q.codFee });
+    expect(quote([], settings).platformFee).toBe(0);
   });
 
   it('returns zeros for an empty cart', () => {

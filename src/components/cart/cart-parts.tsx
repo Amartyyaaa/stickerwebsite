@@ -123,6 +123,12 @@ export function QuoteSummary({ data, loading, note = true }: { data: QuoteRespon
             <dd className="tabular-nums">{formatINR(s.codFee)}</dd>
           </div>
         )}
+        {s && s.platformFee > 0 && (
+          <div className="flex justify-between">
+            <dt className="text-muted">Platform fee</dt>
+            <dd className="tabular-nums">{formatINR(s.platformFee)}</dd>
+          </div>
+        )}
         {s && s.prepaidDiscount > 0 && (
           <div className="flex justify-between text-lime">
             <dt>Online payment discount</dt>

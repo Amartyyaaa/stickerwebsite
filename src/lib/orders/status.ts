@@ -65,3 +65,27 @@ export function timeline(status: OrderStatus, events: Array<{ status: OrderStatu
   }
   return steps;
 }
+
+/** Shoppers can cancel an order themselves until printing starts. */
+export const SHOPPER_CANCELLABLE: readonly OrderStatus[] = ['pending_payment', 'placed', 'confirmed'];
+
+/** Reasons a shopper picks when cancelling ("other" asks for a few words). */
+export const CANCEL_REASONS = [
+  { id: 'mistake', label: 'Ordered by mistake' },
+  { id: 'change-items', label: 'Want to change items or size' },
+  { id: 'change-address', label: 'Want to change the delivery address' },
+  { id: 'too-slow', label: 'Delivery is taking too long' },
+  { id: 'cheaper', label: 'Found it cheaper elsewhere' },
+  { id: 'other', label: 'Other' },
+] as const;
+
+export type CancelReasonId = (typeof CANCEL_REASONS)[number]['id'];
+
+/** The reason as saved on the order: the label, or the shopper's own words for "other". */
+export function cancelReasonText(id: string, other: string): string | null {
+  const reason = CANCEL_REASONS.find((r) => r.id === id);
+  if (!reason) return null;
+  if (reason.id !== 'other') return reason.label;
+  const words = other.trim().replace(/\s+/g, ' ');
+  return words.length >= 3 ? words.slice(0, 200) : null;
+}

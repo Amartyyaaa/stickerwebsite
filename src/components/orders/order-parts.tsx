@@ -87,7 +87,7 @@ export function OrderItems({ items }: { items: Array<Pick<OrderItemView, 'name' 
   );
 }
 
-export function OrderTotals({ order }: { order: Pick<OrderView, 'subtotal' | 'discounts' | 'shipping' | 'codFee' | 'prepaidDiscount' | 'total'> }) {
+export function OrderTotals({ order }: { order: Pick<OrderView, 'subtotal' | 'discounts' | 'shipping' | 'codFee' | 'platformFee' | 'prepaidDiscount' | 'total'> }) {
   const row = (label: string, value: string, cls?: string) => (
     <div className={cn('flex justify-between gap-4', cls)}>
       <dt>{label}</dt>
@@ -102,6 +102,7 @@ export function OrderTotals({ order }: { order: Pick<OrderView, 'subtotal' | 'di
       ))}
       {row('Shipping', order.shipping ? formatINR(order.shipping) : 'Free', 'text-muted [&>dd]:text-ink')}
       {order.codFee > 0 && row('Cash on Delivery fee', formatINR(order.codFee), 'text-muted [&>dd]:text-ink')}
+      {order.platformFee > 0 && row('Platform fee', formatINR(order.platformFee), 'text-muted [&>dd]:text-ink')}
       {order.prepaidDiscount > 0 && row('Online payment discount', `−${formatINR(order.prepaidDiscount)}`, 'text-lime')}
       <div className="mt-1 flex items-baseline justify-between border-t border-line pt-3">
         <dt className="font-display text-xl uppercase">Total</dt>

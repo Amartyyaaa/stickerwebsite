@@ -10,9 +10,10 @@ import { parseRupees, rupeesText } from './product-rules';
 type Pair = [string, string];
 
 export interface SettingsForm {
-  contact: { email: string; phone: string; whatsapp: string; address: string; hours: string };
+  contact: { email: string; phone: string; whatsapp: string; whatsappAlt: string; address: string; hours: string };
   social: { instagram: string; youtube: string; facebook: string; x: string };
   shipping: { freeAbove: string; fee: string };
+  platformFee: string;
   delivery: { metroDays: Pair; standardDays: Pair; remoteDays: Pair };
   cod: { enabled: boolean; fee: string; min: string; max: string; allowCustom: boolean };
   prepaidDiscount: { percent: string; max: string };
@@ -36,6 +37,7 @@ export function toSettingsForm(s: StoreSettings): SettingsForm {
     contact: { ...s.contact },
     social: { ...s.social },
     shipping: { freeAbove: r(s.shipping.freeAbove), fee: r(s.shipping.fee) },
+    platformFee: r(s.platformFee),
     delivery: { metroDays: pair(s.delivery.metroDays), standardDays: pair(s.delivery.standardDays), remoteDays: pair(s.delivery.remoteDays) },
     cod: { enabled: s.cod.enabled, fee: r(s.cod.fee), min: r(s.cod.min), max: r(s.cod.max), allowCustom: s.cod.allowCustom },
     prepaidDiscount: { percent: String(s.prepaidDiscount.percent), max: r(s.prepaidDiscount.max) },
@@ -80,6 +82,8 @@ export function readSettingsForm(f: SettingsForm, current: StoreSettings, typeId
   if (typeof contactPhone !== 'string') return contactPhone;
   const whatsapp = phone(f.contact.whatsapp, 'contact.whatsapp');
   if (typeof whatsapp !== 'string') return whatsapp;
+  const whatsappAlt = phone(f.contact.whatsappAlt, 'contact.whatsappAlt');
+  if (typeof whatsappAlt !== 'string') return whatsappAlt;
   if (f.contact.address.trim().length > 300) return fail('contact.address', 'Keep the address under 300 characters.');
   if (f.contact.hours.trim().length > 80) return fail('contact.hours', 'Keep the hours under 80 characters.');
   const social = {} as StoreSettings['social'];
@@ -94,6 +98,8 @@ export function readSettingsForm(f: SettingsForm, current: StoreSettings, typeId
   if (typeof freeAbove !== 'number') return freeAbove;
   const fee = money(f.shipping.fee, 'shipping.fee', 'the shipping fee', 100_000);
   if (typeof fee !== 'number') return fee;
+  const platformFee = money(f.platformFee, 'platformFee', 'the platform fee', 10_000);
+  if (typeof platformFee !== 'number') return platformFee;
   const delivery = {} as StoreSettings['delivery'];
   for (const k of ['metroDays', 'standardDays', 'remoteDays'] as const) {
     const [a, b] = f.delivery[k].map((x) => whole(x, 1, 30));
@@ -171,9 +177,10 @@ export function readSettingsForm(f: SettingsForm, current: StoreSettings, typeId
     ok: true,
     settings: {
       ...current,
-      contact: { email, phone: contactPhone, whatsapp, address: f.contact.address.trim(), hours: f.contact.hours.trim() },
+      contact: { email, phone: contactPhone, whatsapp, whatsappAlt, address: f.contact.address.trim(), hours: f.contact.hours.trim() },
       social,
       shipping: { freeAbove, fee },
+      platformFee,
       delivery,
       cod: { enabled: f.cod.enabled, fee: codFee, min: codMin, max: codMax, allowCustom: f.cod.allowCustom },
       prepaidDiscount: { percent, max: prepaidMax },

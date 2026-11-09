@@ -11,7 +11,8 @@ const filled: StoreSettings = {
 
 describe('policy pages', () => {
   it('list every placeholder left on a new store', () => {
-    const left = policyPlaceholders(DEFAULT_SETTINGS);
+    // As a store looks before any contact details are set.
+    const left = policyPlaceholders({ ...DEFAULT_SETTINGS, contact: { ...DEFAULT_SETTINGS.contact, email: '', whatsapp: '', whatsappAlt: '' } });
     const all = left.flatMap((p) => p.placeholders);
     expect(left.map((p) => p.slug)).toEqual(['about', 'contact', 'faq', 'returns', 'privacy', 'terms']);
     expect(all).toContain('[your support email]');

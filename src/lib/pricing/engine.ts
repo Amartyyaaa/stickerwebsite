@@ -145,6 +145,8 @@ export interface Quote {
   discountTotal: number;
   shipping: number;
   codFee: number;
+  /** The store's fixed fee on every order (settings.platformFee). */
+  platformFee: number;
   prepaidDiscount: number;
   total: number;
   hints: QuoteHint[];
@@ -295,7 +297,8 @@ export function quote(input: PricedLine[], s: StoreSettings, opts: { payment?: '
   // Rounded to whole rupees so totals never show paise.
   const prepaidDiscount =
     opts.payment === 'online' && itemCount > 0 ? Math.min(s.prepaidDiscount.max, Math.round((merchandise * s.prepaidDiscount.percent) / 100 / 100) * 100) : 0;
-  const total = merchandise + shipping + codFee - prepaidDiscount;
+  const platformFee = itemCount > 0 ? (s.platformFee ?? 0) : 0;
+  const total = merchandise + shipping + codFee + platformFee - prepaidDiscount;
 
-  return { lines, itemCount, subtotal, discounts, discountTotal, shipping, codFee, prepaidDiscount, total, hints, coupon };
+  return { lines, itemCount, subtotal, discounts, discountTotal, shipping, codFee, platformFee, prepaidDiscount, total, hints, coupon };
 }

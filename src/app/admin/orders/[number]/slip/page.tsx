@@ -5,7 +5,7 @@ import { adminOrNull } from '@/lib/admin/guard';
 import { getSettings } from '@/lib/catalog/queries';
 import { designSummary } from '@/lib/custom/studios';
 import { formatDate } from '@/lib/dates';
-import { formatPhone } from '@/lib/india';
+import { formatPhone, whatsappNumbers } from '@/lib/india';
 import { formatINR } from '@/lib/money';
 import { getOrderViewForAdmin } from '@/lib/orders/service';
 
@@ -94,7 +94,7 @@ async function Slip({ params }: { params: PageProps<'/admin/orders/[number]/slip
           </tbody>
         </table>
         <p className="mt-8 text-center text-sm text-[#555]">
-          Thank you for shopping with {settings.business.name || 'PrintYourVibe'}!{settings.contact.whatsapp ? ` Questions? WhatsApp us on ${settings.contact.whatsapp}.` : ''}
+          Thank you for shopping with {settings.business.name || 'PrintYourVibe'}!{whatsappNumbers(settings.contact).length ? ` Questions? WhatsApp us on ${whatsappNumbers(settings.contact).join(' or ')}.` : ''}
         </p>
       </Paper>
     </>

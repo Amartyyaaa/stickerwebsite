@@ -33,7 +33,7 @@ export const STUDIOS: Record<StudioKind, StudioDef> = {
     tab: 'Stickers',
     title: 'Custom stickers',
     blurb: 'Upload a logo, drawing or photo. Pick a shape and finish, and see your sticker before you order.',
-    description: 'Make custom stickers from your own image: die-cut, circle or square, matte, glossy, holographic or transparent vinyl. Printed in India.',
+    description: 'Make custom stickers from your own image: die-cut, circle or square, in matte or glossy vinyl. Printed in India.',
     dpi: { great: 250, ok: 150 },
   },
   polaroids: {

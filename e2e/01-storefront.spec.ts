@@ -1,5 +1,5 @@
 import { devices, expect, test } from '@playwright/test';
-import { B, check, sidewaysScroll } from './support';
+import { B, check, one, sidewaysScroll } from './support';
 
 /** Browsing as a shopper: cart drawer, menus, search, filters, product options, wishlist, phone layout. */
 test('storefront: browse, filter, choose options and save', async ({ browser }) => {
@@ -34,7 +34,7 @@ test('storefront: browse, filter, choose options and save', async ({ browser }) 
 
     // Mega menu.
     await p.getByRole('button', { name: 'Stickers' }).hover();
-    check('Stickers mega menu opens on hover', await p.getByRole('link', { name: /Holographic Stickers/ }).first().isVisible());
+    check('Stickers mega menu opens on hover', await p.getByRole('link', { name: /Diary Sticker Sheets/ }).first().isVisible());
 
     // Search suggestions.
     await p.mouse.move(10, 600);
@@ -50,8 +50,8 @@ test('storefront: browse, filter, choose options and save', async ({ browser }) 
     // Listing filters.
     await p.goto(`${B}/c/wall-posters`, { waitUntil: 'networkidle' });
     const before = await p.locator('main p[aria-live="polite"] b').first().textContent();
-    await p.locator('aside label', { hasText: 'F1 & Motorsport' }).click();
-    await p.waitForURL(/vibe=f1-motorsport/);
+    await p.locator('aside label', { hasText: 'Sports' }).click();
+    await p.waitForURL(/vibe=sports/);
     await p.waitForFunction((b0) => document.querySelector('main p[aria-live="polite"] b')?.textContent !== b0, before);
     const after = await p.locator('main p[aria-live="polite"] b').first().textContent();
     check('vibe filter narrows results', after !== before, `${before} -> ${after}`);
@@ -67,7 +67,9 @@ test('storefront: browse, filter, choose options and save', async ({ browser }) 
     }
 
     // Product page: options change the price and the picture.
-    await p.goto(`${B}/p/crimson-tanuki-wall-poster`, { waitUntil: 'networkidle' });
+    // A demo wall poster at its standard price (the demo designs are generated, so look one up).
+    const poster = (await one("select slug from products where is_sample = 1 and type_id = 'wall-posters' and price_override is null order by popularity desc limit 1"))!;
+    await p.goto(`${B}/p/${poster.slug}`, { waitUntil: 'networkidle' });
     const price1 = await p.locator('main span.font-display.text-lime:visible').first().textContent();
     await p.getByText('A2', { exact: true }).click();
     await p.getByText('Wood', { exact: true }).click();

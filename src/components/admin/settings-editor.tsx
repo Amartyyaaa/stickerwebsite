@@ -127,6 +127,7 @@ export function SettingsEditor({ initial, types, onlinePayments }: { initial: Se
         <div className="grid gap-4 sm:grid-cols-2">
           {text('shipping.freeAbove', 'Free shipping above (₹)', f.shipping.freeAbove, (d, v) => (d.shipping.freeAbove = v), { money: true, hint: 'After offers and coupons. 0 makes shipping always free.' })}
           {text('shipping.fee', 'Shipping fee (₹)', f.shipping.fee, (d, v) => (d.shipping.fee = v), { money: true })}
+          {text('platformFee', 'Platform fee (₹)', f.platformFee, (d, v) => (d.platformFee = v), { money: true, hint: 'Added to every order and shown in the cart before checkout. 0 for none.' })}
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           {days('metroDays', 'Metro cities')}
@@ -243,6 +244,7 @@ export function SettingsEditor({ initial, types, onlinePayments }: { initial: Se
           {text('contact.email', 'Support email', f.contact.email, (d, v) => (d.contact.email = v), { type: 'email', optional: true, hint: 'New-order alerts go here unless ORDER_ALERT_EMAIL is set.' })}
           {text('contact.phone', 'Phone', f.contact.phone, (d, v) => (d.contact.phone = v), { optional: true })}
           {text('contact.whatsapp', 'WhatsApp number', f.contact.whatsapp, (d, v) => (d.contact.whatsapp = v), { optional: true, hint: 'The chat button on every page opens a chat with this number.' })}
+          {text('contact.whatsappAlt', 'Second WhatsApp number', f.contact.whatsappAlt, (d, v) => (d.contact.whatsappAlt = v), { optional: true, hint: 'With two numbers, the chat button lets shoppers choose.' })}
           {text('contact.hours', 'Hours', f.contact.hours, (d, v) => (d.contact.hours = v))}
         </div>
         {text('contact.address', 'Address', f.contact.address, (d, v) => (d.contact.address = v), { optional: true })}

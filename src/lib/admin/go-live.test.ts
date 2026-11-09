@@ -26,7 +26,7 @@ describe('go-live checklist', () => {
     const fresh: GoLiveInput = {
       ...ready,
       env: { siteUrl: 'http://localhost:3000', authSecretLength: 0, razorpayKeyId: '', razorpaySecret: false, webhookSecret: false, paymentsMock: false, resendKey: false, mailFrom: 'PrintYourVibe <orders@yourdomain.in>', backups: false },
-      settings: DEFAULT_SETTINGS,
+      settings: { ...DEFAULT_SETTINGS, contact: { ...DEFAULT_SETTINGS.contact, email: '', whatsapp: '', whatsappAlt: '' } },
       placeholders: [{ title: 'About PrintYourVibe', placeholders: ['[Tell your story here]'] }],
       demoProducts: 5910,
       realProducts: 0,

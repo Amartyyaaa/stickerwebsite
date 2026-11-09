@@ -5,14 +5,17 @@ import { ChatIcon } from '@/components/icons';
 import { AddressBlock, OrderItems, OrderTotals, ShipmentNote, StatusChip, Timeline } from '@/components/orders/order-parts';
 import { PayNow } from '@/components/orders/pay-now';
 import { ItemReview } from '@/components/orders/review-form';
+import { CancelOrder, OrderFeedback } from '@/components/orders/shopper-actions';
 import { shopperAccounts } from '@/lib/accounts';
 import { getSettings } from '@/lib/catalog/queries';
 import { formatDate } from '@/lib/dates';
+import { whatsappLink } from '@/lib/india';
 import { emailReady } from '@/lib/email/send';
 import { formatINR } from '@/lib/money';
 import { normalizeOrderNumber } from '@/lib/orders/numbers';
 import { getOrderForViewer } from '@/lib/orders/service';
-import { PAYMENT_LABEL } from '@/lib/orders/status';
+import { PAYMENT_LABEL, SHOPPER_CANCELLABLE } from '@/lib/orders/status';
+import { FEEDBACK_STATUSES, feedbackFor } from '@/lib/orders/shopper';
 import { reviewStates } from '@/lib/reviews';
 import { getViewer } from '@/lib/viewer';
 
@@ -54,9 +57,10 @@ async function OrderContent({ params, searchParams }: PageProps<'/order/[number]
   // Delivered catalog items can be reviewed (custom-printed ones are one of a kind).
   const reviewable = order.status === 'delivered' ? order.items.filter((i) => i.productId > 0) : [];
   const reviewed = reviewable.length ? await reviewStates(order.id) : {};
+  const askFeedback = FEEDBACK_STATUSES.includes(order.status) && !(await feedbackFor(order.id));
+  const orderRef = { number: order.number, key: order.accessKey };
   const firstName = order.name.split(' ')[0] || order.name;
-  const digits = settings.contact.whatsapp.replace(/\D/g, '');
-  const help = digits ? `https://wa.me/${digits}?text=${encodeURIComponent(`Hi PrintYourVibe! About my order ${order.number}`)}` : '/pages/contact';
+  const help = whatsappLink(settings.contact.whatsapp, `Hi PrintYourVibe! About my order ${order.number}`) ?? '/pages/contact';
 
   return (
     <div className="grid gap-8">
@@ -98,9 +102,10 @@ async function OrderContent({ params, searchParams }: PageProps<'/order/[number]
           )}
           {order.paymentMethod === 'cod' && order.status === 'placed' && (
             <p className="rounded-card border border-cyan/40 bg-cyan/5 p-4 text-sm">
-              <b>Cash on Delivery:</b> please keep {formatINR(order.total)} ready when your parcel arrives. We’ll message you on {digits ? 'WhatsApp' : 'your phone'} to confirm the order before we print it.
+              <b>Cash on Delivery:</b> please keep {formatINR(order.total)} ready when your parcel arrives. We’ll message you on {help.startsWith('https://') ? 'WhatsApp' : 'your phone'} to confirm the order before we print it.
             </p>
           )}
+          {askFeedback && <OrderFeedback order={orderRef} />}
           <section aria-labelledby="progress-title">
             <h2 id="progress-title" className="section-title mb-5">
               Progress
@@ -146,9 +151,15 @@ async function OrderContent({ params, searchParams }: PageProps<'/order/[number]
             <AddressBlock address={order.address} />
             <p className="mt-3 text-[13px] text-muted">Updates go to {order.email}</p>
           </div>
-          <a href={help} {...(digits ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className="btn btn-ghost">
+          <a href={help} {...(help.startsWith('https://') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className="btn btn-ghost">
             <ChatIcon size={18} /> Questions about this order?
           </a>
+          {SHOPPER_CANCELLABLE.includes(order.status) && (
+            <div className="grid gap-1">
+              <CancelOrder order={orderRef} paid={order.paymentStatus === 'paid'} />
+              <p className="text-[13px] text-muted">You can cancel until we start printing.</p>
+            </div>
+          )}
         </aside>
       </div>
     </div>

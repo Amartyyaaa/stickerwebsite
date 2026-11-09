@@ -4,6 +4,8 @@ import { AdminHeader, Pager, Tabs } from '@/components/admin/ui';
 import { adminOrNull } from '@/lib/admin/guard';
 import { listReviews, REVIEW_TABS, reviewCounts, REVIEWS_PER_PAGE, type ReviewTab } from '@/lib/admin/reviews';
 import { buildQuery } from '@/lib/catalog/filters';
+import { formatDate } from '@/lib/dates';
+import { feedbackSummary } from '@/lib/orders/shopper';
 
 export const metadata = { title: 'Reviews' };
 
@@ -32,7 +34,46 @@ async function Reviews({ searchParams }: { searchParams: PageProps<'/admin/revie
         </ul>
       )}
       <Pager page={page} perPage={REVIEWS_PER_PAGE} total={total} href={(p) => href(tab, p)} />
+      <ShoppingExperience />
     </>
+  );
+}
+
+/** Ratings shoppers give right after ordering. Private to the store; not shown on product pages. */
+async function ShoppingExperience() {
+  const { count, average, latest } = await feedbackSummary();
+  return (
+    <section aria-labelledby="experience-title" className="mt-10 grid gap-3">
+      <h2 id="experience-title" className="font-display text-2xl uppercase">
+        Shopping experience
+      </h2>
+      <p className="text-sm text-muted">
+        {count
+          ? `${average!.toFixed(1)} out of 5 from ${count} order${count === 1 ? '' : 's'}. Shoppers rate their order right after placing it; only you see these.`
+          : 'Shoppers are asked to rate their shopping experience right after ordering. Only you see these.'}
+      </p>
+      {latest.length > 0 && (
+        <ul className="grid gap-2">
+          {latest.map((f) => (
+            <li key={f.number} className="rounded-card border border-line bg-surface p-4 text-sm">
+              <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-lime" aria-label={`${f.rating} out of 5 stars`}>
+                  {'★'.repeat(f.rating)}
+                  <span className="text-line-2">{'★'.repeat(5 - f.rating)}</span>
+                </span>
+                <a href={`/admin/orders/${f.number}`} className="font-semibold hover:text-lime">
+                  {f.number}
+                </a>
+                <span className="text-muted">
+                  {f.name} · {formatDate(f.createdAt)}
+                </span>
+              </p>
+              {f.comment && <p className="mt-1.5 whitespace-pre-line">{f.comment}</p>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

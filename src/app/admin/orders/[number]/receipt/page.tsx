@@ -104,6 +104,7 @@ async function Receipt({ params }: { params: PageProps<'/admin/orders/[number]/r
           ))}
           {line('Shipping', order.shipping ? formatINR(order.shipping) : 'Free')}
           {order.codFee > 0 && line('Cash on Delivery fee', formatINR(order.codFee))}
+          {order.platformFee > 0 && line('Platform fee', formatINR(order.platformFee))}
           {order.prepaidDiscount > 0 && line('Online payment discount', `−${formatINR(order.prepaidDiscount)}`)}
           {line('Total', formatINR(order.total), true)}
           {row.refundedAmount > 0 && line('Refunded', `−${formatINR(row.refundedAmount)}`)}

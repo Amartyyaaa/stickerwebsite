@@ -11,7 +11,7 @@ Put the store online for free, to show people and try everything out. It takes a
 
 ## 1. Get the code into `main`
 
-Vercel publishes the `main` branch, so this guide's changes need to be there first. On GitHub, open the pull request for the Vercel preview, click **Merge pull request**, then **Confirm merge**.
+Vercel publishes the `main` branch, so this guide's changes need to be there first. On GitHub, open [pull request #2](https://github.com/Amartyyaaa/stickerwebsite/pull/2), click **Merge pull request**, then **Confirm merge**.
 
 ## 2. Create the database (Turso)
 
@@ -24,8 +24,9 @@ Vercel publishes the `main` branch, so this guide's changes need to be there fir
 
 ## 3. Create the Vercel project
 
-1. Go to vercel.com and click **Sign Up**, then **Continue with GitHub**. Choose the free **Hobby** plan.
-2. Click **Add New… → Project**, find `stickerwebsite` and click **Import**. If it isn't listed, click "Adjust GitHub App Permissions" and give Vercel access to the repository.
+1. Sign in at vercel.com with GitHub. If you don't have an account yet, click **Sign Up**, then **Continue with GitHub**, and choose the free **Hobby** plan.
+2. On the dashboard, click **Create New** (top right), then **Project**. Find `stickerwebsite` and click **Import**.
+   - If it isn't listed, click **Adjust GitHub App Permissions** and add `stickerwebsite` to the repositories Vercel can see. If you've used Vercel before, it may only have access to your other repositories.
 3. Leave the build settings as they are. Open **Environment Variables** and add:
 
 | Name | Value |
@@ -35,7 +36,7 @@ Vercel publishes the `main` branch, so this guide's changes need to be there fir
 | `BETTER_AUTH_SECRET` | a random 40-character password (use your password manager's generator) |
 | `ADMIN_EMAILS` | your email address |
 | `CRON_SECRET` | another random 40-character password |
-| `SEED_SAMPLE` | `1` if you'd like the 5,910 demo designs to start with (added once; remove them later in **Admin → Products**) |
+| `SEED_SAMPLE` | `1` if you'd like the 4,410 demo designs to start with (added once; remove them later in **Admin → Products**) |
 
 4. Click **Deploy**.
    - It builds for 3–5 minutes.

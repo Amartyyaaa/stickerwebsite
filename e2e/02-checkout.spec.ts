@@ -44,10 +44,13 @@ test('checkout: COD, online payment, custom items and accounts', async ({ browse
     check('pincode shows a delivery estimate', /Usually delivered/.test(await p.locator('#addr-pincode-hint').innerText().catch(() => '')));
     await p.locator('label:has-text("Cash on Delivery")').click();
     await p.waitForSelector('dt:has-text("Cash on Delivery fee")', { timeout: 10000 });
+    check('the platform fee shows before ordering', (await p.locator('main dt:has-text("Platform fee") + dd').innerText()) === '₹5');
     await p.locator('main form button[type=submit]').click();
     await p.waitForURL(/\/order\/PYV-[A-Z0-9]{6}\?key=.*placed=1/, { timeout: 20000 });
     codUrl = p.url();
     const codNumber = orderNumberIn(codUrl);
+    const { rows: fee } = await db.execute({ sql: 'select platform_fee from orders where number = ?', args: [codNumber] });
+    check('the order keeps the platform fee', Number(fee[0]?.platform_fee) === 500, String(fee[0]?.platform_fee));
     await p.waitForSelector('h1:has-text("Thanks, Asha")', { timeout: 15000 }).catch(() => {});
     check('order page thanks the shopper', (await p.locator('h1:visible:has-text("Thanks, Asha")').count()) === 1);
     check('COD note shown', (await p.locator('text=Cash on Delivery:').count()) === 1);
@@ -71,6 +74,36 @@ test('checkout: COD, online payment, custom items and accounts', async ({ browse
     await p.waitForSelector('text=couldn’t find an order', { timeout: 10000 });
     const noKey = await (await fetch(`${B}/order/${codNumber}`)).text();
     check('order page without the key hides the order', noKey.includes('couldn’t find that order') && !noKey.includes('Lake View'));
+  });
+
+  await test.step('rating the shopping experience, then cancelling with a reason', async () => {
+    const codNumber = orderNumberIn(codUrl);
+    await nav(p, codUrl);
+    const card = p.locator('section:has(h2:has-text("How was shopping with us?"))');
+    await card.locator('button:has-text("Send feedback")').click();
+    await card.locator('text=Choose from 1 to 5 stars.').waitFor();
+    await card.locator('label:has-text("4 stars")').click();
+    await card.locator('textarea').fill('Easy checkout');
+    await card.locator('button:has-text("Send feedback")').click();
+    await card.locator('text=Thank you!').waitFor({ timeout: 10000 });
+    const { rows: fb } = await db.execute({ sql: 'select f.rating, f.comment from order_feedback f join orders o on o.id = f.order_id where o.number = ?', args: [codNumber] });
+    check('the rating is saved with the order', Number(fb[0]?.rating) === 4 && fb[0]?.comment === 'Easy checkout');
+    await nav(p, codUrl);
+    check('the order page asks only once', (await p.locator('h2:has-text("How was shopping with us?")').count()) === 0);
+
+    await p.click('button:has-text("Cancel order")');
+    const dlg = p.locator('dialog[open]');
+    await dlg.locator('label:has-text("Other")').click();
+    await dlg.locator('button:has-text("Cancel the order")').click();
+    check('"Other" asks for a few words', (await dlg.locator('[role=alert]').innerText()).includes('few words'));
+    await dlg.locator('textarea').fill('Chose the wrong size');
+    await dlg.locator('button:has-text("Cancel the order")').click();
+    await p.waitForSelector('main header :text-is("Cancelled")', { timeout: 15000 });
+    const { rows: ev } = await db.execute({ sql: "select o.status, e.note from orders o join order_events e on e.order_id = o.id where o.number = ? and e.status = 'cancelled'", args: [codNumber] });
+    check('the shopper cancels with their reason', ev[0]?.status === 'cancelled' && ev[0]?.note === 'Cancelled by the customer: Chose the wrong size', String(ev[0]?.note));
+    check('a cancelled order can’t be cancelled again', (await p.locator('button:has-text("Cancel order")').count()) === 0);
+    const alert = await waitFor(() => mails(OWNER).find((m) => m.subject === `Order ${codNumber} cancelled by the customer`));
+    check('the store is told why', Boolean(alert?.text.includes('Reason: Chose the wrong size')));
   });
 
   await test.step('online payment: cancel, then pay', async () => {

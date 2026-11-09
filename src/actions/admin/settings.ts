@@ -9,9 +9,10 @@ const T = (n = 300) => z.string().max(n);
 const Pair = z.tuple([T(5), T(5)]);
 
 const SettingsForm = z.object({
-  contact: z.object({ email: T(200), phone: T(30), whatsapp: T(30), address: T(400), hours: T(120) }),
+  contact: z.object({ email: T(200), phone: T(30), whatsapp: T(30), whatsappAlt: T(30), address: T(400), hours: T(120) }),
   social: z.object({ instagram: T(), youtube: T(), facebook: T(), x: T() }),
   shipping: z.object({ freeAbove: T(20), fee: T(20) }),
+  platformFee: T(20),
   delivery: z.object({ metroDays: Pair, standardDays: Pair, remoteDays: Pair }),
   cod: z.object({ enabled: z.boolean(), fee: T(20), min: T(20), max: T(20), allowCustom: z.boolean() }),
   prepaidDiscount: z.object({ percent: T(5), max: T(20) }),

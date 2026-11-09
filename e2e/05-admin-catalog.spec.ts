@@ -52,7 +52,7 @@ test('admin: products, CSV import, categories and vibes', async ({ browser }) =>
     await page.fill('#pf-name', name);
     await page.selectOption('#pf-typeId', 'wall-posters');
     await page.selectOption('#pf-vibeId', 'anime');
-    await page.locator('fieldset button[aria-pressed]', { hasText: 'Aesthetic' }).click();
+    await page.locator('fieldset button[aria-pressed]', { hasText: 'Abstract' }).click();
     await page.fill('#pf-description', 'A test poster for the admin check.');
     await page.fill('#pf-tags', `testposter${tag}, admin`);
     await page.setInputFiles('input[type=file]', [`${IMG}/photo-01.jpg`, `${IMG}/photo-02.jpg`]);
@@ -69,7 +69,7 @@ test('admin: products, CSV import, categories and vibes', async ({ browser }) =>
     const row = (await one('select slug, price_from, images, vibe_id, is_sample from products where id = ?', [id]))!;
     slug = String(row.slug);
     const vibes = (await all('select vibe_id from product_vibes where product_id = ? order by vibe_id', [id])).map((r) => r.vibe_id);
-    check('product saved with slug, price and vibes', slug === `test-poster-${tag}-wall-poster` && row.price_from === 24900 && vibes.join() === 'aesthetic,anime', `${slug} ${row.price_from} ${vibes}`);
+    check('product saved with slug, price and vibes', slug === `test-poster-${tag}-wall-poster` && row.price_from === 24900 && vibes.join() === 'abstract,anime', `${slug} ${row.price_from} ${vibes}`);
     photos = JSON.parse(String(row.images));
     check('photos saved in the new order', photos.length === 2 && photos[0] === firstAfter.replace('?size=thumb', ''), photos.join(' '));
     const kinds = (await all(`select kind from uploads where id in (${photos.map(() => '?').join(',')})`, photos.map((p) => p.split('/').pop()!))).map((r) => r.kind);
@@ -104,12 +104,12 @@ test('admin: products, CSV import, categories and vibes', async ({ browser }) =>
     await page.waitForSelector('text=Shown: 1.');
     check('bulk show puts it back', (await status(store, `/p/${slug}`)) === 200);
     await page.check(`input[aria-label="Select ${name}"]`);
-    await page.selectOption('select[aria-label="Move to vibe"]', 'f1-motorsport');
+    await page.selectOption('select[aria-label="Move to vibe"]', 'sports');
     await page.click('button:has-text("Move")');
     await page.waitForSelector('text=Moved: 1.');
     const moved = (await one('select vibe_id from products where id = ?', [id]))!;
     const movedLinks = (await all('select vibe_id from product_vibes where product_id = ? order by vibe_id', [id])).map((r) => r.vibe_id);
-    check('bulk set vibe replaces the main vibe', moved.vibe_id === 'f1-motorsport' && movedLinks.join() === 'aesthetic,f1-motorsport', movedLinks.join());
+    check('bulk set vibe replaces the main vibe', moved.vibe_id === 'sports' && movedLinks.join() === 'abstract,sports', movedLinks.join());
   });
 
   await test.step('CSV: upload a photo, export, edit, add, check and import', async () => {
@@ -123,7 +123,7 @@ test('admin: products, CSV import, categories and vibes', async ({ browser }) =>
     const ours = lines.find((l) => l.startsWith(`${id},`));
     check('export includes the new product', Boolean(ours), ours);
     const cells = (ours ?? '').split(',');
-    cells[4] = 'aesthetic;anime';
+    cells[4] = 'abstract;anime';
     cells[7] = '299';
     const newName = `CSV Poster ${tag}`;
     const body = [lines[0], cells.join(','), `,,${newName},wall-posters,anime,,csv,199,,photo-03.jpg,yes`, `,,Broken ${tag},mugs,anime,,,,,,yes`].join('\n');

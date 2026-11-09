@@ -31,6 +31,8 @@ export interface HomeHero {
 
 export interface StoreSettings {
   shipping: { freeAbove: number; fee: number };
+  /** A fixed fee on every order, in paise (0 for none). Shown in the cart and at checkout. */
+  platformFee: number;
   cod: {
     enabled: boolean;
     fee: number;
@@ -51,7 +53,8 @@ export interface StoreSettings {
   };
   bxgy: BuyXGetY[];
   announcement: string[];
-  contact: { email: string; phone: string; whatsapp: string; address: string; hours: string };
+  /** `whatsappAlt` is a second WhatsApp number; the chat button offers both. */
+  contact: { email: string; phone: string; whatsapp: string; whatsappAlt: string; address: string; hours: string };
   /** Full links to the store's profiles, shown in the footer when set. */
   social: { instagram: string; youtube: string; facebook: string; x: string };
   home: HomeHero;
@@ -67,6 +70,7 @@ export interface StoreSettings {
 
 export const DEFAULT_SETTINGS: StoreSettings = {
   shipping: { freeAbove: 49900, fee: 4900 },
+  platformFee: 500,
   cod: { enabled: true, fee: 4900, min: 19900, max: 300000, allowCustom: false },
   prepaidDiscount: { percent: 5, max: 5000 },
   packs: {
@@ -90,13 +94,13 @@ export const DEFAULT_SETTINGS: StoreSettings = {
     },
   ],
   announcement: ['Any 10 stickers for ₹199', 'Free shipping above ₹499', 'Cash on Delivery available'],
-  contact: { email: '', phone: '', whatsapp: '', address: '', hours: 'Monday to Saturday, 10 am to 7 pm' },
+  contact: { email: 'wecare.printyourvibe@gmail.com', phone: '', whatsapp: '+91 80028 98685', whatsappAlt: '+91 98016 44598', address: '', hours: 'Monday to Saturday, 10 am to 7 pm' },
   social: { instagram: '', youtube: '', facebook: '', x: '' },
   home: {
     eyebrow: '//// New drop',
-    title: 'Pit lane poster series',
-    body: 'Racing, anime and gaming posters printed big and sharp. A4 to A2, framed or unframed.',
-    primary: { label: 'Shop F1 posters', href: '/v/f1-motorsport?type=wall-posters' },
+    title: 'JDM night-run poster series',
+    body: 'Car, anime and gaming posters printed big and sharp. A4 to A2, framed or unframed.',
+    primary: { label: 'Shop JDM posters', href: '/v/jdm?type=wall-posters' },
     secondary: { label: 'All new drops', href: '/shop?sort=new' },
     image: null,
   },

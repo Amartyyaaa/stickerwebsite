@@ -26,7 +26,7 @@ function placeholderArt(id: string, name: string): ArtSpec {
 
 export const metadata: Metadata = {
   title: 'Fandoms and vibes',
-  description: 'Anime, F1, cricket, K-pop, desi, aesthetic and more. Find stickers and posters for your fandom.',
+  description: 'Humor, hustle, anime, pop culture, desi, JDM and more. Find stickers and posters for your vibe.',
 };
 
 export default async function VibesPage() {

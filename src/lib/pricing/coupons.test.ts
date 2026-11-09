@@ -45,7 +45,7 @@ describe('coupons in the quote', () => {
   it('comes after other offers, as its own discount line', () => {
     const q = quote([poster(2)], settings, { coupon: base });
     expect(q.discounts).toEqual([{ id: 'coupon', label: 'Coupon WELCOME10', amount: 4000 }]);
-    expect(q.total).toBe(39_800 - 4000 + settings.shipping.fee);
+    expect(q.total).toBe(39_800 - 4000 + settings.shipping.fee + settings.platformFee);
     expect(q.coupon).toMatchObject({ applied: true, amount: 4000 });
   });
   it('reports the minimum order instead of applying', () => {
@@ -59,7 +59,7 @@ describe('coupons in the quote', () => {
     expect(plain.shipping).toBe(settings.shipping.fee);
     const q = quote([poster(1)], settings, { coupon: { ...base, kind: 'shipping', value: 0 } });
     expect(q.shipping).toBe(0);
-    expect(q.total).toBe(19_900);
+    expect(q.total).toBe(19_900 + settings.platformFee);
     expect(q.coupon?.freeShipping).toBe(true);
   });
   it('a coupon can bring an order below free shipping', () => {

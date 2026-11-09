@@ -85,3 +85,14 @@ describe('checkout details', () => {
     expect(AddressInput.safeParse(ok).data?.line2).toBe('');
   });
 });
+
+describe('shopper cancel reasons', () => {
+  it('saves the chosen reason, or the shopper’s own words for "Other"', async () => {
+    const { cancelReasonText, SHOPPER_CANCELLABLE } = await import('./status');
+    expect(cancelReasonText('mistake', '')).toBe('Ordered by mistake');
+    expect(cancelReasonText('other', '  Chose   the wrong size ')).toBe('Chose the wrong size');
+    expect(cancelReasonText('other', 'no')).toBeNull();
+    expect(cancelReasonText('made-up', 'x')).toBeNull();
+    expect(SHOPPER_CANCELLABLE).toEqual(['pending_payment', 'placed', 'confirmed']);
+  });
+});

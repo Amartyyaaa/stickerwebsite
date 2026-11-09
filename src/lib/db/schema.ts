@@ -263,6 +263,8 @@ export const orders = sqliteTable(
     discountTotal: integer('discount_total').notNull(),
     shipping: integer('shipping').notNull(),
     codFee: integer('cod_fee').notNull(),
+    /** The store's fixed fee on each order (settings.platformFee when it was placed). */
+    platformFee: integer('platform_fee').notNull().default(0),
     prepaidDiscount: integer('prepaid_discount').notNull(),
     total: integer('total').notNull(),
     razorpayOrderId: text('razorpay_order_id').unique(),
@@ -329,6 +331,25 @@ export const orderEvents = sqliteTable(
     createdAt: integer('created_at').notNull(),
   },
   (t) => [index('order_events_order_idx').on(t.orderId)],
+);
+
+/**
+ * How shopping went, asked on the order page right after an order is placed: 1 to 5 stars and an
+ * optional comment, one per order. Only the store team sees it; product reviews come after delivery.
+ */
+export const orderFeedback = sqliteTable(
+  'order_feedback',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    orderId: integer('order_id')
+      .notNull()
+      .unique()
+      .references(() => orders.id, { onDelete: 'cascade' }),
+    rating: integer('rating').notNull(),
+    comment: text('comment').notNull().default(''),
+    createdAt: integer('created_at').notNull(),
+  },
+  (t) => [index('order_feedback_created_idx').on(t.createdAt)],
 );
 
 /** Razorpay webhook events already handled, so a repeated delivery changes nothing. */

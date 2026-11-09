@@ -55,6 +55,16 @@ export const isIndianMobile = (digits: string) => /^[6-9]\d{9}$/.test(digits);
 
 export const formatPhone = (digits: string) => (digits.length === 10 ? `+91 ${digits.slice(0, 5)} ${digits.slice(5)}` : digits);
 
+/** A WhatsApp chat link for an Indian number written any common way ("98765 43210", "+91 98765 43210"), or null. */
+export function whatsappLink(number: string, text?: string): string | null {
+  const digits = normalizePhone(number);
+  if (!isIndianMobile(digits)) return null;
+  return `https://wa.me/91${digits}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
+}
+
+/** The store's WhatsApp numbers that are set, first one first. */
+export const whatsappNumbers = (contact: { whatsapp: string; whatsappAlt?: string }) => [contact.whatsapp, contact.whatsappAlt ?? ''].filter((n) => whatsappLink(n));
+
 const Phone = z
   .string()
   .max(20)

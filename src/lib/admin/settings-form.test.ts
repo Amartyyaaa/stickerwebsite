@@ -24,6 +24,19 @@ describe('settings form', () => {
     expect(r.settings.business.gstin).toBe('29ABCDE1234F1Z5');
     expect(r.settings.home).toEqual(DEFAULT_SETTINGS.home);
   });
+  it('reads a second WhatsApp number and the platform fee', () => {
+    const f = toSettingsForm(DEFAULT_SETTINGS);
+    expect(f.platformFee).toBe('5');
+    f.contact.whatsappAlt = '9801644598';
+    f.platformFee = '10';
+    const r = readSettingsForm(f, DEFAULT_SETTINGS, types);
+    expect(r.ok && r.settings.contact.whatsappAlt).toBe('+91 98016 44598');
+    expect(r.ok && r.settings.platformFee).toBe(1000);
+    f.contact.whatsappAlt = '';
+    f.platformFee = '0';
+    const none = readSettingsForm(f, DEFAULT_SETTINGS, types);
+    expect(none.ok && [none.settings.contact.whatsappAlt, none.settings.platformFee]).toEqual(['', 0]);
+  });
   it('points at the field to fix', () => {
     const bad = (patch: (f: ReturnType<typeof toSettingsForm>) => void) => {
       const f = toSettingsForm(DEFAULT_SETTINGS);
@@ -32,6 +45,8 @@ describe('settings form', () => {
       return r.ok ? null : r.field;
     };
     expect(bad((f) => (f.contact.whatsapp = '12345'))).toBe('contact.whatsapp');
+    expect(bad((f) => (f.contact.whatsappAlt = '12345'))).toBe('contact.whatsappAlt');
+    expect(bad((f) => (f.platformFee = 'five'))).toBe('platformFee');
     expect(bad((f) => (f.cod.max = '100'))).toBe('cod.max');
     expect(bad((f) => (f.delivery.metroDays = ['5', '3']))).toBe('delivery.metroDays');
     expect(bad((f) => (f.packs.tiers = [{ qty: '10', price: '199' }, { qty: '10', price: '149' }]))).toBe('packs.tiers.1');

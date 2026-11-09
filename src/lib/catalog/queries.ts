@@ -227,11 +227,11 @@ export async function getHomeRows(): Promise<{ trending: ProductCard[]; fresh: P
   cacheLife('hours');
   cacheTag('catalog');
   const trending = await onePerType(
-    ['laptop-stickers', 'wall-posters', '3d-motion-stickers', 'polaroid-sets', 'framed-posters', 'diary-sticker-sheets', 'fridge-magnets', 'bookmarks'],
+    ['laptop-stickers', 'wall-posters', 'car-bike-stickers', 'polaroid-sets', 'framed-posters', 'diary-sticker-sheets', 'phone-bottle-stickers', 'bookmarks'],
     sql`p.popularity DESC`,
   );
   const fresh = await onePerType(
-    ['holographic-stickers', 'split-posters', 'keychains', 'car-bike-stickers', 'transparent-stickers', 'badges', 'mini-posters', 'phone-skins'],
+    ['sticker-packs', 'split-posters', 'postcards', 'phone-bottle-stickers', 'poster-sets', 'polaroid-wall-kits', 'mini-posters', 'phone-skins'],
     sql`p.created_at DESC`,
   );
   return { trending, fresh };

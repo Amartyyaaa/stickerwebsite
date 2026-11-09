@@ -113,6 +113,18 @@ test('admin: orders from placed to delivered, files and refunds', async ({ brows
     check('customer gets the delivered email', Boolean(await waitFor(() => mails(shopperEmail).find((m) => m.subject.includes(`${codNumber} was delivered`)))));
   });
 
+  await test.step('a shopper’s cancel reason and shopping-experience ratings', async () => {
+    const cancelled = await one("select o.number from orders o join order_events e on e.order_id = o.id where e.note like 'Cancelled by the customer:%' limit 1");
+    check('a shopper cancelled an order in the checkout test', Boolean(cancelled));
+    if (cancelled) {
+      await a.goto(`${B}/admin/orders/${cancelled.number}`, { waitUntil: 'load' });
+      check('the admin order shows why the shopper cancelled', (await a.locator('text=Cancelled by the customer: Chose the wrong size').count()) === 1);
+      check('the admin order shows the shopper’s rating', (await a.locator('h2:has-text("Shopping experience")').count()) === 1);
+    }
+    await a.goto(`${B}/admin/reviews`, { waitUntil: 'load' });
+    check('reviews list the shopping-experience average', /\d\.\d out of 5 from \d+ order/.test(await a.locator('#experience-title + p').innerText()));
+  });
+
   await test.step('packing slip and receipt', async () => {
     await a.goto(`${B}/admin/orders/${codNumber}/slip`, { waitUntil: 'load' });
     await a.waitForSelector('text=Packing slip');

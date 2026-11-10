@@ -98,7 +98,7 @@ export function BulkPhotos({ types, themes }: { types: Option[]; themes: Option[
           1. What are they?
         </h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="grid gap-1.5" htmlFor="bulk-type">
+          <label className="grid content-start gap-1.5" htmlFor="bulk-type">
             <span className="text-[12.5px] font-bold uppercase tracking-[0.07em]">Product type</span>
             <select id="bulk-type" value={typeId} onChange={(e) => setTypeId(e.target.value)} className={selectClass()}>
               {types.map((t) => (
@@ -108,7 +108,7 @@ export function BulkPhotos({ types, themes }: { types: Option[]; themes: Option[
               ))}
             </select>
           </label>
-          <label className="grid gap-1.5" htmlFor="bulk-theme">
+          <label className="grid content-start gap-1.5" htmlFor="bulk-theme">
             <span className="text-[12.5px] font-bold uppercase tracking-[0.07em]">Theme</span>
             <select id="bulk-theme" value={defaultTheme} onChange={(e) => setDefaultTheme(e.target.value)} className={selectClass()}>
               {themes.map((t) => (

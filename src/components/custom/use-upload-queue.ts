@@ -105,7 +105,8 @@ function readSize(url: string): Promise<{ w: number; h: number }> {
 
 let seq = 0;
 
-export function useUploadQueue({ onDone, concurrency = 3, initUrl }: { onDone: (info: UploadInfo) => void; concurrency?: number; initUrl?: string }) {
+/** `onDone` also gets the original file, for callers that need more than its name (like its folder). */
+export function useUploadQueue({ onDone, concurrency = 3, initUrl }: { onDone: (info: UploadInfo, file?: File) => void; concurrency?: number; initUrl?: string }) {
   const [pending, setPending] = useState<PendingUpload[]>([]);
   const files = useRef(new Map<string, File>());
   const locals = useRef(new Map<string, string>());
@@ -144,7 +145,7 @@ export function useUploadQueue({ onDone, concurrency = 3, initUrl }: { onDone: (
       const info = results.current.get(key);
       if (info) {
         order.current.shift();
-        onDoneRef.current(info);
+        onDoneRef.current(info, files.current.get(key));
         forget(key);
       } else if (failed.current.has(key) || !files.current.has(key)) {
         order.current.shift();

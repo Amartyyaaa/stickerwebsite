@@ -127,3 +127,32 @@ describe('the settings part of the update', () => {
     expect(updateSettings(structuredClone(DEFAULT_SETTINGS)).changed).toBe(false);
   });
 });
+
+describe('a store already on the 21 themes (version 2)', () => {
+  const dir2 = mkdtempSync(join(tmpdir(), 'pyv-update2-'));
+  const client2 = createClient({ url: `file:${join(dir2, 'store.db')}` });
+  const db2 = drizzle(client2, { schema: s });
+  afterAll(() => {
+    client2.close();
+    rmSync(dir2, { recursive: true, force: true });
+  });
+
+  it('only remakes the demo designs, leaving your themes, types, products and settings alone', async () => {
+    await migrate(db2, { migrationsFolder: 'drizzle' });
+    await db2.insert(s.productTypes).values([type('laptop-stickers'), type('keychains')]);
+    // A theme the version 2 step would replace: it must stay, because that step doesn't run again.
+    await db2.insert(s.vibes).values([{ id: 'anime', name: 'Anime', blurb: '' }, { id: 'cricket', name: 'Cricket', blurb: '' }]);
+    await db2.insert(s.products).values([product('demo-one', 'laptop-stickers', 'anime', true), product('mine', 'keychains', 'cricket', false)]);
+    const settings = { ...DEFAULT_SETTINGS, contact: { ...DEFAULT_SETTINGS.contact, email: '', whatsapp: '' } };
+    await db2.insert(s.settings).values([{ key: 'store', value: settings }, { key: 'store_version', value: 2 }]);
+
+    const r = await applyStoreUpdates(db2);
+    expect(r).toMatchObject({ from: 2, applied: true, hadDemo: true });
+    expect((await db2.select({ id: s.vibes.id }).from(s.vibes)).map((v) => v.id).sort()).toEqual(['anime', 'cricket']);
+    expect((await db2.select({ id: s.productTypes.id }).from(s.productTypes)).map((t) => t.id).sort()).toEqual(['keychains', 'laptop-stickers']);
+    expect((await db2.select().from(s.products).where(eq(s.products.slug, 'mine')))[0]).toMatchObject({ vibeId: 'cricket', isActive: true });
+    const stored = (await db2.select().from(s.settings).where(eq(s.settings.key, 'store')))[0].value as StoreSettings;
+    expect(stored.contact).toMatchObject({ email: '', whatsapp: '' });
+    expect(await applyStoreUpdates(db2)).toMatchObject({ from: STORE_VERSION, applied: false });
+  });
+});

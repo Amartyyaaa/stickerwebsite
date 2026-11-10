@@ -6,6 +6,7 @@
  * Text uses the site's CSS font variables, which is why the SVG is inlined in
  * the page rather than loaded through an <img>.
  */
+import { drawMotif, isMotif, type Motif } from './motifs';
 import type { ArtKind, ArtSpec, FrameColor, PaletteKey, PosterKind, Scene, StickerShape } from './types';
 
 const P = {
@@ -206,6 +207,7 @@ interface StickerOpts {
   c2: PaletteKey;
   seed: number;
   variant?: 'plain' | 'holo' | 'clear' | 'motion' | 'dome' | 'magnet';
+  motif?: Motif;
 }
 
 /** Sticker artwork in a 200 × 200 box (with room for the cut border). */
@@ -226,33 +228,40 @@ function stickerParts(ctx: Ctx, o: StickerOpts): { defs: string; body: string } 
   const fill = `url(#${g})`;
   const word = o.word ?? '';
   const say = (txt: string, x: number, y: number, size: number, color = tc) => text(x, y, txt, size, color, { central: true });
+  // With a theme symbol, it sits above a smaller word; the cut-out details use the sticker's first colour.
+  const m = o.motif;
+  const sym = (cx: number, cy: number, size: number) => (m ? drawMotif(m, cx, cy, size, tc, c1) : '');
 
   switch (o.shape) {
     case 'blob': {
       const d = blob(100, 100, 76, 9, 0.26, r);
       geo.push(`<path d="${d}"/>`);
       body += `<path d="${d}" fill="${fill}"/>${sparkles(r, [[56, 58], [146, 60], [58, 146], [144, 146]], '#FFFFFF', 0.85)}`;
-      if (word) body += say(word, 100, 102, fit(word, 54, 128));
+      if (m) body += sym(100, word ? 82 : 100, word ? 66 : 92) + (word ? say(word, 100, 140, fit(word, 28, 100)) : '');
+      else if (word) body += say(word, 100, 102, fit(word, 54, 128));
       break;
     }
     case 'star': {
       const d = star(100, 102, 90, 60, 9);
       geo.push(`<path d="${d}"/>`);
       body += `<path d="${d}" fill="${fill}"/>`;
-      if (word) body += say(word, 100, 104, fit(word, 42, 104));
+      if (m) body += sym(100, word ? 90 : 102, word ? 54 : 72) + (word ? say(word, 100, 128, fit(word, 20, 80)) : '');
+      else if (word) body += say(word, 100, 104, fit(word, 42, 104));
       break;
     }
     case 'badge': {
       const d = scallop(100, 100, 86, 14, 0.07);
       geo.push(`<path d="${d}"/>`);
       body += `<path d="${d}" fill="${fill}"/><circle cx="100" cy="100" r="64" fill="none" stroke="${tc}" stroke-opacity=".55" stroke-width="2.5" stroke-dasharray="2 6" stroke-linecap="round"/>`;
-      if (word) body += say(word, 100, 102, fit(word, 56, 104));
+      if (m) body += sym(100, word ? 86 : 100, word ? 58 : 80) + (word ? say(word, 100, 134, fit(word, 24, 92)) : '');
+      else if (word) body += say(word, 100, 102, fit(word, 56, 104));
       break;
     }
     case 'pill': {
       geo.push('<rect x="14" y="60" width="172" height="80" rx="40"/>');
-      body += `<rect x="14" y="60" width="172" height="80" rx="40" fill="${fill}"/><circle cx="44" cy="100" r="9" fill="${tc}" opacity=".85"/>`;
-      if (word) body += say(word, 112, 101, fit(word, 34, 116));
+      body += `<rect x="14" y="60" width="172" height="80" rx="40" fill="${fill}"/>`;
+      body += m ? sym(52, 100, 44) : `<circle cx="44" cy="100" r="9" fill="${tc}" opacity=".85"/>`;
+      if (word) body += m ? say(word, 128, 101, fit(word, 30, 84)) : say(word, 112, 101, fit(word, 34, 116));
       break;
     }
     case 'heart': {
@@ -327,6 +336,8 @@ interface PosterOpts {
   title?: string;
   frame?: FrameColor;
   vb?: string;
+  /** A theme symbol drawn as the poster's centrepiece, in place of its number, sun, planet or flower. */
+  motif?: Motif;
 }
 
 interface Parts {
@@ -356,7 +367,9 @@ function posterParts(ctx: Ctx, o: PosterOpts): Parts {
     defs += `<linearGradient id="${bg}" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="${dk}"/><stop offset="1" stop-color="${dk2}"/></linearGradient>`;
     art += `<rect width="${W}" height="${H}" fill="url(#${bg})"/>`;
     const num = String((o.seed % 98) + 1).padStart(2, '0');
-    art += `<text x="150" y="196" text-anchor="middle" dominant-baseline="central" style="font-family:${DISPLAY}" font-size="${tsize(num, 230, 290)}" fill="none" stroke="${P.a}" stroke-width="2.5" opacity=".9">${num}</text>`;
+    art += o.motif
+      ? drawMotif(o.motif, 150, 170, 170, P.a, dk, 0.9)
+      : `<text x="150" y="196" text-anchor="middle" dominant-baseline="central" style="font-family:${DISPLAY}" font-size="${tsize(num, 230, 290)}" fill="none" stroke="${P.a}" stroke-width="2.5" opacity=".9">${num}</text>`;
     let lines = '';
     for (let i = 0; i < 22; i++) {
       const y = 150 + r() * 190;
@@ -386,6 +399,7 @@ function posterParts(ctx: Ctx, o: PosterOpts): Parts {
       for (let x = 0; x <= 300; x += 30) d += ` L${x} ${f1(base - rr() * amp)}`;
       return `<path d="${d} L300 424 L0 424 Z" fill="${color}"/>`;
     };
+    if (o.motif) art += drawMotif(o.motif, 150, 196, 116, dk, P.e, 0.92);
     art += ridge(286, 60, o.seed + 1, P.c) + ridge(314, 46, o.seed + 2, dk2) + ridge(342, 30, o.seed + 3, dk);
     art += text(150, 386, title, tsize(title, 36, 270), P.paper) + sub(series('SUNSET'), 408, P.paper);
   } else if (o.kind === 'orbit') {
@@ -394,15 +408,22 @@ function posterParts(ctx: Ctx, o: PosterOpts): Parts {
     defs += `<radialGradient id="${bg}" cx=".5" cy=".35" r=".9"><stop offset="0" stop-color="${dk2}"/><stop offset="1" stop-color="${dk}"/></radialGradient>${grad(pl, [[0, P.d], [1, P.c]])}`;
     art += `<rect width="300" height="424" fill="url(#${bg})"/>`;
     for (let i = 0; i < 70; i++) art += `<circle cx="${f1(r() * 300)}" cy="${f1(r() * 330)}" r="${f1(0.5 + r() * 1.4)}" fill="#FFFFFF" opacity="${f1(0.3 + r() * 0.7)}"/>`;
-    art += `<g fill="none" stroke="${P.paper}" stroke-opacity=".22"><ellipse cx="150" cy="190" rx="132" ry="42"/><ellipse cx="150" cy="190" rx="104" ry="31"/></g><circle cx="150" cy="190" r="62" fill="url(#${pl})"/><ellipse cx="150" cy="190" rx="104" ry="20" fill="none" stroke="${P.a}" stroke-width="7" transform="rotate(-16 150 190)"/><circle cx="236" cy="96" r="12" fill="${P.b}"/>`;
+    art += `<g fill="none" stroke="${P.paper}" stroke-opacity=".22"><ellipse cx="150" cy="190" rx="132" ry="42"/><ellipse cx="150" cy="190" rx="104" ry="31"/></g>`;
+    art += o.motif
+      ? drawMotif(o.motif, 150, 190, 136, P.d, dk)
+      : `<circle cx="150" cy="190" r="62" fill="url(#${pl})"/><ellipse cx="150" cy="190" rx="104" ry="20" fill="none" stroke="${P.a}" stroke-width="7" transform="rotate(-16 150 190)"/>`;
+    art += `<circle cx="236" cy="96" r="12" fill="${P.b}"/>`;
     art += text(150, 380, title, tsize(title, 36, 270), '#FFFFFF') + sub(series('SPACE'), 404, '#FFFFFF');
   } else if (o.kind === 'bloom') {
     art += `<rect width="300" height="424" fill="${dk}"/><path d="M150 230 C146 290 156 330 150 424" stroke="${P.d}" stroke-width="6" fill="none"/><ellipse cx="124" cy="304" rx="28" ry="10" fill="${P.a}" transform="rotate(-30 124 304)"/><ellipse cx="178" cy="282" rx="28" ry="10" fill="${P.a}" transform="rotate(28 178 282)"/>`;
-    for (let i = 0; i < 12; i++) art += `<ellipse cx="150" cy="100" rx="20" ry="52" fill="${i % 2 ? P.f : P.c}" opacity=".94" transform="rotate(${i * 30} 150 150)"/>`;
-    art += `<circle cx="150" cy="150" r="26" fill="${P.e}"/>`;
-    for (let i = 0; i < 10; i++) {
-      const a = (i / 10) * TAU;
-      art += `<circle cx="${f1(150 + Math.cos(a) * 14)}" cy="${f1(150 + Math.sin(a) * 14)}" r="2.4" fill="${P.ink}" opacity=".5"/>`;
+    if (o.motif) art += `<circle cx="150" cy="150" r="84" fill="${P.c}" opacity=".35"/>${drawMotif(o.motif, 150, 150, 132, P.f, dk)}`;
+    else {
+      for (let i = 0; i < 12; i++) art += `<ellipse cx="150" cy="100" rx="20" ry="52" fill="${i % 2 ? P.f : P.c}" opacity=".94" transform="rotate(${i * 30} 150 150)"/>`;
+      art += `<circle cx="150" cy="150" r="26" fill="${P.e}"/>`;
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * TAU;
+        art += `<circle cx="${f1(150 + Math.cos(a) * 14)}" cy="${f1(150 + Math.sin(a) * 14)}" r="2.4" fill="${P.ink}" opacity=".5"/>`;
+      }
     }
     art += text(150, 392, title, tsize(title, 32, 270), P.paper) + sub(series('BOTANICAL'), 412, P.paper);
   } else if (o.kind === 'grid') {
@@ -416,6 +437,7 @@ function posterParts(ctx: Ctx, o: PosterOpts): Parts {
     art += `<rect width="300" height="424" fill="url(#${bg})"/>`;
     for (let i = 0; i < 40; i++) art += `<circle cx="${f1(r() * 300)}" cy="${f1(r() * 180)}" r="${f1(0.4 + r() * 1.1)}" fill="#FFFFFF" opacity="${f1(0.25 + r() * 0.6)}"/>`;
     art += `<circle cx="150" cy="190" r="78" fill="url(#${sun})" mask="url(#${mk})"/>`;
+    if (o.motif) art += drawMotif(o.motif, 150, 176, 104, P.ink, P.e, 0.9);
     art += `<path d="M0 252 L40 224 L72 240 L110 214 L150 246 L188 218 L232 240 L268 222 L300 236 L300 254 L0 254 Z" fill="${P.ink}" opacity=".9"/>`;
     art += `<rect x="0" y="252" width="300" height="172" fill="${P.ink}"/>`;
     let gl = '';
@@ -429,7 +451,9 @@ function posterParts(ctx: Ctx, o: PosterOpts): Parts {
   } else {
     const bg = ctx.id('wb');
     defs += grad(bg, [[0, dk2], [1, dk]], true);
-    art += `<rect width="300" height="424" fill="url(#${bg})"/><circle cx="${f1(80 + r() * 140)}" cy="92" r="34" fill="${P.a}"/>`;
+    const sunX = f1(80 + r() * 140);
+    art += `<rect width="300" height="424" fill="url(#${bg})"/>`;
+    art += o.motif ? drawMotif(o.motif, 150, 96, 104, P.a, dk2) : `<circle cx="${sunX}" cy="92" r="34" fill="${P.a}"/>`;
     const layers = [P.c, P.d, P.f, P.e, P.b];
     layers.forEach((color, i) => {
       const base = 170 + i * 42;
@@ -594,7 +618,7 @@ function sheet(ctx: Ctx, o: { seed: number; title?: string }, label?: string): s
   return svg('0 0 200 262', s, label);
 }
 
-function pack(ctx: Ctx, o: { seed: number; word?: string }, label?: string): string {
+function pack(ctx: Ctx, o: { seed: number; word?: string; motif?: Motif }, label?: string): string {
   const r = rng(o.seed);
   const pairs: Array<[PaletteKey, PaletteKey]> = [['a', 'd'], ['f', 'c'], ['e', 'b'], ['d', 'c'], ['b', 'f']];
   const shapes: StickerShape[] = ['badge', 'star', 'blob'];
@@ -607,7 +631,8 @@ function pack(ctx: Ctx, o: { seed: number; word?: string }, label?: string): str
   ];
   place.forEach(([x, y, rot], i) => {
     const pr = pairs[Math.floor(r() * pairs.length)];
-    const part = stickerParts(ctx, { shape: shapes[i], word: i === 2 ? o.word : undefined, c1: pr[0], c2: pr[1], seed: o.seed + i });
+    // The first two stickers show the theme's symbol, when there is one.
+    const part = stickerParts(ctx, { shape: shapes[i], word: i === 2 ? o.word : undefined, c1: pr[0], c2: pr[1], seed: o.seed + i, motif: i < 2 ? o.motif : undefined });
     defs += part.defs;
     body += `<g transform="translate(${x} ${y}) rotate(${rot} 100 100) scale(.62)">${part.body}</g>`;
   });
@@ -762,17 +787,20 @@ function laptopSkin(ctx: Ctx, o: PosterOpts, label?: string): string {
   );
 }
 
-function decal(ctx: Ctx, o: { seed: number; word?: string; c1: PaletteKey }, label?: string): string {
+function decal(ctx: Ctx, o: { seed: number; word?: string; c1: PaletteKey; motif?: Motif }, label?: string): string {
   const r = rng(o.seed);
   const word = (o.word ?? 'FULL SEND').toUpperCase();
   const color = ctx.col(o.c1);
   let stripes = '';
   for (let i = 0; i < 5; i++) stripes += `<rect x="${f1(20 + i * 10)}" y="${f1(118 + i * 9)}" width="${f1(150 - i * 22 + r() * 10)}" height="5" fill="${i % 2 ? '#FFFFFF' : color}"/>`;
-  const size = tsize(word, 64, 250);
+  // With a symbol, it sits to the left and the word moves right to make room.
+  const size = o.motif ? tsize(word, 52, 170) : tsize(word, 64, 250);
+  const wordX = o.motif ? 190 : 150;
+  const symbol = o.motif ? drawMotif(o.motif, 62, 84, 76, color, '#1C1C2A') : '';
   return svg(
     '0 0 300 200',
     `<rect width="300" height="200" rx="16" fill="#1C1C2A"/><path d="M0 150 Q150 128 300 150 L300 200 L0 200 Z" fill="#14141F"/>
-     <g transform="skewX(-12) translate(22 0)">${text(150, 96, word, size, 'none', { central: true })
+     ${symbol}<g transform="skewX(-12) translate(22 0)">${text(wordX, 96, word, size, 'none', { central: true })
        .replace('fill="none"', `fill="${color}" stroke="#FFFFFF" stroke-width="3" paint-order="stroke"`)}${stripes}</g>`,
     label,
   );
@@ -863,11 +891,15 @@ function stickerOpts(spec: ArtSpec): StickerOpts {
     c2: spec.c2 ?? 'd',
     seed: spec.seed,
     variant: STICKER_VARIANT[spec.kind] ?? 'plain',
+    motif: motifOf(spec),
   };
 }
 
+/** The design's symbol, if it names one this version knows (designs are stored data). */
+const motifOf = (spec: ArtSpec): Motif | undefined => (isMotif(spec.motif) ? spec.motif : undefined);
+
 function posterOpts(spec: ArtSpec, frame?: FrameColor): PosterOpts {
-  return { kind: spec.poster ?? 'speed', seed: spec.seed, title: spec.title, frame: frame ?? spec.frame };
+  return { kind: spec.poster ?? 'speed', seed: spec.seed, title: spec.title, frame: frame ?? spec.frame, motif: motifOf(spec) };
 }
 
 /** Render a product's placeholder artwork as an inline SVG string. */
@@ -883,11 +915,11 @@ export function renderArt(spec: ArtSpec, opts: RenderOptions = {}): string {
     case 'magnet':
       return sticker(ctx, stickerOpts(spec), label);
     case 'decal':
-      return decal(ctx, { seed: spec.seed, word: spec.word, c1: spec.c1 ?? 'a' }, label);
+      return decal(ctx, { seed: spec.seed, word: spec.word, c1: spec.c1 ?? 'a', motif: motifOf(spec) }, label);
     case 'sheet':
       return sheet(ctx, { seed: spec.seed, title: spec.title }, label);
     case 'pack':
-      return pack(ctx, { seed: spec.seed, word: spec.word }, label);
+      return pack(ctx, { seed: spec.seed, word: spec.word, motif: motifOf(spec) }, label);
     case 'poster':
       return poster(ctx, posterOpts(spec, opts.frame), label);
     case 'framed':

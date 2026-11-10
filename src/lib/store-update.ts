@@ -16,9 +16,13 @@ type DB = LibSQLDatabase<typeof s>;
  * - Product types the store no longer sells (RETIRED_TYPES) are deleted with their demo products.
  *   If you had added your own products to one, those products and the type are hidden instead.
  * - Empty contact details are filled in, and settings that point to removed themes or types are updated.
- * The caller then makes the demo products again for the new themes, and rebuilds the search index.
+ *
+ * Version 3 (November 2026): demo designs get their theme's symbol, and there are more of them.
+ *
+ * Both change the demo designs, so when the store has some, the caller makes them again (your own
+ * products are never touched) and rebuilds the search index.
  */
-export const STORE_VERSION = 2;
+export const STORE_VERSION = 3;
 const VERSION_KEY = 'store_version';
 
 export interface StoreUpdateResult {
@@ -37,7 +41,19 @@ export async function applyStoreUpdates(db: DB): Promise<StoreUpdateResult> {
 
   const notes: string[] = [];
   const [{ demo }] = await db.select({ demo: sql<number>`count(*)` }).from(s.products).where(eq(s.products.isSample, true));
+  if (from < 2) await toVersion2(db, notes);
+  // Version 3 changes only how demo designs look: the caller makes them again.
+  if (Number(demo) > 0) notes.push('demo designs made again with their theme symbols');
 
+  await db
+    .insert(s.settings)
+    .values({ key: VERSION_KEY, value: STORE_VERSION })
+    .onConflictDoUpdate({ target: s.settings.key, set: { value: STORE_VERSION } });
+  return { from, applied: true, hadDemo: Number(demo) > 0, notes };
+}
+
+/** The 21 themes, fewer product types, contact details. */
+async function toVersion2(db: DB, notes: string[]): Promise<void> {
   // Themes: the new ones are written as defined in code (seedBase only adds missing ones).
   for (const [i, v] of VIBES.entries()) {
     await db
@@ -87,12 +103,6 @@ export async function applyStoreUpdates(db: DB): Promise<StoreUpdateResult> {
       notes.push(...next.notes);
     }
   }
-
-  await db
-    .insert(s.settings)
-    .values({ key: VERSION_KEY, value: STORE_VERSION })
-    .onConflictDoUpdate({ target: s.settings.key, set: { value: STORE_VERSION } });
-  return { from, applied: true, hadDemo: Number(demo) > 0, notes };
 }
 
 const OLD_HOME_TITLE = 'Pit lane poster series';

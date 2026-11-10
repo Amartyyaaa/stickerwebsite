@@ -51,6 +51,9 @@ export default function ImportProductsPage() {
       <Suspense fallback={<div className="h-96" aria-busy="true" />}>
         <Gate>
           <div className="grid gap-5">
+            <p className="rounded-card border border-lime/40 bg-lime/5 px-4 py-3 text-sm">
+              Just have a folder of design files? <Link href="/admin/products/bulk" className="font-semibold text-lime underline underline-offset-2">Add from photos</Link> makes one product per image, named from the file names, without a spreadsheet.
+            </p>
             <Panel title="1. Upload the photos">
               <p className="mb-4 max-w-[70ch] text-sm text-muted">
                 Upload every photo the file mentions first. Rows are matched to photos by file name, so a row with <code className="text-ink">midnight-drift.jpg</code> in its images column gets the photo you uploaded with that name. Skip this step if you’re only changing prices or names.

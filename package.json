@@ -10,7 +10,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test",
-    "vercel-build": "npm run db:migrate && npm run db:seed && next build",
+    "vercel-build": "if [ \"$VERCEL_ENV\" = production ]; then npm run db:migrate && npm run db:seed; else echo 'Preview build: your database was left unchanged.'; fi && next build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/db-migrate.ts",
     "db:seed": "tsx scripts/seed.ts",

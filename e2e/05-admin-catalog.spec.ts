@@ -1,4 +1,7 @@
 import { devices, expect, test, type Page } from '@playwright/test';
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { all, B, check, clearRateLimits, IMG, nav, one, OWNER, runTag, sidewaysScroll, signIn, waitFor, watchErrors } from './support';
 
 const status = async (page: Page, path: string) => (await page.request.get(`${B}${path}`, { maxRedirects: 0 })).status();
@@ -220,6 +223,58 @@ test('admin: products, CSV import, categories and vibes', async ({ browser }) =>
       check(`phone: no sideways scroll on ${path}`, wide <= 0, `+${wide}px`);
     }
     await phone.close();
+  });
+
+  await test.step('add from photos: a folder with a theme sub-folder', async () => {
+    // designs/Space/rocket-night_<tag>.jpg matches the Space theme; designs/Misc/ doesn't match one.
+    const dir = mkdtempSync(join(tmpdir(), 'pyv-designs-'));
+    mkdirSync(join(dir, 'designs', 'Space'), { recursive: true });
+    mkdirSync(join(dir, 'designs', 'Misc'), { recursive: true });
+    copyFileSync(`${IMG}/photo-03.jpg`, join(dir, 'designs', 'Space', `rocket-night_${tag}.jpg`));
+    copyFileSync(`${IMG}/photo-04.jpg`, join(dir, 'designs', 'Misc', `moonWalk-${tag}.jpg`));
+    writeFileSync(join(dir, 'designs', 'notes.txt'), 'not an image');
+
+    await nav(page, '/admin/products/bulk');
+    await page.selectOption('#bulk-type', 'wall-posters');
+    await page.selectOption('#bulk-theme', 'anime');
+    await page.setInputFiles('input[webkitdirectory]', join(dir, 'designs'));
+    const review = page.locator('section[aria-labelledby="bulk-review"]');
+    await waitFor(async () => (await review.locator('li').count()) === 2, 30000);
+    check('only the images are uploaded', (await page.locator('text=left out').count()) === 1);
+    const rocket = review.locator('li', { hasText: `rocket-night_${tag}.jpg` });
+    const moon = review.locator('li', { hasText: `moonWalk-${tag}.jpg` });
+    check('names come from the file names', (await rocket.locator('input').inputValue()) === `Rocket Night ${tag}` && (await moon.locator('input').inputValue()) === `Moon Walk ${tag}`);
+    check('a folder named after a theme sets it', (await rocket.locator('select').inputValue()) === 'space');
+    check('a folder that isn’t a theme is flagged', (await moon.locator('text=isn’t a theme').count()) === 1);
+    await moon.locator('input').fill(`Moon Walk Poster ${tag}`);
+    await page.click('button:has-text("Add 2 products")');
+    await page.waitForSelector('text=Added 2 products, hidden for now.', { timeout: 20000 });
+
+    const made = await all('select name, slug, type_id, vibe_id, is_active, is_sample, images, price_override from products where name in (?, ?) order by name', [`Moon Walk Poster ${tag}`, `Rocket Night ${tag}`]);
+    check(
+      'each photo becomes a hidden product of the chosen type, with its theme and photo',
+      made.length === 2 &&
+        made.every((p) => p.type_id === 'wall-posters' && p.is_active === 0 && p.is_sample === 0 && p.price_override === null && /\/api\/uploads\//.test(String(p.images))) &&
+        made[0].vibe_id === 'anime' &&
+        made[1].vibe_id === 'space',
+      JSON.stringify(made.map((p) => [p.name, p.vibe_id, p.is_active])),
+    );
+    check('hidden products aren’t in the store yet', (await status(store, `/p/${made[1]?.slug}`)) === 404);
+
+    // Show them with the bulk action, check one in the store, then remove both.
+    await nav(page, `/admin/products?q=${encodeURIComponent(`Rocket Night ${tag}`)}`);
+    await page.check('input[aria-label="Select all on this page"]');
+    await page.click('button:has-text("Show")');
+    await page.waitForSelector('text=Shown: 1.');
+    check('a shown product opens in the store', (await status(store, `/p/${made[1]?.slug}`)) === 200);
+    for (const p of made) {
+      await nav(page, `/admin/products?q=${encodeURIComponent(String(p.name))}`);
+      await page.check('input[aria-label="Select all on this page"]');
+      page.once('dialog', (d) => d.accept());
+      await page.click('button:has-text("Delete")');
+      await page.waitForSelector('text=Deleted: 1.');
+    }
+    rmSync(dir, { recursive: true, force: true });
   });
 
   await test.step('clean up: delete both test products', async () => {

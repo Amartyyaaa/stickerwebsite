@@ -106,6 +106,9 @@ export default function AdminProductsPage(props: PageProps<'/admin/products'>) {
             <Link href="/admin/products/import" className="btn btn-ghost btn-sm">
               Import or export CSV
             </Link>
+            <Link href="/admin/products/bulk" className="btn btn-ghost btn-sm">
+              Add from photos
+            </Link>
             <Link href="/admin/products/new" className="btn btn-primary btn-sm">
               Add product
             </Link>

@@ -137,6 +137,8 @@ function artFor(type: ProductTypeDef, vibe: VibeDef, name: string, seed: number,
   const poster: PosterKind = vibe.posters && rand() < 0.75 ? pick(vibe.posters) : pick<PosterKind>(['speed', 'sunset', 'orbit', 'bloom', 'grid', 'wave']);
   const dark = Math.floor(rand() * 5);
   const title = name.length > 18 ? name.split(' ').slice(-2).join(' ') : name;
+  // Most designs show one of the theme's symbols, so neighbouring designs look different.
+  const motif = vibe.motifs.length && rand() < 0.85 ? pick(vibe.motifs) : undefined;
   switch (type.art) {
     case 'sticker':
     case 'holo':
@@ -147,14 +149,14 @@ function artFor(type: ProductTypeDef, vibe: VibeDef, name: string, seed: number,
     case 'keychain': {
       const shape = weighted(SHAPES);
       const word = shape === 'heart' || shape === 'cat' ? undefined : stickerWord(name, vibe, rand, pick);
-      return { kind: type.art, seed, shape, word, c1, c2 };
+      return { kind: type.art, seed, shape, word, c1, c2, motif: shape === 'heart' || shape === 'cat' ? undefined : motif };
     }
     case 'decal':
-      return { kind: 'decal', seed, word: pick(vibe.words), c1 };
+      return { kind: 'decal', seed, word: pick(vibe.words), c1, motif };
     case 'sheet':
       return { kind: 'sheet', seed, title: name };
     case 'pack':
-      return { kind: 'pack', seed, word: pick(vibe.words), c1, c2 };
+      return { kind: 'pack', seed, word: pick(vibe.words), c1, c2, motif };
     case 'polaroids':
       return { kind: 'polaroids', seed, caption: pick(vibe.words).toLowerCase(), dark };
     case 'polaroid-kit':
@@ -164,9 +166,9 @@ function artFor(type: ProductTypeDef, vibe: VibeDef, name: string, seed: number,
     case 'badge':
       return { kind: 'badge', seed, poster, title, word: rand() < 0.5 ? pick(vibe.words) : undefined, dark };
     case 'framed':
-      return { kind: 'framed', seed, poster, title, dark, frame: pick(['black', 'white', 'wood'] as const) };
+      return { kind: 'framed', seed, poster, title, dark, frame: pick(['black', 'white', 'wood'] as const), motif };
     default:
-      return { kind: type.art, seed, poster, title, dark };
+      return { kind: type.art, seed, poster, title, dark, motif };
   }
 }
 

@@ -36,7 +36,7 @@ Vercel publishes the `main` branch, so this guide's changes need to be there fir
 | `BETTER_AUTH_SECRET` | a random 40-character password (use your password manager's generator) |
 | `ADMIN_EMAILS` | your email address |
 | `CRON_SECRET` | another random 40-character password |
-| `SEED_SAMPLE` | `1` if you'd like the 4,410 demo designs to start with (added once; remove them later in **Admin → Products**) |
+| `SEED_SAMPLE` | `1` if you'd like the 5,410 demo designs to start with (added once; remove them later in **Admin → Products**) |
 
 4. Click **Deploy**.
    - It builds for 3–5 minutes.
@@ -77,6 +77,7 @@ Then work through the dashboard's **Before you go live** list:
 - **Backups:** Turso keeps backups of the database, and Blob keeps the photos.
 - **Online payments and emails:** add Razorpay and Resend later, with the same settings as [DEPLOY.md](DEPLOY.md) steps 6 and 7, in **Settings → Environment Variables**. Then **Redeploy**.
 - **Preview links:** sign-in only works on your main address. It doesn't work on Vercel's per-branch preview links.
+- **Previews never change your store's data.** Only builds of `main` (Production) update the database. A preview build prints "Preview build: your database was left unchanged" and shows your live products with the new code, so a change waiting in a pull request can't touch your real store until you merge it.
 
 ## Your own domain, later
 

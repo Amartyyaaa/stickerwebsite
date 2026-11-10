@@ -3,7 +3,8 @@
 import { updateTag } from 'next/cache';
 import { z } from 'zod';
 import { asAdmin } from '@/lib/admin/action';
-import { bulkProducts, deleteDemoProducts, saveProduct, type SaveProductResult } from '@/lib/admin/products';
+import { BULK_BATCH } from '@/lib/admin/bulk-photos';
+import { bulkProducts, createProductsFromPhotos, deleteDemoProducts, saveProduct, type FromPhotosResult, type SaveProductResult } from '@/lib/admin/products';
 
 const ProductForm = z.object({
   id: z.number().int().positive().nullable(),
@@ -45,6 +46,23 @@ export async function bulkProductsAction(raw: unknown): Promise<BulkResult> {
   return asAdmin(async () => {
     const r = await bulkProducts(p.data.ids, p.data.action, p.data.vibeId);
     if (r.ok) updateTag('catalog');
+    return r;
+  });
+}
+
+const FromPhotos = z.object({
+  typeId: z.string().max(80),
+  isActive: z.boolean(),
+  rows: z.array(z.object({ uploadId: z.string().max(40), name: z.string().max(200), vibeId: z.string().max(80) })).min(1).max(BULK_BATCH),
+});
+
+/** "Add from photos": one product per uploaded design file. */
+export async function createProductsFromPhotosAction(raw: unknown): Promise<FromPhotosResult> {
+  const p = FromPhotos.safeParse(raw);
+  if (!p.success) return { ok: false, error: `Choose a product type and send up to ${BULK_BATCH} photos at a time.` };
+  return asAdmin(async () => {
+    const r = await createProductsFromPhotos(p.data.typeId, p.data.rows, p.data.isActive);
+    if (r.ok && r.created) updateTag('catalog');
     return r;
   });
 }

@@ -3,6 +3,8 @@
  * sample product and turned into an inline SVG by `renderArt`. Real products
  * use uploaded images instead and leave `art` empty.
  */
+import type { Motif } from './motifs';
+
 export type PaletteKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'dark' | 'dark2';
 
 export type StickerShape = 'blob' | 'star' | 'badge' | 'pill' | 'heart' | 'cat' | 'moon';
@@ -54,6 +56,8 @@ export interface ArtSpec {
   frame?: FrameColor;
   scene?: Scene;
   caption?: string;
+  /** A theme symbol (src/lib/art/motifs.ts) drawn on stickers, decals and posters. Older designs have none. */
+  motif?: Motif;
 }
 
 /** Art kinds that get the animated holographic sheen in the UI. */

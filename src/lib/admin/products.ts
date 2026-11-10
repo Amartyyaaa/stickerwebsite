@@ -7,6 +7,7 @@ import type { GroupId, PriceProfile } from '@/lib/catalog/types';
 import { db } from '@/lib/db/client';
 import * as s from '@/lib/db/schema';
 import { uniqueSlug } from '@/lib/slug';
+import { BULK_BATCH } from './bulk-photos';
 import {
   autoSlug,
   cleanName,
@@ -334,6 +335,72 @@ export async function saveProduct(id: number | null, input: ProductFormInput): P
   const productId = await db.transaction((tx) => writeProduct(tx, id, write, Math.floor(Date.now() / 1000)));
   await reindexProducts([productId]);
   return { ok: true, id: productId, slug };
+}
+
+/* ---------- add from photos ---------- */
+
+export interface PhotoProduct {
+  uploadId: string;
+  name: string;
+  vibeId: string;
+}
+
+export type FromPhotosResult =
+  | { ok: true; created: number; skipped: Array<{ uploadId: string; name: string; reason: string }> }
+  | { ok: false; error: string };
+
+/**
+ * Make one product per uploaded photo ("Add from photos"): the type's standard price and description,
+ * a web address from the name, and tags from the name and theme. Rows that can't be used are skipped,
+ * with the reason, and the rest are still added.
+ */
+export async function createProductsFromPhotos(typeId: string, rows: PhotoProduct[], isActive: boolean): Promise<FromPhotosResult> {
+  if (!rows.length) return { ok: false, error: 'Upload some photos first.' };
+  if (rows.length > BULK_BATCH) return { ok: false, error: `Send up to ${BULK_BATCH} photos at a time.` };
+  const type = await db.query.productTypes.findFirst({ where: and(eq(s.productTypes.id, typeId), ne(s.productTypes.groupId, 'custom')) });
+  if (!type) return { ok: false, error: 'Choose a product type.' };
+
+  const themes = new Map((await db.select({ id: s.vibes.id, name: s.vibes.name }).from(s.vibes)).map((v) => [v.id, v.name]));
+  const photos = await knownPhotos(rows.map((r) => r.uploadId));
+  const used = new Set((await db.select({ slug: s.products.slug }).from(s.products)).map((r) => r.slug));
+  const priceFrom = startingPriceOf(type, null);
+  const skipped: Array<{ uploadId: string; name: string; reason: string }> = [];
+  const writes: ProductWrite[] = [];
+  for (const r of rows) {
+    const name = cleanName(r.name);
+    const issue = nameError(name);
+    if (issue) skipped.push({ uploadId: r.uploadId, name: r.name || '(no name)', reason: issue });
+    else if (!photos.has(r.uploadId)) skipped.push({ uploadId: r.uploadId, name, reason: 'The photo is missing. Upload it again.' });
+    else if (!themes.has(r.vibeId)) skipped.push({ uploadId: r.uploadId, name, reason: 'Choose a theme.' });
+    else {
+      const slug = uniqueSlug(autoSlug(name, type.singular), (x) => used.has(x));
+      used.add(slug);
+      writes.push({
+        slug,
+        name,
+        typeId: type.id,
+        vibes: [r.vibeId],
+        description: type.description,
+        tags: cleanTags(`${themes.get(r.vibeId)}, ${name}`),
+        priceOverride: null,
+        priceFrom,
+        popularity: 0,
+        images: [photoSrc(r.uploadId)],
+        isActive,
+      });
+    }
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  const ids: number[] = [];
+  if (writes.length) {
+    // One at a time inside the transaction, as the CSV import does; later rows get a later time.
+    await db.transaction(async (tx) => {
+      for (const [i, w] of writes.entries()) ids.push(await writeProduct(tx, null, w, now + i));
+    });
+    await reindexProducts(ids);
+  }
+  return { ok: true, created: ids.length, skipped };
 }
 
 /* ---------- bulk changes ---------- */
